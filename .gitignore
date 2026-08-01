@@ -21,6 +21,9 @@ test-results/
 *.log
 npm-debug.log*
 
+# Subagent-driven-development scratch (progress ledger, briefs, reports)
+.superpowers/
+
 # Editor
 .vscode/*
 !.vscode/extensions.json

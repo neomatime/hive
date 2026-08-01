@@ -1,0 +1,920 @@
+# HIVE
+
+# Technical Design Specification (TDS)
+
+**Version:** 1.0 (MVP)
+
+**Product:** HIVE
+
+**Organisation:** HIMARK
+
+---
+
+# 1. Purpose
+
+This document defines the technical architecture, engineering standards and implementation approach for HIVE.
+
+The objective is to ensure the application remains:
+
+* Modular
+* Scalable
+* Maintainable
+* Secure
+* Consistent
+
+This document serves as the engineering blueprint for all future development.
+
+---
+
+# 2. Technology Stack
+
+## Frontend
+
+* Next.js (App Router)
+* React 19
+* TypeScript
+* Tailwind CSS
+* shadcn/ui
+* React Hook Form
+* Zod
+* TanStack Query
+
+---
+
+## Backend
+
+* Supabase
+
+Services
+
+* Authentication
+* PostgreSQL
+* Storage
+* Realtime
+
+---
+
+## Deployment
+
+Frontend
+
+* Vercel
+
+Backend
+
+* Supabase Cloud
+
+---
+
+## Version Control
+
+Git
+
+Repository
+
+```text
+hive
+```
+
+Branch Strategy
+
+```text
+main
+
+develop
+
+feature/*
+
+hotfix/*
+```
+
+---
+
+# 3. High-Level Architecture
+
+```text
+                    Browser
+                       │
+                Next.js Application
+                       │
+        ┌──────────────┼──────────────┐
+        │              │              │
+     UI Layer      Feature Layer   Services
+        │              │              │
+        └──────────────┼──────────────┘
+                       │
+               Supabase Client
+                       │
+      ┌──────────────┼──────────────┐
+      │              │              │
+ PostgreSQL      Authentication     Storage
+```
+
+---
+
+# 4. Application Architecture
+
+The application follows Feature-Driven Architecture.
+
+```text
+UI
+
+↓
+
+Features
+
+↓
+
+Services
+
+↓
+
+Database
+```
+
+Business logic must never exist inside page components.
+
+---
+
+# 5. Folder Structure
+
+```text
+app/
+components/
+features/
+hooks/
+services/
+store/
+types/
+utils/
+constants/
+assets/
+docs/
+styles/
+```
+
+Each feature owns:
+
+* Components
+* Hooks
+* Services
+* Types
+* Utilities
+
+---
+
+# 6. Routing
+
+```text
+/
+
+login
+
+overview
+
+projects
+
+board
+
+inbox
+
+calendar
+
+files
+
+settings
+```
+
+Project Routes
+
+```text
+/projects/:projectId
+
+/projects/:projectId/overview
+
+/projects/:projectId/board
+
+/projects/:projectId/files
+
+/projects/:projectId/calendar
+
+/projects/:projectId/activity
+
+/projects/:projectId/settings
+```
+
+---
+
+# 7. State Management
+
+## Local State
+
+React
+
+```typescript
+useState()
+```
+
+---
+
+## Shared State
+
+Zustand
+
+Used for:
+
+* Sidebar
+* User
+* Workspace
+* Theme
+* Notifications
+
+---
+
+## Server State
+
+TanStack Query
+
+Responsible for
+
+* Projects
+* Tasks
+* Files
+* Calendar
+* Templates
+
+---
+
+# 8. Authentication Flow
+
+```text
+Login
+
+↓
+
+Supabase Auth
+
+↓
+
+JWT
+
+↓
+
+Middleware
+
+↓
+
+Protected Route
+
+↓
+
+Application
+```
+
+---
+
+Protected Routes
+
+Everything except
+
+```text
+/login
+```
+
+---
+
+# 9. Database Layer
+
+Every feature communicates through services.
+
+Example
+
+```text
+Board
+
+↓
+
+BoardService
+
+↓
+
+Supabase
+
+↓
+
+Database
+```
+
+Never query the database directly inside components.
+
+---
+
+# 10. Services
+
+Example
+
+```text
+ProjectService
+
+TaskService
+
+BoardService
+
+CalendarService
+
+FileService
+
+NotificationService
+```
+
+Responsibilities
+
+* Database Access
+* Validation
+* Mapping
+* Error Handling
+
+---
+
+# 11. API Design
+
+Although Supabase provides direct access, services should expose a consistent API.
+
+Example
+
+```typescript
+ProjectService.getProjects()
+
+ProjectService.createProject()
+
+ProjectService.archiveProject()
+
+TaskService.moveTask()
+
+TaskService.assignTask()
+```
+
+UI should never contain SQL logic.
+
+---
+
+# 12. Component Hierarchy
+
+```text
+Page
+
+↓
+
+Feature
+
+↓
+
+Section
+
+↓
+
+Card
+
+↓
+
+Reusable Component
+```
+
+Example
+
+```text
+Projects Page
+
+↓
+
+Projects Table
+
+↓
+
+Project Card
+
+↓
+
+Avatar
+
+↓
+
+Badge
+
+↓
+
+Button
+```
+
+---
+
+# 13. Design System
+
+Colours
+
+Primary
+
+```text
+#1C2B3A
+```
+
+Secondary
+
+```text
+#5F8190
+```
+
+Sidebar
+
+```text
+#8AADB8
+```
+
+Background
+
+```text
+#F7F7F5
+```
+
+Text
+
+```text
+#0E1822
+```
+
+Cards
+
+```text
+#FFFFFF
+```
+
+---
+
+Spacing
+
+8-point grid
+
+```text
+8
+
+16
+
+24
+
+32
+
+40
+
+48
+```
+
+---
+
+Border Radius
+
+```text
+Small
+
+8px
+
+Medium
+
+12px
+
+Large
+
+16px
+```
+
+---
+
+Typography
+
+Headings
+
+Inter SemiBold
+
+Body
+
+Inter Regular
+
+---
+
+# 14. Board Architecture
+
+```text
+Board
+
+↓
+
+Columns
+
+↓
+
+Tasks
+
+↓
+
+Subtasks
+```
+
+Drag
+
+```text
+Drag Task
+
+↓
+
+Optimistic Update
+
+↓
+
+Supabase Update
+
+↓
+
+Success
+
+↓
+
+Refresh Cache
+```
+
+---
+
+# 15. File Storage
+
+All files stored in
+
+Supabase Storage
+
+Database stores
+
+* Metadata
+* Owner
+* Project
+* Task
+* Path
+
+Never binary content.
+
+---
+
+# 16. Search
+
+Global Search
+
+Searches
+
+* Projects
+
+* Tasks
+
+* Files
+
+* Team Members
+
+Future
+
+Full Text Search
+
+---
+
+# 17. Notifications
+
+Generated by
+
+* Task Assigned
+
+* Mention
+
+* Due Today
+
+* Overdue
+
+* Review Request
+
+Displayed
+
+* Bell Icon
+
+* Inbox
+
+---
+
+# 18. Logging
+
+Activity Log
+
+Records
+
+* Project Created
+
+* Task Created
+
+* Task Updated
+
+* Task Moved
+
+* File Uploaded
+
+* Comment Added
+
+Immutable.
+
+---
+
+# 19. Security
+
+All requests validated server-side.
+
+Never trust frontend validation.
+
+Role checks
+
+Workspace
+
+↓
+
+Project
+
+↓
+
+Feature
+
+↓
+
+Action
+
+---
+
+Passwords
+
+Managed entirely by Supabase.
+
+---
+
+# 20. Error Handling
+
+User-Friendly Errors
+
+Examples
+
+```text
+Unable to create project.
+
+Please try again.
+```
+
+Never expose
+
+* SQL
+
+* Stack traces
+
+* Internal IDs
+
+---
+
+# 21. Performance
+
+Target
+
+Dashboard
+
+<2 seconds
+
+Board
+
+<200 ms drag response
+
+Search
+
+<300 ms
+
+Navigation
+
+Instant
+
+---
+
+Optimisations
+
+* Lazy Loading
+* Dynamic Imports
+* Image Optimisation
+* Query Caching
+* Optimistic Updates
+
+---
+
+# 22. Accessibility
+
+Support
+
+* Keyboard Navigation
+* Focus States
+* Screen Readers
+* High Contrast
+* Responsive Layout
+
+Target
+
+WCAG 2.1 AA
+
+---
+
+# 23. Coding Standards
+
+Language
+
+TypeScript Only
+
+Formatting
+
+Prettier
+
+Linting
+
+ESLint
+
+Naming
+
+Components
+
+```text
+PascalCase
+```
+
+Functions
+
+```text
+camelCase
+```
+
+Files
+
+```text
+kebab-case
+```
+
+Constants
+
+```text
+UPPER_SNAKE_CASE
+```
+
+Interfaces
+
+```text
+IProject
+
+ITask
+
+IUser
+```
+
+---
+
+# 24. Testing Strategy
+
+Unit Tests
+
+* Utilities
+* Services
+
+Integration Tests
+
+* Features
+* Authentication
+* Database
+
+End-to-End Tests
+
+* Login
+* Project Creation
+* Task Creation
+* Drag and Drop
+* File Upload
+* Calendar Event
+* Notifications
+
+Frameworks
+
+* Vitest
+* Playwright
+
+---
+
+# 25. Environment Variables
+
+```text
+NEXT_PUBLIC_SUPABASE_URL
+
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+SUPABASE_SERVICE_ROLE_KEY
+
+NEXT_PUBLIC_APP_URL
+
+NEXT_PUBLIC_STORAGE_BUCKET
+```
+
+Never expose service role keys to the client.
+
+---
+
+# 26. CI/CD Pipeline
+
+```text
+Developer Push
+
+↓
+
+GitHub
+
+↓
+
+Lint
+
+↓
+
+Type Check
+
+↓
+
+Tests
+
+↓
+
+Build
+
+↓
+
+Deploy Preview
+
+↓
+
+Approval
+
+↓
+
+Production
+```
+
+---
+
+# 27. MVP Milestones
+
+### Milestone 1
+
+* Authentication
+* Workspace
+* User Management
+
+---
+
+### Milestone 2
+
+* Projects
+* Board
+* Tasks
+
+---
+
+### Milestone 3
+
+* Calendar
+* Files
+* Notifications
+
+---
+
+### Milestone 4
+
+* Settings
+* Templates
+* Activity
+
+---
+
+### Milestone 5
+
+* Testing
+* Optimisation
+* Production Release
+
+---
+
+# 28. Technical Principles
+
+HIVE should always follow these engineering principles:
+
+1. Single Responsibility Principle for services and components.
+2. Prefer composition over inheritance.
+3. Keep components presentational; place business logic in feature services.
+4. Reuse existing UI components before creating new ones.
+5. Use optimistic updates for highly interactive workflows like the Kanban board.
+6. Every database mutation must be validated and authorized server-side.
+7. Every new feature should include tests and documentation.
+8. Favor simplicity over abstraction. Build only what HIMARK needs today, while keeping the architecture flexible enough to support future growth.

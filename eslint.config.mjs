@@ -1,12 +1,14 @@
-import { FlatCompat } from '@eslint/eslintrc'
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals'
+import nextTypescript from 'eslint-config-next/typescript'
 
-const compat = new FlatCompat({ baseDirectory: import.meta.dirname })
-
-export default [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+const config = [
+  ...nextCoreWebVitals,
+  ...nextTypescript,
   {
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
     },
   },
 ]
+
+export default config

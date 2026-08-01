@@ -1,0 +1,21 @@
+.transition-fast {
+  transition-duration: var(--motion-fast);
+  transition-timing-function: var(--motion-easing);
+}
+
+.transition-standard {
+  transition-duration: var(--motion-standard);
+  transition-timing-function: var(--motion-easing);
+}
+
+.transition-slow {
+  transition-duration: var(--motion-slow);
+  transition-timing-function: var(--motion-easing);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

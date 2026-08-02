@@ -1,4 +1,4 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+﻿export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
@@ -96,6 +96,86 @@ export type Database = {
             columns: ['project_id']
             isOneToOne: false
             referencedRelation: 'projects'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      files: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          file_type: Database['public']['Enums']['file_type']
+          id: string
+          mime_type: string
+          name: string
+          project_id: string
+          size_bytes: number
+          storage_key: string
+          task_id: string | null
+          updated_at: string
+          uploaded_by: string
+          version_number: number
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          file_type?: Database['public']['Enums']['file_type']
+          id?: string
+          mime_type: string
+          name: string
+          project_id: string
+          size_bytes: number
+          storage_key: string
+          task_id?: string | null
+          updated_at?: string
+          uploaded_by: string
+          version_number?: number
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          file_type?: Database['public']['Enums']['file_type']
+          id?: string
+          mime_type?: string
+          name?: string
+          project_id?: string
+          size_bytes?: number
+          storage_key?: string
+          task_id?: string | null
+          updated_at?: string
+          uploaded_by?: string
+          version_number?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'files_project_id_fkey'
+            columns: ['project_id']
+            isOneToOne: false
+            referencedRelation: 'projects'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'files_task_id_fkey'
+            columns: ['task_id']
+            isOneToOne: false
+            referencedRelation: 'tasks'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'files_uploaded_by_fkey'
+            columns: ['uploaded_by']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'files_workspace_id_fkey'
+            columns: ['workspace_id']
+            isOneToOne: false
+            referencedRelation: 'workspaces'
             referencedColumns: ['id']
           },
         ]
@@ -728,6 +808,15 @@ export type Database = {
       }
     }
     Enums: {
+      file_type:
+        | 'folder'
+        | 'document'
+        | 'image'
+        | 'spreadsheet'
+        | 'presentation'
+        | 'pdf'
+        | 'archive'
+        | 'other'
       project_member_role: 'project_owner' | 'project_manager' | 'contributor' | 'viewer'
       project_status: 'not_started' | 'active' | 'on_hold' | 'completed' | 'archived'
       task_priority: 'low' | 'medium' | 'high' | 'urgent'

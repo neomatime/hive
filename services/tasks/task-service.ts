@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
+﻿import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
 import type { BoardColumn, ProjectBoard, Task } from '@/types/task'
 import type { TaskPriority } from '@/types/project'
@@ -18,6 +18,7 @@ function mapTask(row: Database['public']['Tables']['tasks']['Row']): Task {
     position: row.position,
     progressPercentage: row.progress_percentage,
     isBlocked: row.is_blocked,
+    labels: [],
   }
 }
 
@@ -43,6 +44,27 @@ export async function getProjectBoard(
   ])
   if (columnsResult.error || tasksResult.error) return null
   const tasks = (tasksResult.data ?? []).map(mapTask)
+  if (tasks.length) {
+    const links = await client
+      .from('task_labels')
+      .select('task_id,label_id')
+      .in(
+        'task_id',
+        tasks.map((task) => task.id)
+      )
+    const labelIds = [...new Set((links.data ?? []).map((link) => link.label_id))]
+    if (labelIds.length) {
+      const labels = await client.from('labels').select('id,name,color_token').in('id', labelIds)
+      for (const task of tasks) {
+        const ids = new Set(
+          (links.data ?? []).filter((link) => link.task_id === task.id).map((link) => link.label_id)
+        )
+        task.labels = (labels.data ?? [])
+          .filter((label) => ids.has(label.id))
+          .map((label) => ({ id: label.id, name: label.name, colorToken: label.color_token }))
+      }
+    }
+  }
   const columns: BoardColumn[] = (columnsResult.data ?? []).map((column) => ({
     id: column.id,
     boardId: column.board_id,

@@ -1,6 +1,11 @@
-import type { TaskPriority } from './project'
+﻿import type { TaskPriority } from './project'
 
 export type TaskStatus = 'backlog' | 'todo' | 'in_progress' | 'review' | 'done'
+export interface TaskLabel {
+  id: string
+  name: string
+  colorToken: string
+}
 export interface Task {
   id: string
   projectId: string
@@ -14,6 +19,7 @@ export interface Task {
   position: number
   progressPercentage: number
   isBlocked: boolean
+  labels: TaskLabel[]
 }
 export interface BoardColumn {
   id: string

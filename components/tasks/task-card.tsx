@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { CalendarDays } from 'lucide-react'
 import type { Task } from '@/types/task'
 export function TaskCard({
@@ -25,6 +25,19 @@ export function TaskCard({
         <h3 className="text-sm font-medium">{task.title}</h3>
         <span className="text-xs capitalize text-muted-foreground">{task.priority}</span>
       </div>
+      {task.labels.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {task.labels.map((label) => (
+            <span
+              key={label.id}
+              className="rounded-full px-2 py-0.5 text-[11px] font-medium text-white"
+              style={{ backgroundColor: label.colorToken }}
+            >
+              {label.name}
+            </span>
+          ))}
+        </div>
+      )}
       {task.dueDate && (
         <p className="flex items-center gap-1 text-xs text-muted-foreground">
           <CalendarDays className="size-3" />

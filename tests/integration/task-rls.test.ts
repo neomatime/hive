@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+﻿import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { Database } from '@/types/database'
@@ -8,7 +8,12 @@ describe('RLS: task roles', () => {
     authIds: string[] = [],
     userIds: string[] = [],
     emails: string[] = []
-  let workspaceId: string, projectId: string, boardId: string, columnId: string, taskId: string
+  let workspaceId: string,
+    projectId: string,
+    boardId: string,
+    columnId: string,
+    taskId: string,
+    labelId: string
   beforeAll(async () => {
     const suffix = Date.now(),
       workspace = await admin.from('workspaces').select('id').limit(1).single()
@@ -40,6 +45,17 @@ describe('RLS: task roles', () => {
       .select('id')
       .single()
     projectId = project.data!.id
+    const label = await admin
+      .from('labels')
+      .insert({
+        workspace_id: workspaceId,
+        name: `Task label ${suffix}`,
+        color_token: '#2563eb',
+        created_by: userIds[0]!,
+      })
+      .select('id')
+      .single()
+    labelId = label.data!.id
     await admin.from('project_members').insert([
       { project_id: projectId, user_id: userIds[0]!, role: 'project_owner', added_by: userIds[0]! },
       { project_id: projectId, user_id: userIds[1]!, role: 'viewer', added_by: userIds[0]! },
@@ -82,7 +98,13 @@ describe('RLS: task roles', () => {
     expect(result.error).toBeNull()
     taskId = result.data!.id
   })
-  it('lets a viewer read but not update or comment', async () => {
+  it('lets a task editor assign a workspace label', async () => {
+    const session = client()
+    await session.auth.signInWithPassword({ email: emails[0]!, password })
+    const result = await session.from('task_labels').insert({ task_id: taskId, label_id: labelId })
+    expect(result.error).toBeNull()
+  })
+  it('lets a viewer read but not update, comment, or change labels', async () => {
     const session = client()
     await session.auth.signInWithPassword({ email: emails[1]!, password })
     const read = await session.from('tasks').select('id').eq('id', taskId)
@@ -97,5 +119,12 @@ describe('RLS: task roles', () => {
       .from('task_comments')
       .insert({ task_id: taskId, author_id: userIds[1]!, content: 'Forbidden' })
     expect(comment.error).not.toBeNull()
+    const removeLabel = await session
+      .from('task_labels')
+      .delete()
+      .eq('task_id', taskId)
+      .eq('label_id', labelId)
+      .select()
+    expect(removeLabel.data).toEqual([])
   })
 })

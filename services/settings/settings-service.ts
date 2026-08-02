@@ -58,3 +58,21 @@ export async function getNotificationPreferences(client: Client, userId: string)
     .maybeSingle()
   return result.data ?? { user_id: userId, ...DEFAULT_NOTIFICATION_PREFERENCES }
 }
+export const DEFAULT_TASK_PREFERENCES = {
+  default_task_priority: 'medium' as const,
+  default_task_status: 'todo' as const,
+  week_starts_on: 1,
+  working_hours_start: '08:00:00',
+  working_hours_end: '17:00:00',
+  show_completed_tasks: false,
+}
+export async function getTaskPreferences(client: Client, userId: string) {
+  const result = await client
+    .from('user_preferences')
+    .select(
+      'user_id,default_task_priority,default_task_status,week_starts_on,working_hours_start,working_hours_end,show_completed_tasks'
+    )
+    .eq('user_id', userId)
+    .maybeSingle()
+  return result.data ?? { user_id: userId, ...DEFAULT_TASK_PREFERENCES }
+}

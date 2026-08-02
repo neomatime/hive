@@ -685,6 +685,50 @@ export type Database = {
           },
         ]
       }
+      user_preferences: {
+        Row: {
+          created_at: string
+          default_task_priority: Database['public']['Enums']['task_priority']
+          default_task_status: Database['public']['Enums']['task_status_type']
+          show_completed_tasks: boolean
+          updated_at: string
+          user_id: string
+          week_starts_on: number
+          working_hours_end: string | null
+          working_hours_start: string | null
+        }
+        Insert: {
+          created_at?: string
+          default_task_priority?: Database['public']['Enums']['task_priority']
+          default_task_status?: Database['public']['Enums']['task_status_type']
+          show_completed_tasks?: boolean
+          updated_at?: string
+          user_id: string
+          week_starts_on?: number
+          working_hours_end?: string | null
+          working_hours_start?: string | null
+        }
+        Update: {
+          created_at?: string
+          default_task_priority?: Database['public']['Enums']['task_priority']
+          default_task_status?: Database['public']['Enums']['task_status_type']
+          show_completed_tasks?: boolean
+          updated_at?: string
+          user_id?: string
+          week_starts_on?: number
+          working_hours_end?: string | null
+          working_hours_start?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'user_preferences_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: true
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       users: {
         Row: {
           auth_user_id: string

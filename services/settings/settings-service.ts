@@ -37,3 +37,24 @@ export async function listWorkspaceTeam(client: Client, workspaceId: string) {
     user: users.data?.find((user) => user.id === item.user_id) ?? null,
   }))
 }
+export const DEFAULT_NOTIFICATION_PREFERENCES = {
+  in_app_enabled: true,
+  email_enabled: true,
+  browser_enabled: false,
+  assigned_task: true,
+  mention: true,
+  due_today: true,
+  overdue: true,
+  review_requested: true,
+  task_completed: true,
+}
+export async function getNotificationPreferences(client: Client, userId: string) {
+  const result = await client
+    .from('notification_preferences')
+    .select(
+      'user_id,in_app_enabled,email_enabled,browser_enabled,assigned_task,mention,due_today,overdue,review_requested,task_completed'
+    )
+    .eq('user_id', userId)
+    .maybeSingle()
+  return result.data ?? { user_id: userId, ...DEFAULT_NOTIFICATION_PREFERENCES }
+}

@@ -1,8 +1,9 @@
-import {
+﻿import {
   LayoutDashboard,
   FolderKanban,
   Kanban,
   ListTodo,
+  Inbox,
   Calendar,
   FileText,
   Settings,
@@ -20,6 +21,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Projects', href: '/dashboard/projects', icon: FolderKanban },
   { label: 'Board', href: '/dashboard/board', icon: Kanban },
   { label: 'My Tasks', href: '/dashboard/my-tasks', icon: ListTodo },
+  { label: 'Inbox', href: '/dashboard/inbox', icon: Inbox },
   { label: 'Calendar', href: '/dashboard/calendar', icon: Calendar },
   { label: 'Files', href: '/dashboard/files', icon: FileText },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },

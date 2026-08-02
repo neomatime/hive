@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Bell } from 'lucide-react'
@@ -67,7 +67,13 @@ export function NotificationCenter() {
       {open && (
         <div className="absolute right-0 top-11 z-50 w-80 overflow-hidden rounded-xl border bg-card shadow-lg">
           <div className="flex items-center justify-between border-b p-4">
-            <h2 className="text-sm font-medium">Notifications</h2>
+            <Link
+              href="/dashboard/inbox"
+              onClick={() => setOpen(false)}
+              className="text-sm font-medium hover:text-primary"
+            >
+              Notifications
+            </Link>
             {unread > 0 && (
               <button className="text-xs text-primary" onClick={markAllRead}>
                 Mark all read
@@ -75,7 +81,7 @@ export function NotificationCenter() {
             )}
           </div>
           {items.length === 0 ? (
-            <p className="p-6 text-center text-sm text-muted-foreground">You’re all caught up.</p>
+            <p className="p-6 text-center text-sm text-muted-foreground">Youâ€™re all caught up.</p>
           ) : (
             <div className="max-h-96 divide-y overflow-y-auto">
               {items.map((item) => (

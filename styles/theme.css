@@ -1,30 +1,30 @@
 :root {
   /* Brand */
-  --color-midnight: #1C2B3A;
-  --color-ink-deep: #0E1822;
-  --color-ocean: #5F8190;
-  --color-ocean-light: #8AADB8;
-  --color-ocean-dark: #2E4A5A;
-  --color-off-white: #F7F7F5;
-  --color-white: #FFFFFF;
+  --color-midnight: #1c2b3a;
+  --color-ink-deep: #0e1822;
+  --color-ocean: #5f8190;
+  --color-ocean-light: #8aadb8;
+  --color-ocean-dark: #2e4a5a;
+  --color-off-white: #f7f7f5;
+  --color-white: #ffffff;
 
   /* Neutrals */
   --neutral-950: #111820;
-  --neutral-800: #27323C;
-  --neutral-700: #3F4B55;
-  --neutral-600: #5C6872;
-  --neutral-500: #77838C;
-  --neutral-400: #A4ADB4;
-  --neutral-300: #C8CFD4;
-  --neutral-200: #DCE1E4;
-  --neutral-100: #EDF0F2;
-  --neutral-50: #F8F9F9;
+  --neutral-800: #27323c;
+  --neutral-700: #3f4b55;
+  --neutral-600: #5c6872;
+  --neutral-500: #77838c;
+  --neutral-400: #a4adb4;
+  --neutral-300: #c8cfd4;
+  --neutral-200: #dce1e4;
+  --neutral-100: #edf0f2;
+  --neutral-50: #f8f9f9;
 
   /* Semantic */
-  --success: #3F6B5A;
-  --warning: #9A7436;
-  --danger: #9A4E4E;
-  --info: #5F8190;
+  --success: #3f6b5a;
+  --warning: #9a7436;
+  --danger: #9a4e4e;
+  --info: #5f8190;
 
   /* Applied roles */
   --background-app: var(--color-off-white);

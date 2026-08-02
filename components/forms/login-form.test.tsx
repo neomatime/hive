@@ -23,7 +23,10 @@ describe('LoginForm', () => {
     await userEvent.type(screen.getByLabelText(/email/i), 'jane@himark.com')
     await userEvent.type(screen.getByLabelText(/password/i), 'correct-password')
     await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
-    expect(loginAction).toHaveBeenCalledWith({ email: 'jane@himark.com', password: 'correct-password' })
+    expect(loginAction).toHaveBeenCalledWith({
+      email: 'jane@himark.com',
+      password: 'correct-password',
+    })
   })
 
   it('shows the server error message when loginAction returns one', async () => {

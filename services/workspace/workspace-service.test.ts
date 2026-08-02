@@ -45,9 +45,7 @@ describe('getCurrentUserWithMembership', () => {
         display_name: 'Jane Doe',
         email: 'jane@himark.com',
         avatar_url: null,
-        workspace_members: [
-          { role: 'admin', workspace: { id: 'ws-1', name: 'HIMARK' } },
-        ],
+        workspace_members: [{ role: 'admin', workspace: { id: 'ws-1', name: 'HIMARK' } }],
       },
       error: null,
     })

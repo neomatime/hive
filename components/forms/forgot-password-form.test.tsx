@@ -22,8 +22,6 @@ describe('ForgotPasswordForm', () => {
     render(<ForgotPasswordForm />)
     await userEvent.type(screen.getByLabelText(/email/i), 'anyone@himark.com')
     await userEvent.click(screen.getByRole('button', { name: /send reset link/i }))
-    expect(
-      await screen.findByText(/if that email exists, we've sent a link/i)
-    ).toBeInTheDocument()
+    expect(await screen.findByText(/if that email exists, we've sent a link/i)).toBeInTheDocument()
   })
 })

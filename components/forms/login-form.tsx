@@ -73,7 +73,11 @@ export function LoginForm() {
         <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
           {form.formState.isSubmitting ? 'Signing in…' : 'Sign in'}
         </Button>
-        <a href="/forgot-password" className="text-sm block text-center" style={{ color: 'var(--color-ocean)' }}>
+        <a
+          href="/forgot-password"
+          className="text-sm block text-center"
+          style={{ color: 'var(--color-ocean)' }}
+        >
           Forgot your password?
         </a>
       </form>

@@ -22,7 +22,9 @@ describe('signIn', () => {
 
   it('returns a generic error message on failure, not the raw Supabase error', async () => {
     const supabase = mockSupabase({
-      signInWithPassword: vi.fn().mockResolvedValue({ error: { message: 'Invalid login credentials' } }),
+      signInWithPassword: vi
+        .fn()
+        .mockResolvedValue({ error: { message: 'Invalid login credentials' } }),
     })
     const result = await signIn(supabase, 'a@himark.com', 'wrong')
     expect(result.error).toBe('Invalid email or password.')
@@ -42,7 +44,9 @@ describe('requestPasswordReset', () => {
     const supabase = mockSupabase({
       resetPasswordForEmail: vi.fn().mockResolvedValue({ error: { message: 'User not found' } }),
     })
-    await expect(requestPasswordReset(supabase, 'nobody@himark.com', 'http://x/reset')).resolves.toBeUndefined()
+    await expect(
+      requestPasswordReset(supabase, 'nobody@himark.com', 'http://x/reset')
+    ).resolves.toBeUndefined()
   })
 })
 

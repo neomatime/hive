@@ -16,7 +16,7 @@ export function parseBootstrapArgs(argv: string[]): { email: string; role: Works
   if (!email) {
     throw new Error('--email is required, e.g. --email=owner@himark.com')
   }
-  
+
   const role = (roleArg ? roleArg.split('=')[1] : 'member') as WorkspaceRole
 
   if (!VALID_ROLES.includes(role)) {
@@ -26,15 +26,19 @@ export function parseBootstrapArgs(argv: string[]): { email: string; role: Works
   return { email, role }
 }
 
-export async function ensureWorkspace(
-  admin: SupabaseClient<Database>
-): Promise<{ id: string }> {
+export async function ensureWorkspace(admin: SupabaseClient<Database>): Promise<{ id: string }> {
   const { data: existing } = await admin.from('workspaces').select('id').limit(1).maybeSingle()
   if (existing) return { id: existing.id }
 
   const { data: created, error } = await admin
     .from('workspaces')
-    .insert({ name: 'HIMARK', slug: 'himark', timezone: 'UTC', date_format: 'DD/MM/YYYY', time_format: '24h' })
+    .insert({
+      name: 'HIMARK',
+      slug: 'himark',
+      timezone: 'UTC',
+      date_format: 'DD/MM/YYYY',
+      time_format: '24h',
+    })
     .select('id')
     .single()
 

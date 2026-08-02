@@ -8,6 +8,149 @@ export type Database = {
   }
   public: {
     Tables: {
+      project_members: {
+        Row: {
+          added_by: string
+          created_at: string
+          id: string
+          joined_at: string
+          project_id: string
+          role: Database['public']['Enums']['project_member_role']
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          added_by: string
+          created_at?: string
+          id?: string
+          joined_at?: string
+          project_id: string
+          role: Database['public']['Enums']['project_member_role']
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          added_by?: string
+          created_at?: string
+          id?: string
+          joined_at?: string
+          project_id?: string
+          role?: Database['public']['Enums']['project_member_role']
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'project_members_added_by_fkey'
+            columns: ['added_by']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'project_members_project_id_fkey'
+            columns: ['project_id']
+            isOneToOne: false
+            referencedRelation: 'projects'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'project_members_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          archived_at: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          is_favourite: boolean
+          name: string
+          owner_id: string
+          priority: Database['public']['Enums']['task_priority']
+          progress_percentage: number
+          project_code: string
+          start_date: string | null
+          status: Database['public']['Enums']['project_status']
+          template_id: string | null
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          deleted_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          is_favourite?: boolean
+          name: string
+          owner_id: string
+          priority?: Database['public']['Enums']['task_priority']
+          progress_percentage?: number
+          project_code?: string
+          start_date?: string | null
+          status?: Database['public']['Enums']['project_status']
+          template_id?: string | null
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          archived_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          is_favourite?: boolean
+          name?: string
+          owner_id?: string
+          priority?: Database['public']['Enums']['task_priority']
+          progress_percentage?: number
+          project_code?: string
+          start_date?: string | null
+          status?: Database['public']['Enums']['project_status']
+          template_id?: string | null
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'projects_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'projects_owner_id_fkey'
+            columns: ['owner_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'projects_workspace_id_fkey'
+            columns: ['workspace_id']
+            isOneToOne: false
+            referencedRelation: 'workspaces'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       users: {
         Row: {
           auth_user_id: string
@@ -184,6 +327,62 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_create_project: {
+        Args: { target_auth_user_id: string; target_workspace_id: string }
+        Returns: boolean
+      }
+      create_project_with_owner: {
+        Args: {
+          p_description: string
+          p_due_date: string
+          p_member_ids: string[]
+          p_name: string
+          p_owner_id: string
+          p_priority: Database['public']['Enums']['task_priority']
+          p_start_date: string
+          p_status: Database['public']['Enums']['project_status']
+          p_workspace_id: string
+        }
+        Returns: {
+          archived_at: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          is_favourite: boolean
+          name: string
+          owner_id: string
+          priority: Database['public']['Enums']['task_priority']
+          progress_percentage: number
+          project_code: string
+          start_date: string | null
+          status: Database['public']['Enums']['project_status']
+          template_id: string | null
+          updated_at: string
+          workspace_id: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'projects'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      is_project_manager: {
+        Args: { target_auth_user_id: string; target_project_id: string }
+        Returns: boolean
+      }
+      is_project_member: {
+        Args: { target_auth_user_id: string; target_project_id: string }
+        Returns: boolean
+      }
+      is_project_workspace_admin: {
+        Args: { target_auth_user_id: string; target_project_id: string }
+        Returns: boolean
+      }
       is_workspace_admin: {
         Args: { target_auth_user_id: string; target_workspace_id: string }
         Returns: boolean
@@ -192,12 +391,19 @@ export type Database = {
         Args: { target_auth_user_id: string; target_workspace_id: string }
         Returns: boolean
       }
+      reassign_project_owner: {
+        Args: { p_new_owner_user_id: string; p_project_id: string }
+        Returns: undefined
+      }
       shares_workspace_with: {
         Args: { target_auth_user_id: string; target_user_row_id: string }
         Returns: boolean
       }
     }
     Enums: {
+      project_member_role: 'project_owner' | 'project_manager' | 'contributor' | 'viewer'
+      project_status: 'not_started' | 'active' | 'on_hold' | 'completed' | 'archived'
+      task_priority: 'low' | 'medium' | 'high' | 'urgent'
       workspace_role: 'owner' | 'admin' | 'member' | 'viewer'
     }
     CompositeTypes: {
@@ -320,6 +526,9 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      project_member_role: ['project_owner', 'project_manager', 'contributor', 'viewer'],
+      project_status: ['not_started', 'active', 'on_hold', 'completed', 'archived'],
+      task_priority: ['low', 'medium', 'high', 'urgent'],
       workspace_role: ['owner', 'admin', 'member', 'viewer'],
     },
   },

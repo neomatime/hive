@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import type { Database } from '@/types/database'
 import { listMyTasks } from '@/services/tasks/my-tasks-service'
 import { listCalendarEvents } from '@/services/calendar/calendar-service'
+import { listProjectActivity } from '@/services/activity/activity-service'
 const password = 'task-rls-test-123!'
 describe('RLS: task roles', () => {
   const admin = createAdminClient(),
@@ -103,6 +104,26 @@ describe('RLS: task roles', () => {
     expect(result.error).toBeNull()
     taskId = result.data!.id
   })
+  it('records task creation in the immutable project activity feed', async () => {
+    const session = client()
+    await session.auth.signInWithPassword({ email: emails[0]!, password })
+    const activity = await listProjectActivity(session, projectId)
+    expect(activity).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ action: 'task_created', entityId: taskId, userId: userIds[0] }),
+      ])
+    )
+    const forged = await session.from('activity_logs').insert({
+      workspace_id: workspaceId,
+      project_id: projectId,
+      user_id: userIds[0]!,
+      action: 'forged',
+      entity_type: 'task',
+      entity_id: taskId,
+    })
+    expect(forged.error).not.toBeNull()
+  })
+
   it('lists only tasks assigned to the signed-in profile', async () => {
     const session = client()
     await session.auth.signInWithPassword({ email: emails[0]!, password })

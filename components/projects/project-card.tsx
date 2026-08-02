@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Star } from 'lucide-react'
+import { ArrowRight, Columns3, Star } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import type { Project } from '@/types/project'
@@ -22,7 +22,11 @@ export function ProjectCard({
   onToggleFavourite: (id: string, next: boolean) => void
 }) {
   return (
-    <Link href={`/dashboard/projects/${project.id}`} className="block">
+    <Link
+      href={`/dashboard/projects/${project.id}/board`}
+      aria-label={`Open ${project.name} board`}
+      className="block"
+    >
       <Card
         data-testid="project-card"
         data-archived={project.status === 'archived'}
@@ -64,7 +68,17 @@ export function ProjectCard({
             Due {new Date(`${project.dueDate}T00:00:00`).toLocaleDateString()}
           </p>
         )}
+        <div className="flex items-center justify-between border-t pt-3 text-sm font-medium text-primary">
+          <span className="flex items-center gap-2">
+            <Columns3 className="size-4" aria-hidden="true" />
+            Open board
+          </span>
+          <ArrowRight className="size-4" aria-hidden="true" />
+        </div>
       </Card>
     </Link>
   )
 }
+
+
+

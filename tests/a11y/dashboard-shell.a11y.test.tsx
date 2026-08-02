@@ -11,6 +11,13 @@ import { DashboardShell } from '@/components/layout/dashboard-shell'
 // to be mounted" error that useRouter() does elsewhere in this codebase
 // (see components/forms/reset-password-form.test.tsx), so it must be
 // mocked here.
+vi.mock('@/lib/supabase/client', () => ({
+  createClient: () => ({
+    from: () => ({
+      select: () => ({ order: () => ({ limit: () => Promise.resolve({ data: [] }) }) }),
+    }),
+  }),
+}))
 vi.mock('next/navigation', () => ({
   usePathname: () => '/dashboard/overview',
   useRouter: () => ({ push: vi.fn() }),

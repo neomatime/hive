@@ -78,3 +78,33 @@ export async function updatePasswordAction(password: string) {
   const result = await (await createClient()).auth.updateUser({ password })
   return { error: result.error ? 'Could not update password. Sign in again and retry.' : null }
 }
+export async function updateNotificationPreferencesAction(
+  userId: string,
+  input: {
+    inAppEnabled: boolean
+    emailEnabled: boolean
+    browserEnabled: boolean
+    assignedTask: boolean
+    mention: boolean
+    dueToday: boolean
+    overdue: boolean
+    reviewRequested: boolean
+    taskCompleted: boolean
+  }
+) {
+  const result = await (await createClient()).from('notification_preferences').upsert({
+    user_id: userId,
+    in_app_enabled: input.inAppEnabled,
+    email_enabled: input.emailEnabled,
+    browser_enabled: input.browserEnabled,
+    assigned_task: input.assignedTask,
+    mention: input.mention,
+    due_today: input.dueToday,
+    overdue: input.overdue,
+    review_requested: input.reviewRequested,
+    task_completed: input.taskCompleted,
+    updated_at: new Date().toISOString(),
+  })
+  if (!result.error) revalidatePath('/dashboard/settings/notifications')
+  return { error: result.error ? 'Could not update notification preferences.' : null }
+}

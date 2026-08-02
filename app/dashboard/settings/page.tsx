@@ -33,9 +33,9 @@ const sections = [
   {
     title: 'Notifications',
     description: 'Email and in-app notification preferences.',
-    href: '#',
+    href: '/dashboard/settings/notifications',
     icon: Bell,
-    live: false,
+    live: true,
   },
   {
     title: 'Integrations',

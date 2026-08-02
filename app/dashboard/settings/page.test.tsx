@@ -16,9 +16,14 @@ describe('SettingsPage', () => {
       'href',
       '/dashboard/settings/workspace'
     )
+
     expect(screen.getByRole('link', { name: /^team\b/i })).toHaveAttribute(
       'href',
       '/dashboard/settings/team'
+    )
+    expect(screen.getByRole('link', { name: /^notifications\b/i })).toHaveAttribute(
+      'href',
+      '/dashboard/settings/notifications'
     )
   })
 })

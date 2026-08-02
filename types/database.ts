@@ -283,6 +283,59 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          assigned_task: boolean
+          browser_enabled: boolean
+          created_at: string
+          due_today: boolean
+          email_enabled: boolean
+          in_app_enabled: boolean
+          mention: boolean
+          overdue: boolean
+          review_requested: boolean
+          task_completed: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_task?: boolean
+          browser_enabled?: boolean
+          created_at?: string
+          due_today?: boolean
+          email_enabled?: boolean
+          in_app_enabled?: boolean
+          mention?: boolean
+          overdue?: boolean
+          review_requested?: boolean
+          task_completed?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_task?: boolean
+          browser_enabled?: boolean
+          created_at?: string
+          due_today?: boolean
+          email_enabled?: boolean
+          in_app_enabled?: boolean
+          mention?: boolean
+          overdue?: boolean
+          review_requested?: boolean
+          task_completed?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'notification_preferences_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: true
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       project_members: {
         Row: {
           added_by: string

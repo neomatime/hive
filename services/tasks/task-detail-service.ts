@@ -1,6 +1,7 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
+﻿import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
 import type { TaskPriority } from '@/types/project'
+import type { TaskLabel } from '@/types/task'
 
 type Client = SupabaseClient<Database>
 export interface TaskComment {
@@ -58,4 +59,54 @@ export async function addTaskComment(
     .from('task_comments')
     .insert({ task_id: taskId, author_id: authorId, content: content.trim() })
   return { error: result.error ? 'Could not add comment.' : null }
+}
+export async function listProjectLabels(client: Client, projectId: string): Promise<TaskLabel[]> {
+  const project = await client.from('projects').select('workspace_id').eq('id', projectId).single()
+  if (project.error || !project.data) return []
+  const labels = await client
+    .from('labels')
+    .select('id,name,color_token')
+    .eq('workspace_id', project.data.workspace_id)
+    .order('name')
+  return (labels.data ?? []).map((label) => ({
+    id: label.id,
+    name: label.name,
+    colorToken: label.color_token,
+  }))
+}
+
+export async function addTaskLabel(client: Client, taskId: string, labelId: string) {
+  const result = await client.from('task_labels').upsert({ task_id: taskId, label_id: labelId })
+  return { error: result.error ? 'Could not add label.' : null }
+}
+
+export async function removeTaskLabel(client: Client, taskId: string, labelId: string) {
+  const result = await client
+    .from('task_labels')
+    .delete()
+    .eq('task_id', taskId)
+    .eq('label_id', labelId)
+  return { error: result.error ? 'Could not remove label.' : null }
+}
+
+export async function createLabel(
+  client: Client,
+  input: { workspaceId: string; name: string; colorToken: string; createdBy: string }
+) {
+  const result = await client
+    .from('labels')
+    .insert({
+      workspace_id: input.workspaceId,
+      name: input.name.trim(),
+      color_token: input.colorToken,
+      created_by: input.createdBy,
+    })
+    .select('id,name,color_token')
+    .single()
+  return {
+    label: result.data
+      ? { id: result.data.id, name: result.data.name, colorToken: result.data.color_token }
+      : null,
+    error: result.error ? 'Could not create label. Admin access may be required.' : null,
+  }
 }

@@ -21,6 +21,7 @@ export interface CreateProjectInput {
   startDate: string | null
   dueDate: string | null
   memberIds: string[]
+  templateId?: string | null
 }
 
 type ProjectRow = {
@@ -100,6 +101,7 @@ export async function createProject(
     p_start_date: input.startDate,
     p_due_date: input.dueDate,
     p_member_ids: input.memberIds,
+    p_template_id: input.templateId ?? null,
   } as never)
   if (error || !data) {
     return {

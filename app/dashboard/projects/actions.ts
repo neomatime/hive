@@ -15,6 +15,7 @@ export interface CreateProjectFormInput {
   startDate: string
   dueDate: string
   memberIds: string[]
+  templateId?: string | null
 }
 export async function createProjectAction(
   input: CreateProjectFormInput

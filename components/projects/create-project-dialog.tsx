@@ -9,9 +9,16 @@ import { createProjectAction } from '@/app/dashboard/projects/actions'
 export function CreateProjectDialog({
   workspaceId,
   currentUserId,
+  templates = [],
 }: {
   workspaceId: string
   currentUserId: string
+  templates?: Array<{
+    id: string
+    name: string
+    description: string | null
+    category: string | null
+  }>
 }) {
   const [open, setOpen] = useState(false),
     [error, setError] = useState<string | null>(null),
@@ -38,6 +45,7 @@ export function CreateProjectDialog({
       startDate,
       dueDate,
       memberIds: [],
+      templateId: String(data.get('templateId') ?? '') || null,
     })
     setSubmitting(false)
     if (result.error) return setError(result.error)
@@ -68,6 +76,21 @@ export function CreateProjectDialog({
               </Button>
             </div>
             <form className="space-y-4" onSubmit={submit} noValidate>
+              <label className="grid gap-1 text-sm">
+                Start from a template
+                <select name="templateId" className="h-10 rounded-lg border bg-background px-3">
+                  <option value="">Blank project</option>
+                  {templates.map((template) => (
+                    <option key={template.id} value={template.id}>
+                      {template.name}
+                      {template.category ? ` � ${template.category}` : ''}
+                    </option>
+                  ))}
+                </select>
+                <span className="text-xs text-muted-foreground">
+                  Template details are used when project fields are left blank.
+                </span>
+              </label>
               <label className="grid gap-1 text-sm">
                 Project name
                 <Input name="name" />

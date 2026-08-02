@@ -108,3 +108,33 @@ export async function updateNotificationPreferencesAction(
   if (!result.error) revalidatePath('/dashboard/settings/notifications')
   return { error: result.error ? 'Could not update notification preferences.' : null }
 }
+export async function updateTaskPreferencesAction(
+  userId: string,
+  input: {
+    defaultPriority: Database['public']['Enums']['task_priority']
+    defaultStatus: Database['public']['Enums']['task_status_type']
+    weekStartsOn: number
+    workingHoursStart: string
+    workingHoursEnd: string
+    showCompletedTasks: boolean
+  }
+) {
+  if (![0, 1].includes(input.weekStartsOn) || input.workingHoursStart >= input.workingHoursEnd)
+    return { error: 'Check your week start and working hours.' }
+  const result = await (
+    await createClient()
+  )
+    .from('user_preferences')
+    .upsert({
+      user_id: userId,
+      default_task_priority: input.defaultPriority,
+      default_task_status: input.defaultStatus,
+      week_starts_on: input.weekStartsOn,
+      working_hours_start: input.workingHoursStart,
+      working_hours_end: input.workingHoursEnd,
+      show_completed_tasks: input.showCompletedTasks,
+      updated_at: new Date().toISOString(),
+    })
+  if (!result.error) revalidatePath('/dashboard/settings/task-preferences')
+  return { error: result.error ? 'Could not update task preferences.' : null }
+}

@@ -1,5 +1,13 @@
 ﻿import Link from 'next/link'
-import { Bell, Building2, KeyRound, Plug, UserRound, UsersRound } from 'lucide-react'
+import {
+  Bell,
+  Building2,
+  KeyRound,
+  Plug,
+  SlidersHorizontal,
+  UserRound,
+  UsersRound,
+} from 'lucide-react'
 
 const sections = [
   {
@@ -35,6 +43,13 @@ const sections = [
     description: 'Email and in-app notification preferences.',
     href: '/dashboard/settings/notifications',
     icon: Bell,
+    live: true,
+  },
+  {
+    title: 'Task preferences',
+    description: 'Default priority, status, week start, and working hours.',
+    href: '/dashboard/settings/task-preferences',
+    icon: SlidersHorizontal,
     live: true,
   },
   {

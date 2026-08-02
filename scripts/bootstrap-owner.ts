@@ -7,7 +7,9 @@ async function main() {
 
   const workspace = await ensureWorkspace(admin)
 
-  const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email)
+  const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/confirm`,
+  })
   if (inviteError || !invited.user) {
     throw new Error(`Failed to invite ${email}: ${inviteError?.message}`)
   }

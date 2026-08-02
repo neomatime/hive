@@ -33,11 +33,9 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Redirect unauthenticated users to login
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth')
-  ) {
+  const publicPaths = ['/login', '/forgot-password', '/reset-password', '/auth']
+
+  if (!user && !publicPaths.some((path) => request.nextUrl.pathname.startsWith(path))) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)

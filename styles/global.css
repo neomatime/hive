@@ -104,14 +104,20 @@ body {
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Sidebar tokens (docs/design/color-palette.md §5 UI Mapping: "Sidebar |
+     Ocean Light"; design-system.md §6.2). Same aliasing rule as the block
+     above -- see task-11-report.md for the full mapping table. Previously
+     shadcn's fabricated near-white/near-black oklch() defaults, flagged as a
+     follow-up in task-7-report.md's Concerns section; fixed here alongside
+     the Sidebar component that actually renders these. */
+  --sidebar: var(--background-sidebar);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--color-midnight);
+  --sidebar-primary-foreground: var(--text-on-dark);
+  --sidebar-accent: var(--color-white);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--border-default);
+  --sidebar-ring: var(--color-ocean);
 }
 
 .dark {

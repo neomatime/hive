@@ -8,6 +8,143 @@ export type Database = {
   }
   public: {
     Tables: {
+      board_columns: {
+        Row: {
+          board_id: string
+          created_at: string
+          id: string
+          is_terminal: boolean
+          name: string
+          position: number
+          status_type: Database['public']['Enums']['task_status_type']
+          updated_at: string
+          wip_limit: number | null
+        }
+        Insert: {
+          board_id: string
+          created_at?: string
+          id?: string
+          is_terminal?: boolean
+          name: string
+          position: number
+          status_type: Database['public']['Enums']['task_status_type']
+          updated_at?: string
+          wip_limit?: number | null
+        }
+        Update: {
+          board_id?: string
+          created_at?: string
+          id?: string
+          is_terminal?: boolean
+          name?: string
+          position?: number
+          status_type?: Database['public']['Enums']['task_status_type']
+          updated_at?: string
+          wip_limit?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'board_columns_board_id_fkey'
+            columns: ['board_id']
+            isOneToOne: false
+            referencedRelation: 'boards'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      boards: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_default: boolean
+          name: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_default?: boolean
+          name?: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean
+          name?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'boards_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'boards_project_id_fkey'
+            columns: ['project_id']
+            isOneToOne: false
+            referencedRelation: 'projects'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      labels: {
+        Row: {
+          color_token: string
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          color_token: string
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          color_token?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'labels_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'labels_workspace_id_fkey'
+            columns: ['workspace_id']
+            isOneToOne: false
+            referencedRelation: 'workspaces'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       project_members: {
         Row: {
           added_by: string
@@ -147,6 +284,212 @@ export type Database = {
             columns: ['workspace_id']
             isOneToOne: false
             referencedRelation: 'workspaces'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      task_comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          is_edited: boolean
+          parent_comment_id: string | null
+          task_id: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_edited?: boolean
+          parent_comment_id?: string | null
+          task_id: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_edited?: boolean
+          parent_comment_id?: string | null
+          task_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'task_comments_author_id_fkey'
+            columns: ['author_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'task_comments_parent_comment_id_fkey'
+            columns: ['parent_comment_id']
+            isOneToOne: false
+            referencedRelation: 'task_comments'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'task_comments_task_id_fkey'
+            columns: ['task_id']
+            isOneToOne: false
+            referencedRelation: 'tasks'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      task_labels: {
+        Row: {
+          created_at: string
+          label_id: string
+          task_id: string
+        }
+        Insert: {
+          created_at?: string
+          label_id: string
+          task_id: string
+        }
+        Update: {
+          created_at?: string
+          label_id?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'task_labels_label_id_fkey'
+            columns: ['label_id']
+            isOneToOne: false
+            referencedRelation: 'labels'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'task_labels_task_id_fkey'
+            columns: ['task_id']
+            isOneToOne: false
+            referencedRelation: 'tasks'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          assignee_id: string | null
+          blocked_reason: string | null
+          board_id: string
+          column_id: string
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          description: string | null
+          due_date: string | null
+          estimated_minutes: number | null
+          id: string
+          is_blocked: boolean
+          parent_task_id: string | null
+          position: number
+          priority: Database['public']['Enums']['task_priority']
+          progress_percentage: number
+          project_id: string
+          start_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          blocked_reason?: string | null
+          board_id: string
+          column_id: string
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          deleted_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          is_blocked?: boolean
+          parent_task_id?: string | null
+          position: number
+          priority?: Database['public']['Enums']['task_priority']
+          progress_percentage?: number
+          project_id: string
+          start_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assignee_id?: string | null
+          blocked_reason?: string | null
+          board_id?: string
+          column_id?: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          is_blocked?: boolean
+          parent_task_id?: string | null
+          position?: number
+          priority?: Database['public']['Enums']['task_priority']
+          progress_percentage?: number
+          project_id?: string
+          start_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'tasks_assignee_id_fkey'
+            columns: ['assignee_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_board_id_fkey'
+            columns: ['board_id']
+            isOneToOne: false
+            referencedRelation: 'boards'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_column_id_fkey'
+            columns: ['column_id']
+            isOneToOne: false
+            referencedRelation: 'board_columns'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_parent_task_id_fkey'
+            columns: ['parent_task_id']
+            isOneToOne: false
+            referencedRelation: 'tasks'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tasks_project_id_fkey'
+            columns: ['project_id']
+            isOneToOne: false
+            referencedRelation: 'projects'
             referencedColumns: ['id']
           },
         ]
@@ -327,10 +670,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      can_create_project: {
-        Args: { target_auth_user_id: string; target_workspace_id: string }
-        Returns: boolean
-      }
       create_project_with_owner: {
         Args: {
           p_description: string
@@ -371,18 +710,6 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      is_project_manager: {
-        Args: { target_auth_user_id: string; target_project_id: string }
-        Returns: boolean
-      }
-      is_project_member: {
-        Args: { target_auth_user_id: string; target_project_id: string }
-        Returns: boolean
-      }
-      is_project_workspace_admin: {
-        Args: { target_auth_user_id: string; target_project_id: string }
-        Returns: boolean
-      }
       is_workspace_admin: {
         Args: { target_auth_user_id: string; target_workspace_id: string }
         Returns: boolean
@@ -404,6 +731,7 @@ export type Database = {
       project_member_role: 'project_owner' | 'project_manager' | 'contributor' | 'viewer'
       project_status: 'not_started' | 'active' | 'on_hold' | 'completed' | 'archived'
       task_priority: 'low' | 'medium' | 'high' | 'urgent'
+      task_status_type: 'backlog' | 'todo' | 'in_progress' | 'review' | 'done'
       workspace_role: 'owner' | 'admin' | 'member' | 'viewer'
     }
     CompositeTypes: {
@@ -529,6 +857,7 @@ export const Constants = {
       project_member_role: ['project_owner', 'project_manager', 'contributor', 'viewer'],
       project_status: ['not_started', 'active', 'on_hold', 'completed', 'archived'],
       task_priority: ['low', 'medium', 'high', 'urgent'],
+      task_status_type: ['backlog', 'todo', 'in_progress', 'review', 'done'],
       workspace_role: ['owner', 'admin', 'member', 'viewer'],
     },
   },

@@ -2,6 +2,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { Database } from '@/types/database'
+import { listMyTasks } from '@/services/tasks/my-tasks-service'
 const password = 'task-rls-test-123!'
 describe('RLS: task roles', () => {
   const admin = createAdminClient(),
@@ -90,6 +91,7 @@ describe('RLS: task roles', () => {
         board_id: boardId,
         column_id: columnId,
         title: 'Allowed task',
+        assignee_id: userIds[0]!,
         created_by: userIds[0]!,
         position: 1024,
       })
@@ -98,6 +100,15 @@ describe('RLS: task roles', () => {
     expect(result.error).toBeNull()
     taskId = result.data!.id
   })
+  it('lists only tasks assigned to the signed-in profile', async () => {
+    const session = client()
+    await session.auth.signInWithPassword({ email: emails[0]!, password })
+    const tasks = await listMyTasks(session, userIds[0]!)
+    expect(tasks).toEqual([
+      expect.objectContaining({ id: taskId, title: 'Allowed task', projectId }),
+    ])
+  })
+
   it('lets a task editor assign a workspace label', async () => {
     const session = client()
     await session.auth.signInWithPassword({ email: emails[0]!, password })

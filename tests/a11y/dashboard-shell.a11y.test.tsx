@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+﻿import { describe, it, expect, vi } from 'vitest'
 import { render } from '@testing-library/react'
 import { axe } from 'vitest-axe'
 import { DashboardShell } from '@/components/layout/dashboard-shell'
@@ -13,6 +13,7 @@ import { DashboardShell } from '@/components/layout/dashboard-shell'
 // mocked here.
 vi.mock('next/navigation', () => ({
   usePathname: () => '/dashboard/overview',
+  useRouter: () => ({ push: vi.fn() }),
 }))
 
 describe('DashboardShell accessibility', () => {

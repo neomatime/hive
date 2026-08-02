@@ -3,6 +3,7 @@ import {
   Bell,
   Building2,
   KeyRound,
+  LayoutTemplate,
   Plug,
   SlidersHorizontal,
   UserRound,
@@ -22,6 +23,7 @@ const sections = [
     description: 'Password and authentication settings.',
     href: '/dashboard/settings/account',
     icon: KeyRound,
+    LayoutTemplate,
     live: true,
   },
   {
@@ -50,6 +52,13 @@ const sections = [
     description: 'Default priority, status, week start, and working hours.',
     href: '/dashboard/settings/task-preferences',
     icon: SlidersHorizontal,
+    live: true,
+  },
+  {
+    title: 'Project templates',
+    description: 'Reusable structures for consistent project delivery.',
+    href: '/dashboard/settings/project-templates',
+    icon: LayoutTemplate,
     live: true,
   },
   {

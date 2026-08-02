@@ -26,6 +26,11 @@ describe('ProjectCard', () => {
     expect(screen.getByText('Website Redesign')).toBeInTheDocument()
     expect(screen.getByText('Active')).toBeInTheDocument()
     expect(screen.getByText('40% complete')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open Website Redesign board' })).toHaveAttribute(
+      'href',
+      '/dashboard/projects/project-1/board'
+    )
+    expect(screen.getByText('Open board')).toBeInTheDocument()
   })
   it('marks archived cards', () => {
     render(<ProjectCard project={{ ...project, status: 'archived' }} onToggleFavourite={vi.fn()} />)
@@ -38,3 +43,4 @@ describe('ProjectCard', () => {
     expect(toggle).toHaveBeenCalledWith('project-1', true)
   })
 })
+

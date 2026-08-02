@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { Database } from '@/types/database'
 import { listMyTasks } from '@/services/tasks/my-tasks-service'
+import { listCalendarEvents } from '@/services/calendar/calendar-service'
 const password = 'task-rls-test-123!'
 describe('RLS: task roles', () => {
   const admin = createAdminClient(),
@@ -42,6 +43,7 @@ describe('RLS: task roles', () => {
         name: `Task RLS ${suffix}`,
         owner_id: userIds[0]!,
         created_by: userIds[0]!,
+        due_date: '2026-08-12',
       })
       .select('id')
       .single()
@@ -94,6 +96,7 @@ describe('RLS: task roles', () => {
         assignee_id: userIds[0]!,
         created_by: userIds[0]!,
         position: 1024,
+        due_date: '2026-08-03',
       })
       .select('id')
       .single()
@@ -107,6 +110,18 @@ describe('RLS: task roles', () => {
     expect(tasks).toEqual([
       expect.objectContaining({ id: taskId, title: 'Allowed task', projectId }),
     ])
+  })
+
+  it('lists visible task and project deadlines as calendar events', async () => {
+    const session = client()
+    await session.auth.signInWithPassword({ email: emails[0]!, password })
+    const events = await listCalendarEvents(session, workspaceId)
+    expect(events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: `task-${taskId}`, date: '2026-08-03' }),
+        expect.objectContaining({ id: `project-${projectId}`, date: '2026-08-12' }),
+      ])
+    )
   })
 
   it('lets a task editor assign a workspace label', async () => {

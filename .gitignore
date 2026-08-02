@@ -1,3 +1,6 @@
+# Claude Code worktrees (nested checkouts — must never be tracked or scanned)
+.claude/worktrees/
+
 # Dependencies
 node_modules/
 

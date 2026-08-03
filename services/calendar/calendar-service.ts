@@ -1,8 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/database'
 import type { CalendarEvent } from '@/types/calendar'
 
-type Client = SupabaseClient<Database>
+type Client = SupabaseClient
 
 export async function listCalendarEvents(
   client: Client,
@@ -22,6 +21,9 @@ export async function listCalendarEvents(
         .in('project_id', projectIds)
         .is('deleted_at', null)
         .not('due_date', 'is', null)
+    : { data: [], error: null }
+  const customEvents = projectIds.length
+    ? await client.from('calendar_events').select('*').in('project_id', projectIds)
     : { data: [], error: null }
   const projectMap = new Map(projects.data.map((project) => [project.id, project]))
   const projectEvents: CalendarEvent[] = projects.data
@@ -52,5 +54,25 @@ export async function listCalendarEvents(
       },
     ]
   })
-  return [...projectEvents, ...taskEvents].sort((a, b) => a.date.localeCompare(b.date))
+  const scheduledEvents: CalendarEvent[] = (customEvents.data ?? []).flatMap((event) => {
+    const project = projectMap.get(event.project_id)
+    if (!project) return []
+    const startsAt = new Date(event.starts_at)
+    return [
+      {
+        id: 'calendar-' + event.id,
+        type: event.type as 'meeting' | 'milestone',
+        title: event.title,
+        date: event.starts_at.slice(0, 10),
+        time: startsAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        projectId: event.project_id,
+        projectName: project.name,
+        projectCode: project.project_code,
+        completed: false,
+      },
+    ]
+  })
+  return [...projectEvents, ...taskEvents, ...scheduledEvents].sort((a, b) =>
+    a.date.localeCompare(b.date)
+  )
 }

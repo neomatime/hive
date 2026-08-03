@@ -118,6 +118,34 @@ export async function updatePasswordAction(password: string) {
   const result = await (await createClient()).auth.updateUser({ password })
   return { error: result.error ? 'Could not update password. Sign in again and retry.' : null }
 }
+export async function setIntegrationConnectionAction(
+  workspaceId: string,
+  userId: string,
+  provider: 'slack' | 'microsoft_teams' | 'google_calendar' | 'dropbox',
+  connected: boolean
+) {
+  const client = await createClient()
+  const result = connected
+    ? await client
+        .from('workspace_integrations')
+        .upsert(
+          {
+            workspace_id: workspaceId,
+            provider,
+            connected_by: userId,
+            is_connected: true,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'workspace_id,provider' }
+        )
+    : await client
+        .from('workspace_integrations')
+        .delete()
+        .eq('workspace_id', workspaceId)
+        .eq('provider', provider)
+  if (!result.error) revalidatePath('/dashboard/settings/integrations')
+  return { error: result.error ? 'Could not update integration. Admin access is required.' : null }
+}
 export async function updateNotificationPreferencesAction(
   userId: string,
   input: {

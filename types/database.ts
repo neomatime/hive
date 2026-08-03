@@ -1,4 +1,4 @@
-﻿export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
@@ -154,6 +154,70 @@ export type Database = {
             columns: ['project_id']
             isOneToOne: false
             referencedRelation: 'projects'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      calendar_events: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          ends_at: string | null
+          id: string
+          project_id: string
+          starts_at: string
+          title: string
+          type: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          project_id: string
+          starts_at: string
+          title: string
+          type: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          project_id?: string
+          starts_at?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'calendar_events_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'calendar_events_project_id_fkey'
+            columns: ['project_id']
+            isOneToOne: false
+            referencedRelation: 'projects'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'calendar_events_workspace_id_fkey'
+            columns: ['workspace_id']
+            isOneToOne: false
+            referencedRelation: 'workspaces'
             referencedColumns: ['id']
           },
         ]
@@ -900,6 +964,51 @@ export type Database = {
         }
         Relationships: []
       }
+      workspace_integrations: {
+        Row: {
+          connected_at: string
+          connected_by: string
+          id: string
+          is_connected: boolean
+          provider: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          connected_at?: string
+          connected_by: string
+          id?: string
+          is_connected?: boolean
+          provider: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          connected_at?: string
+          connected_by?: string
+          id?: string
+          is_connected?: boolean
+          provider?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'workspace_integrations_connected_by_fkey'
+            columns: ['connected_by']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'workspace_integrations_workspace_id_fkey'
+            columns: ['workspace_id']
+            isOneToOne: false
+            referencedRelation: 'workspaces'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       workspace_members: {
         Row: {
           created_at: string
@@ -1016,6 +1125,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_workspace_member_by_email: {
+        Args: {
+          p_email: string
+          p_role?: Database['public']['Enums']['workspace_role']
+          p_workspace_id: string
+        }
+        Returns: undefined
+      }
       create_project_with_owner: {
         Args: {
           p_description: string
@@ -1026,6 +1143,7 @@ export type Database = {
           p_priority: Database['public']['Enums']['task_priority']
           p_start_date: string
           p_status: Database['public']['Enums']['project_status']
+          p_template_id?: string
           p_workspace_id: string
         }
         Returns: {
@@ -1068,6 +1186,7 @@ export type Database = {
         Args: { p_new_owner_user_id: string; p_project_id: string }
         Returns: undefined
       }
+      refresh_my_task_notifications: { Args: never; Returns: undefined }
       shares_workspace_with: {
         Args: { target_auth_user_id: string; target_user_row_id: string }
         Returns: boolean
@@ -1209,6 +1328,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      file_type: [
+        'folder',
+        'document',
+        'image',
+        'spreadsheet',
+        'presentation',
+        'pdf',
+        'archive',
+        'other',
+      ],
       project_member_role: ['project_owner', 'project_manager', 'contributor', 'viewer'],
       project_status: ['not_started', 'active', 'on_hold', 'completed', 'archived'],
       task_priority: ['low', 'medium', 'high', 'urgent'],

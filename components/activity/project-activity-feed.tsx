@@ -1,11 +1,28 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { FileUp, ListTodo, MessageSquare, MoveRight } from 'lucide-react'
+import {
+  CheckCircle2,
+  FileUp,
+  FolderPlus,
+  ListTodo,
+  MessageSquare,
+  MoveRight,
+  Pencil,
+  UserMinus,
+  UserPlus,
+} from 'lucide-react'
 import type { ProjectActivity } from '@/types/activity'
 
 const details = {
+  project_created: { label: 'created the project', icon: FolderPlus },
+  project_updated: { label: 'updated the project', icon: Pencil },
+  member_added: { label: 'added a project member', icon: UserPlus },
+  member_removed: { label: 'removed a project member', icon: UserMinus },
+  member_role_changed: { label: 'changed a member role', icon: Pencil },
   task_created: { label: 'created a task', icon: ListTodo },
+  task_updated: { label: 'updated a task', icon: Pencil },
+  task_completed: { label: 'completed a task', icon: CheckCircle2 },
   task_moved: { label: 'moved a task', icon: MoveRight },
   comment_added: { label: 'added a comment', icon: MessageSquare },
   file_uploaded: { label: 'uploaded a file', icon: FileUp },
@@ -30,7 +47,11 @@ export function ProjectActivityFeed({ activity }: { activity: ProjectActivity[] 
           onChange={(event) => setFilter(event.target.value)}
         >
           <option value="all">All activity</option>
+          <option value="project_created">Project changes</option>
+          <option value="member_added">Team changes</option>
           <option value="task_created">Tasks created</option>
+          <option value="task_updated">Tasks updated</option>
+          <option value="task_completed">Tasks completed</option>
           <option value="task_moved">Tasks moved</option>
           <option value="comment_added">Comments</option>
           <option value="file_uploaded">Files</option>
@@ -40,7 +61,7 @@ export function ProjectActivityFeed({ activity }: { activity: ProjectActivity[] 
         <div className="rounded-xl border border-dashed p-10 text-center">
           <h2>No activity yet</h2>
           <p className="text-sm text-muted-foreground">
-            Task, comment, and file changes will appear here.
+            Project, team, task, comment, and file changes will appear here.
           </p>
         </div>
       ) : (

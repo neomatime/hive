@@ -70,10 +70,11 @@ describe('project writes', () => {
       startDate: null,
       dueDate: null,
       memberIds: [],
+      templateId: 'template-1',
     })
     expect(rpc).toHaveBeenCalledWith(
       'create_project_with_owner',
-      expect.objectContaining({ p_name: 'New Project' })
+      expect.objectContaining({ p_name: 'New Project', p_template_id: 'template-1' })
     )
     expect(result.project?.name).toBe('New Project')
   })

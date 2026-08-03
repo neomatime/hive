@@ -1,4 +1,4 @@
-﻿import Link from 'next/link'
+import Link from 'next/link'
 import {
   Bell,
   Building2,
@@ -64,9 +64,9 @@ const sections = [
   {
     title: 'Integrations',
     description: 'Connect HIVE to external services.',
-    href: '#',
+    href: '/dashboard/settings/integrations',
     icon: Plug,
-    live: false,
+    live: true,
   },
 ]
 export default function SettingsPage() {

@@ -60,6 +60,35 @@ export async function updateWorkspaceAction(
   if (!result.error) revalidatePath('/dashboard/settings/workspace')
   return { error: result.error ? 'Could not update workspace. Admin access is required.' : null }
 }
+export async function addWorkspaceMemberAction(
+  workspaceId: string,
+  email: string,
+  role: Database['public']['Enums']['workspace_role']
+) {
+  if (role === 'owner') return { error: 'Ownership cannot be assigned through an invite.' }
+  const result = await (
+    await createClient()
+  ).rpc('add_workspace_member_by_email', {
+    p_workspace_id: workspaceId,
+    p_email: email.trim(),
+    p_role: role,
+  } as never)
+  if (!result.error) revalidatePath('/dashboard/settings/team')
+  return {
+    error: result.error ? 'Could not add member. Confirm they already have a Hive account.' : null,
+  }
+}
+export async function removeWorkspaceMemberAction(membershipId: string) {
+  const result = await (
+    await createClient()
+  )
+    .from('workspace_members')
+    .update({ is_active: false, updated_at: new Date().toISOString() })
+    .eq('id', membershipId)
+    .neq('role', 'owner')
+  if (!result.error) revalidatePath('/dashboard/settings/team')
+  return { error: result.error ? 'Could not remove member. Admin access is required.' : null }
+}
 export async function updateMemberRoleAction(
   membershipId: string,
   role: Database['public']['Enums']['workspace_role']

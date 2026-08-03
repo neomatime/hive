@@ -73,6 +73,15 @@ export async function updateMemberRoleAction(
   if (!result.error) revalidatePath('/dashboard/settings/team')
   return { error: result.error ? 'Could not update role. Admin access is required.' : null }
 }
+export async function updateEmailAction(email: string) {
+  if (!/^\S+@\S+\.\S+$/.test(email)) return { error: 'Enter a valid email address.' }
+  const result = await (await createClient()).auth.updateUser({ email })
+  return { error: result.error ? 'Could not update email. Sign in again and retry.' : null }
+}
+export async function signOutOtherSessionsAction() {
+  const result = await (await createClient()).auth.signOut({ scope: 'others' })
+  return { error: result.error ? 'Could not sign out other sessions.' : null }
+}
 export async function updatePasswordAction(password: string) {
   if (password.length < 12) return { error: 'Password must be at least 12 characters.' }
   const result = await (await createClient()).auth.updateUser({ password })
@@ -121,20 +130,16 @@ export async function updateTaskPreferencesAction(
 ) {
   if (![0, 1].includes(input.weekStartsOn) || input.workingHoursStart >= input.workingHoursEnd)
     return { error: 'Check your week start and working hours.' }
-  const result = await (
-    await createClient()
-  )
-    .from('user_preferences')
-    .upsert({
-      user_id: userId,
-      default_task_priority: input.defaultPriority,
-      default_task_status: input.defaultStatus,
-      week_starts_on: input.weekStartsOn,
-      working_hours_start: input.workingHoursStart,
-      working_hours_end: input.workingHoursEnd,
-      show_completed_tasks: input.showCompletedTasks,
-      updated_at: new Date().toISOString(),
-    })
+  const result = await (await createClient()).from('user_preferences').upsert({
+    user_id: userId,
+    default_task_priority: input.defaultPriority,
+    default_task_status: input.defaultStatus,
+    week_starts_on: input.weekStartsOn,
+    working_hours_start: input.workingHoursStart,
+    working_hours_end: input.workingHoursEnd,
+    show_completed_tasks: input.showCompletedTasks,
+    updated_at: new Date().toISOString(),
+  })
   if (!result.error) revalidatePath('/dashboard/settings/task-preferences')
   return { error: result.error ? 'Could not update task preferences.' : null }
 }

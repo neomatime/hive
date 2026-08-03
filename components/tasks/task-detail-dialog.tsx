@@ -1,5 +1,6 @@
-﻿'use client'
-import { useEffect, useState } from 'react'
+'use client'
+import { useEffect, useRef, useState } from 'react'
+import { Download, Paperclip, Upload } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -24,6 +25,11 @@ export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () =>
     () => new Set(task.labels.map((l) => l.id))
   )
   const [error, setError] = useState<string | null>(null)
+  const [attachments, setAttachments] = useState<
+    Array<{ id: string; name: string; storage_key: string; size_bytes: number }>
+  >([])
+  const [uploading, setUploading] = useState(false)
+  const attachmentPicker = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -87,6 +93,67 @@ export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () =>
     form.reset()
   }
 
+  async function uploadAttachment(file: File) {
+    if (file.size > 52428800) return setError('Attachments must be 50 MB or smaller.')
+    setUploading(true)
+    const client = createClient()
+    const [{ data: auth }, project] = await Promise.all([
+      client.auth.getUser(),
+      client.from('projects').select('workspace_id').eq('id', task.projectId).single(),
+    ])
+    if (!auth.user || !project.data) {
+      setUploading(false)
+      return setError('Could not identify the current workspace.')
+    }
+    const user = await client.from('users').select('id').eq('auth_user_id', auth.user.id).single()
+    if (!user.data) {
+      setUploading(false)
+      return setError('Could not identify the current user.')
+    }
+    const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '-')
+    const storageKey = `${project.data.workspace_id}/${task.projectId}/${crypto.randomUUID()}-${safe}`
+    const stored = await client.storage
+      .from('project-files')
+      .upload(storageKey, file, { contentType: file.type })
+    if (stored.error) {
+      setUploading(false)
+      return setError('Could not upload attachment.')
+    }
+    const metadata = await client
+      .from('files')
+      .insert({
+        workspace_id: project.data.workspace_id,
+        project_id: task.projectId,
+        task_id: task.id,
+        uploaded_by: user.data.id,
+        name: file.name,
+        storage_key: storageKey,
+        mime_type: file.type || 'application/octet-stream',
+        file_type: file.type.startsWith('image/')
+          ? 'image'
+          : file.type === 'application/pdf'
+            ? 'pdf'
+            : 'other',
+        size_bytes: file.size,
+      })
+      .select('id,name,storage_key,size_bytes')
+      .single()
+    if (metadata.error || !metadata.data) {
+      await client.storage.from('project-files').remove([storageKey])
+      setUploading(false)
+      return setError('Could not save attachment details.')
+    }
+    setAttachments((current) => [metadata.data, ...current])
+    setUploading(false)
+  }
+
+  async function downloadAttachment(attachment: { name: string; storage_key: string }) {
+    const result = await createClient()
+      .storage.from('project-files')
+      .createSignedUrl(attachment.storage_key, 60, { download: attachment.name })
+    if (result.data) window.open(result.data.signedUrl, '_blank', 'noopener,noreferrer')
+    else setError('Could not download attachment.')
+  }
   async function comment(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const form = e.currentTarget
@@ -208,6 +275,54 @@ export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () =>
           </p>
         </section>
 
+        <section className="mt-8 space-y-3" aria-labelledby="attachments-title">
+          <div className="flex items-center justify-between gap-3">
+            <h3 id="attachments-title">Attachments</h3>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={uploading}
+              onClick={() => attachmentPicker.current?.click()}
+            >
+              <Upload />
+              {uploading ? 'Uploading�' : 'Add file'}
+            </Button>
+            <input
+              ref={attachmentPicker}
+              type="file"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                if (file) uploadAttachment(file)
+                event.target.value = ''
+              }}
+            />
+          </div>
+          {attachments.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No files attached to this task.</p>
+          ) : (
+            attachments.map((attachment) => (
+              <div
+                key={attachment.id}
+                className="flex items-center justify-between rounded-lg border p-3 text-sm"
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <Paperclip className="size-4 shrink-0" />
+                  <span className="truncate">{attachment.name}</span>
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={`Download ${attachment.name}`}
+                  onClick={() => downloadAttachment(attachment)}
+                >
+                  <Download />
+                </Button>
+              </div>
+            ))
+          )}
+        </section>
+
         <section className="mt-8 space-y-3">
           <h3>Comments</h3>
           {comments.map((item) => (
@@ -216,7 +331,7 @@ export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () =>
             </p>
           ))}
           <form onSubmit={comment} className="flex gap-2">
-            <Input name="comment" aria-label="Add comment" placeholder="Write a comment…" />
+            <Input name="comment" aria-label="Add comment" placeholder="Write a comment�" />
             <Button type="submit">Comment</Button>
           </form>
         </section>

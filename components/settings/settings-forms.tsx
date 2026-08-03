@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
+  addWorkspaceMemberAction,
+  removeWorkspaceMemberAction,
   updateMemberRoleAction,
   updatePasswordAction,
   updateProfileAction,
@@ -211,52 +213,103 @@ export function PasswordForm() {
 export function TeamTable({
   members,
   canEdit,
+  workspaceId,
 }: {
   members: Awaited<
     ReturnType<typeof import('@/services/settings/settings-service').listWorkspaceTeam>
   >
   canEdit: boolean
+  workspaceId: string
 }) {
   const [error, setError] = useState<string | null>(null)
   return (
-    <div className="overflow-hidden rounded-xl border">
-      {error && (
-        <p role="alert" className="p-3 text-sm text-destructive">
-          {error}
-        </p>
-      )}
-      {members.map((member) => (
-        <div
-          key={member.id}
-          className="grid grid-cols-[minmax(0,1fr)_140px] items-center gap-4 border-t p-4 first:border-t-0"
+    <div className="space-y-4">
+      {canEdit && (
+        <form
+          className="flex flex-wrap gap-3 rounded-xl border bg-card p-4"
+          onSubmit={async (event) => {
+            event.preventDefault()
+            const form = event.currentTarget
+            const data = new FormData(form)
+            const result = await addWorkspaceMemberAction(
+              workspaceId,
+              String(data.get('email')),
+              String(data.get('role')) as Database['public']['Enums']['workspace_role']
+            )
+            setError(result.error)
+            if (!result.error) form.reset()
+          }}
         >
-          <div>
-            <p className="font-medium">{member.user?.display_name ?? 'Unknown user'}</p>
-            <p className="text-xs text-muted-foreground">
-              {member.user?.email}
-              {member.user?.job_title ? ` · ${member.user.job_title}` : ''}
-            </p>
-          </div>
-          <select
-            aria-label={`Role for ${member.user?.display_name ?? 'user'}`}
-            value={member.role}
-            disabled={!canEdit || member.role === 'owner'}
-            onChange={async (e) => {
-              const r = await updateMemberRoleAction(
-                member.id,
-                e.target.value as Database['public']['Enums']['workspace_role']
-              )
-              setError(r.error)
-            }}
-            className="h-8 rounded-lg border bg-background px-2 text-sm"
-          >
-            <option value="owner">Owner</option>
-            <option value="admin">Admin</option>
+          <Input
+            className="min-w-64 flex-1"
+            name="email"
+            type="email"
+            placeholder="teammate@example.com"
+            aria-label="Member email"
+            required
+          />
+          <select name="role" className="h-10 rounded-lg border bg-background px-3 text-sm">
             <option value="member">Member</option>
+            <option value="admin">Admin</option>
             <option value="viewer">Viewer</option>
           </select>
-        </div>
-      ))}
+          <Button type="submit">Add member</Button>
+        </form>
+      )}
+      <div className="overflow-hidden rounded-xl border">
+        {error && (
+          <p role="alert" className="p-3 text-sm text-destructive">
+            {error}
+          </p>
+        )}
+        {members.map((member) => (
+          <div
+            key={member.id}
+            className="grid gap-4 border-t p-4 first:border-t-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+          >
+            <div>
+              <p className="font-medium">{member.user?.display_name ?? 'Unknown user'}</p>
+              <p className="text-xs text-muted-foreground">
+                {member.user?.email}
+                {member.user?.job_title ? ` � ${member.user.job_title}` : ''}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                aria-label={`Role for ${member.user?.display_name ?? 'user'}`}
+                value={member.role}
+                disabled={!canEdit || member.role === 'owner' || !member.is_active}
+                onChange={async (event) => {
+                  const result = await updateMemberRoleAction(
+                    member.id,
+                    event.target.value as Database['public']['Enums']['workspace_role']
+                  )
+                  setError(result.error)
+                }}
+                className="h-8 rounded-lg border bg-background px-2 text-sm"
+              >
+                <option value="owner">Owner</option>
+                <option value="admin">Admin</option>
+                <option value="member">Member</option>
+                <option value="viewer">Viewer</option>
+              </select>
+              {canEdit && member.role !== 'owner' && member.is_active && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={async () => {
+                    const result = await removeWorkspaceMemberAction(member.id)
+                    setError(result.error)
+                  }}
+                >
+                  Remove
+                </Button>
+              )}
+              {!member.is_active && <span className="text-xs text-muted-foreground">Inactive</span>}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

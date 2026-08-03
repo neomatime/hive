@@ -14,6 +14,7 @@ export default async function TeamPage() {
       <TeamTable
         members={members}
         canEdit={current.user.role === 'owner' || current.user.role === 'admin'}
+        workspaceId={current.user.workspace.id}
       />
     </>
   )

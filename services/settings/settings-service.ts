@@ -13,7 +13,7 @@ export async function getProfile(client: Client, userId: string) {
 export async function getWorkspace(client: Client, workspaceId: string) {
   const result = await client
     .from('workspaces')
-    .select('id,name,description,timezone,date_format,time_format')
+    .select('id,name,description,logo_url,timezone,date_format,time_format')
     .eq('id', workspaceId)
     .single()
   return result.data

@@ -42,6 +42,7 @@ export async function updateWorkspaceAction(
     timezone: string
     dateFormat: string
     timeFormat: string
+    logoUrl: string | null
   }
 ) {
   const result = await (
@@ -54,6 +55,7 @@ export async function updateWorkspaceAction(
       timezone: input.timezone,
       date_format: input.dateFormat,
       time_format: input.timeFormat,
+      logo_url: input.logoUrl,
       updated_at: new Date().toISOString(),
     })
     .eq('id', workspaceId)

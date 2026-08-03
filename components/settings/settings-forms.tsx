@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
+import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -103,24 +105,75 @@ export function WorkspaceForm({
   canEdit: boolean
 }) {
   const [error, setError] = useState<string | null>(null),
-    [saved, setSaved] = useState(false)
+    [saved, setSaved] = useState(false),
+    [logoUrl, setLogoUrl] = useState(workspace.logo_url)
   return (
     <form
       className="max-w-2xl space-y-4 rounded-xl border bg-card p-6"
       onSubmit={async (e) => {
         e.preventDefault()
         const d = new FormData(e.currentTarget)
+        const logo = d.get('logo') as File
+        let nextLogoUrl = logoUrl
+        if (logo?.size) {
+          if (
+            logo.size > 2 * 1024 * 1024 ||
+            !['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'].includes(logo.type)
+          ) {
+            setError('Logo must be a PNG, JPEG, WebP, or SVG under 2 MB.')
+            return
+          }
+          const client = createClient()
+          const extension = logo.name.split('.').pop()?.toLowerCase() || 'png'
+          const storagePath = `${workspace.id}/logo.${extension}`
+          const upload = await client.storage
+            .from('workspace-branding')
+            .upload(storagePath, logo, { upsert: true })
+          if (upload.error) {
+            setError('Could not upload workspace logo.')
+            return
+          }
+          nextLogoUrl = client.storage.from('workspace-branding').getPublicUrl(storagePath)
+            .data.publicUrl
+          setLogoUrl(nextLogoUrl)
+        }
         const r = await updateWorkspaceAction(workspace.id, {
           name: String(d.get('name')),
           description: String(d.get('description')),
           timezone: String(d.get('timezone')),
           dateFormat: String(d.get('dateFormat')),
           timeFormat: String(d.get('timeFormat')),
+          logoUrl: nextLogoUrl,
         })
         setError(r.error)
         setSaved(!r.error)
       }}
     >
+      <div className="flex items-center gap-4">
+        {logoUrl ? (
+          <Image
+            src={logoUrl}
+            alt="Workspace logo"
+            width={64}
+            height={64}
+            unoptimized
+            className="size-16 rounded-xl border object-cover"
+          />
+        ) : (
+          <div className="grid size-16 place-items-center rounded-xl border bg-muted text-xl font-semibold">
+            {workspace.name.slice(0, 1).toUpperCase()}
+          </div>
+        )}
+        <label className="grid flex-1 gap-1 text-sm">
+          Workspace logo
+          <Input
+            name="logo"
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/svg+xml"
+            disabled={!canEdit}
+          />
+        </label>
+      </div>
       <label className="grid gap-1 text-sm">
         Workspace name
         <Input name="name" defaultValue={workspace.name} disabled={!canEdit} />

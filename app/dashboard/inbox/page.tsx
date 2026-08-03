@@ -6,5 +6,6 @@ export default async function InboxPage() {
   const client = await createClient(),
     current = await getCurrentUserWithMembership(client)
   if (current.status !== 'ok') return null
+  await client.rpc('refresh_my_task_notifications')
   return <NotificationInbox notifications={await listNotifications(client, current.user.id)} />
 }

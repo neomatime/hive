@@ -53,7 +53,7 @@ export function NotificationInbox({ notifications }: { notifications: Item[] }) 
         <div>
           <h1>Inbox</h1>
           <p className="text-muted-foreground">
-            Task assignments, completions, and important updates.
+            Assignments, mentions, reviews, due dates, completions, and important updates.
           </p>
         </div>
         {unread > 0 && (

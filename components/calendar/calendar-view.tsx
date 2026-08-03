@@ -58,7 +58,9 @@ export function CalendarView({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1>Calendar</h1>
-          <p className="text-muted-foreground">Project and task deadlines in one place.</p>
+          <p className="text-muted-foreground">
+            Project deadlines, tasks, meetings, and milestones in one place.
+          </p>
         </div>
         <div className="flex rounded-lg border p-1">
           {(['month', 'week', 'day'] as const).map((item) => (
@@ -147,7 +149,10 @@ export function CalendarView({
                     ) : (
                       <ListTodo className="mt-0.5 size-3 shrink-0" />
                     )}
-                    <span className="truncate">{event.title}</span>
+                    <span className="truncate">
+                      {event.time ? `${event.time} � ` : ''}
+                      {event.title}
+                    </span>
                   </Link>
                 ))}
               </div>

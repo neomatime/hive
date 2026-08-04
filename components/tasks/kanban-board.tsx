@@ -14,6 +14,58 @@ import { TaskCard } from './task-card'
 import { CreateTaskForm } from './create-task-form'
 import { TaskDetailDialog } from './task-detail-dialog'
 import type { ProjectBoard, Task } from '@/types/task'
+import type { ProjectMember, TaskPriority } from '@/types/project'
+
+export interface BoardFilters {
+  search: string
+  priority: TaskPriority | 'all'
+  assigneeId: string | 'all' | 'unassigned'
+}
+
+const defaultFilters: BoardFilters = { search: '', priority: 'all', assigneeId: 'all' }
+
+type GroupBy = 'none' | 'assignee' | 'priority'
+
+const priorityOrder: TaskPriority[] = ['urgent', 'high', 'medium', 'low']
+
+function laneKeyFor(task: Task, groupBy: GroupBy): string {
+  if (groupBy === 'priority') return task.priority
+  if (groupBy === 'assignee') return task.assigneeId ?? 'unassigned'
+  return 'all'
+}
+
+function laneLabel(key: string, members: ProjectMember[]): string {
+  if (key === 'unassigned') return 'Unassigned'
+  const member = members.find((item) => item.userId === key)
+  if (member) return member.displayName
+  return key.charAt(0).toUpperCase() + key.slice(1)
+}
+
+function laneKeys(groupBy: GroupBy, tasks: Task[], members: ProjectMember[]): string[] {
+  if (groupBy === 'priority') return priorityOrder
+  if (groupBy === 'assignee') {
+    const present = new Set(tasks.map((task) => laneKeyFor(task, groupBy)))
+    const memberKeys = members.map((member) => member.userId).filter((id) => present.has(id))
+    return present.has('unassigned') ? [...memberKeys, 'unassigned'] : memberKeys
+  }
+  return []
+}
+
+function matchesFilters(task: Task, filters: BoardFilters): boolean {
+  if (filters.search && !task.title.toLowerCase().includes(filters.search.toLowerCase())) {
+    return false
+  }
+  if (filters.priority !== 'all' && task.priority !== filters.priority) return false
+  if (filters.assigneeId === 'unassigned' && task.assigneeId !== null) return false
+  if (
+    filters.assigneeId !== 'all' &&
+    filters.assigneeId !== 'unassigned' &&
+    task.assigneeId !== filters.assigneeId
+  ) {
+    return false
+  }
+  return true
+}
 
 function WipLimitEditor({
   projectId,
@@ -64,13 +116,25 @@ function WipLimitEditor({
   )
 }
 
-export function KanbanBoard({ board }: { board: ProjectBoard }) {
+export function KanbanBoard({
+  board,
+  members = [],
+}: {
+  board: ProjectBoard
+  members?: ProjectMember[]
+}) {
   const [dragged, setDragged] = useState<Task | null>(null),
     [selected, setSelected] = useState<Task | null>(null),
     [busy, setBusy] = useState(false),
     [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set()),
-    [bulkTargetColumnId, setBulkTargetColumnId] = useState(board.columns[0]?.id ?? '')
+    [bulkTargetColumnId, setBulkTargetColumnId] = useState(board.columns[0]?.id ?? ''),
+    [filters, setFilters] = useState<BoardFilters>(defaultFilters),
+    [groupBy, setGroupBy] = useState<GroupBy>('none')
   const router = useRouter()
+  const visibleTasks = board.columns
+    .flatMap((column) => column.tasks)
+    .filter((task) => matchesFilters(task, filters))
+  const lanes = laneKeys(groupBy, visibleTasks, members)
   async function drop(id: string, terminal: boolean, count: number) {
     if (!dragged || dragged.columnId === id) return
     setBusy(true)
@@ -107,6 +171,57 @@ export function KanbanBoard({ board }: { board: ProjectBoard }) {
   }
   return (
     <>
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <Input
+          type="search"
+          aria-label="Search tasks"
+          placeholder="Search tasks…"
+          className="h-8 w-48"
+          value={filters.search}
+          onChange={(e) => setFilters((current) => ({ ...current, search: e.target.value }))}
+        />
+        <select
+          aria-label="Filter by priority"
+          className="h-8 rounded-lg border bg-background px-2 text-sm"
+          value={filters.priority}
+          onChange={(e) =>
+            setFilters((current) => ({
+              ...current,
+              priority: e.target.value as BoardFilters['priority'],
+            }))
+          }
+        >
+          <option value="all">All priorities</option>
+          <option value="urgent">Urgent</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+        <select
+          aria-label="Filter by assignee"
+          className="h-8 rounded-lg border bg-background px-2 text-sm"
+          value={filters.assigneeId}
+          onChange={(e) => setFilters((current) => ({ ...current, assigneeId: e.target.value }))}
+        >
+          <option value="all">All assignees</option>
+          <option value="unassigned">Unassigned</option>
+          {members.map((member) => (
+            <option key={member.userId} value={member.userId}>
+              {member.displayName}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label="Group by"
+          className="h-8 rounded-lg border bg-background px-2 text-sm"
+          value={groupBy}
+          onChange={(e) => setGroupBy(e.target.value as GroupBy)}
+        >
+          <option value="none">No grouping</option>
+          <option value="assignee">Assignee</option>
+          <option value="priority">Priority</option>
+        </select>
+      </div>
       {selectedTaskIds.size > 0 && (
         <div className="mb-3 flex items-center justify-between rounded-lg border bg-muted/40 px-4 py-2 text-sm">
           <span>{selectedTaskIds.size} selected</span>
@@ -137,19 +252,74 @@ export function KanbanBoard({ board }: { board: ProjectBoard }) {
           </div>
         </div>
       )}
-      <div aria-label="Kanban board" aria-busy={busy} className="flex gap-4 overflow-x-auto pb-4">
-        {board.columns.map((column) => {
-          const atLimit = column.wipLimit !== null && column.tasks.length >= column.wipLimit
-          return (
-            <section
-              key={column.id}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => drop(column.id, column.isTerminal, column.tasks.length)}
-              className="w-72 shrink-0 space-y-3 rounded-xl bg-muted/50 p-3"
-            >
-              <header className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold">{column.name}</h2>
-                <div className="flex items-center gap-2">
+      {groupBy === 'none' ? (
+        <div aria-label="Kanban board" aria-busy={busy} className="flex gap-4 overflow-x-auto pb-4">
+          {board.columns.map((column) => {
+            const atLimit = column.wipLimit !== null && column.tasks.length >= column.wipLimit
+            return (
+              <section
+                key={column.id}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => drop(column.id, column.isTerminal, column.tasks.length)}
+                className="w-72 shrink-0 space-y-3 rounded-xl bg-muted/50 p-3"
+              >
+                <header className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold">{column.name}</h2>
+                  <div className="flex items-center gap-2">
+                    <span
+                      data-testid={`wip-count-${column.id}`}
+                      data-at-limit={atLimit}
+                      className={cn(
+                        'text-xs',
+                        atLimit ? 'font-semibold text-destructive' : 'text-muted-foreground'
+                      )}
+                    >
+                      {column.wipLimit !== null
+                        ? `${column.tasks.length} / ${column.wipLimit}`
+                        : column.tasks.length}
+                    </span>
+                    <WipLimitEditor
+                      projectId={board.projectId}
+                      columnId={column.id}
+                      columnName={column.name}
+                      wipLimit={column.wipLimit}
+                    />
+                  </div>
+                </header>
+                <div className="min-h-20 space-y-2">
+                  {column.tasks
+                    .filter((task) => matchesFilters(task, filters))
+                    .map((task) => (
+                      <TaskCard
+                        key={task.id}
+                        task={task}
+                        onDragStart={setDragged}
+                        onOpen={setSelected}
+                        isSelected={selectedTaskIds.has(task.id)}
+                        onToggleSelect={toggleTaskSelect}
+                      />
+                    ))}
+                </div>
+                <CreateTaskForm
+                  projectId={board.projectId}
+                  boardId={board.id}
+                  columnId={column.id}
+                />
+              </section>
+            )
+          })}
+        </div>
+      ) : (
+        <div aria-label="Kanban board" aria-busy={busy} className="space-y-6 overflow-x-auto pb-4">
+          <div
+            className="grid gap-4"
+            style={{ gridTemplateColumns: `repeat(${board.columns.length}, 18rem)` }}
+          >
+            {board.columns.map((column) => {
+              const atLimit = column.wipLimit !== null && column.tasks.length >= column.wipLimit
+              return (
+                <div key={column.id} className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold">{column.name}</h2>
                   <span
                     data-testid={`wip-count-${column.id}`}
                     data-at-limit={atLimit}
@@ -162,31 +332,48 @@ export function KanbanBoard({ board }: { board: ProjectBoard }) {
                       ? `${column.tasks.length} / ${column.wipLimit}`
                       : column.tasks.length}
                   </span>
-                  <WipLimitEditor
-                    projectId={board.projectId}
-                    columnId={column.id}
-                    columnName={column.name}
-                    wipLimit={column.wipLimit}
-                  />
                 </div>
-              </header>
-              <div className="min-h-20 space-y-2">
-                {column.tasks.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onDragStart={setDragged}
-                    onOpen={setSelected}
-                    isSelected={selectedTaskIds.has(task.id)}
-                    onToggleSelect={toggleTaskSelect}
-                  />
+              )
+            })}
+          </div>
+          {lanes.map((laneKey) => (
+            <section key={laneKey} aria-label={`Swimlane: ${laneLabel(laneKey, members)}`}>
+              <h3 className="mb-2 text-sm font-medium text-muted-foreground">
+                {laneLabel(laneKey, members)}
+              </h3>
+              <div
+                className="grid gap-4"
+                style={{ gridTemplateColumns: `repeat(${board.columns.length}, 18rem)` }}
+              >
+                {board.columns.map((column) => (
+                  <div
+                    key={column.id}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={() => drop(column.id, column.isTerminal, column.tasks.length)}
+                    className="min-h-16 space-y-2 rounded-xl bg-muted/50 p-3"
+                  >
+                    {column.tasks
+                      .filter(
+                        (task) =>
+                          matchesFilters(task, filters) && laneKeyFor(task, groupBy) === laneKey
+                      )
+                      .map((task) => (
+                        <TaskCard
+                          key={task.id}
+                          task={task}
+                          onDragStart={setDragged}
+                          onOpen={setSelected}
+                          isSelected={selectedTaskIds.has(task.id)}
+                          onToggleSelect={toggleTaskSelect}
+                        />
+                      ))}
+                  </div>
                 ))}
               </div>
-              <CreateTaskForm projectId={board.projectId} boardId={board.id} columnId={column.id} />
             </section>
-          )
-        })}
-      </div>
+          ))}
+        </div>
+      )}
       {selected && <TaskDetailDialog task={selected} onClose={() => setSelected(null)} />}
     </>
   )

@@ -40,15 +40,15 @@ export function CalendarView({
   }, [cursor, view])
   const title =
     view === 'day'
-      ? cursor.toLocaleDateString(undefined, {
+      ? cursor.toLocaleDateString('en-GB', {
           weekday: 'long',
           day: 'numeric',
           month: 'long',
           year: 'numeric',
         })
       : view === 'week'
-        ? `${days[0]!.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} – ${days.at(-1)!.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}`
-        : cursor.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+        ? `${days[0]!.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – ${days.at(-1)!.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`
+        : cursor.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
   function move(amount: number) {
     if (view === 'month') setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + amount, 1))
     else setCursor(addDays(cursor, amount * (view === 'week' ? 7 : 1)))
@@ -112,7 +112,7 @@ export function CalendarView({
           return (
             <section
               key={dateKey}
-              aria-label={date.toLocaleDateString()}
+              aria-label={dateKey}
               className={cn(
                 'min-h-32 bg-background p-2',
                 view === 'month' &&
@@ -123,7 +123,7 @@ export function CalendarView({
             >
               <p className="mb-2 text-xs font-medium">
                 {view === 'day'
-                  ? date.toLocaleDateString(undefined, {
+                  ? date.toLocaleDateString('en-GB', {
                       weekday: 'long',
                       day: 'numeric',
                       month: 'long',

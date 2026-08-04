@@ -170,12 +170,26 @@ body {
   --secondary: var(--color-ocean-dark);
   --secondary-foreground: var(--color-white);
   --muted: var(--color-ocean-dark);
-  --muted-foreground: color-mix(in oklch, var(--color-white) 60%, transparent);
+  /* Sits on top of the panel's own ~38% translucent background -- stacking
+     two layers of transparency reads as muddy/low-contrast text, so this is
+     deliberately much more opaque than a typical --muted-foreground. */
+  --muted-foreground: color-mix(in oklch, var(--color-white) 82%, transparent);
   --accent: var(--color-ocean-dark);
   --accent-foreground: var(--color-white);
   --border: color-mix(in oklch, var(--color-white) 18%, transparent);
   --input: color-mix(in oklch, var(--color-white) 18%, transparent);
   --ring: var(--color-ocean);
+  /* This page's own hero heading face -- see app/(auth)/layout.tsx's
+     Plus_Jakarta_Sans comment. A custom property can't reference itself as
+     its own fallback (that's a cycle -> the whole declaration goes
+     invalid), so the fallback is spelled out rather than chained off the
+     app-wide --font-family-display this shadows. */
+  --font-family-display: var(--font-auth-heading), ui-sans-serif, system-ui, sans-serif;
+  /* Only 600/700 are loaded for --font-auth-heading (see the Plus_Jakarta_Sans
+     call) -- the app-wide --text-h1-weight is 500, a weight that font never
+     shipped, so without this override the browser fake-bolds instead of
+     rendering an actual loaded weight. */
+  --text-h1-weight: 700;
   color: var(--color-white);
 }
 

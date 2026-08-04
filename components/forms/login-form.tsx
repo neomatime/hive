@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Eye, EyeOff, Loader2, Lock, User } from 'lucide-react'
+import { ArrowRight, Eye, EyeOff, Loader2, Lock, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -73,14 +73,20 @@ export function LoginForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="sr-only">Email</FormLabel>
               <div className="relative">
                 <User
                   className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
                   aria-hidden="true"
                 />
                 <FormControl>
-                  <Input type="email" autoComplete="email" className="pl-8" {...field} />
+                  <Input
+                    type="email"
+                    autoComplete="email"
+                    placeholder="Email address"
+                    className="pl-8"
+                    {...field}
+                  />
                 </FormControl>
               </div>
               <FormMessage />
@@ -92,7 +98,7 @@ export function LoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel className="sr-only">Password</FormLabel>
               <div className="relative">
                 <Lock
                   className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -102,6 +108,7 @@ export function LoginForm() {
                   <Input
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="current-password"
+                    placeholder="Password"
                     className="pl-8 pr-9"
                     {...field}
                   />
@@ -128,14 +135,21 @@ export function LoginForm() {
             {serverError}
           </p>
         )}
-        <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting}
+          className="w-full justify-between bg-[var(--color-ocean)] text-white hover:bg-[var(--color-ocean-dark)]"
+        >
           {form.formState.isSubmitting ? (
-            <>
+            <span className="mx-auto flex items-center gap-2">
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />
               Signing in…
-            </>
+            </span>
           ) : (
-            'Sign In'
+            <>
+              <span className="mx-auto">Sign In</span>
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </>
           )}
         </Button>
         <div className="flex items-center gap-3 text-xs text-muted-foreground">

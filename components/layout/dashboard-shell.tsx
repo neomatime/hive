@@ -4,7 +4,7 @@ import { useSyncExternalStore } from 'react'
 import { usePathname } from 'next/navigation'
 import { Sidebar } from '@/components/navigation/sidebar'
 import { Topbar } from '@/components/layout/topbar'
-import { NAV_ITEMS } from '@/constants/routes'
+import { BreadcrumbProvider } from '@/components/layout/breadcrumb-context'
 import type { CurrentUserWithMembership } from '@/services/workspace/workspace-service'
 
 const SIDEBAR_COLLAPSED_KEY = 'hive-sidebar-collapsed'
@@ -33,10 +33,9 @@ function setSidebarCollapsed(next: boolean) {
 // `headers()` does not work on this Next.js version (16.2.12) — a real request to
 // `/dashboard/overview` only exposes host/user-agent/accept/x-forwarded-* to `headers()`,
 // no `x-invoke-path` or `x-matched-path`. The brief's fallback anticipated this for
-// Topbar's title only, but Sidebar's `activePath` prop (for `aria-current` highlighting)
-// has the identical dependency on the current pathname, so the fix is applied once here
-// rather than duplicated in both children — Sidebar and Topbar keep their existing,
-// already-approved prop contracts (`activePath` / `title`) unchanged.
+// Topbar's breadcrumb trail too, so the fix is applied once here rather than
+// duplicated in both children — Sidebar and Topbar keep their existing,
+// already-approved `activePath`/`pathname` prop contracts unchanged.
 export function DashboardShell({
   user,
   children,
@@ -45,7 +44,6 @@ export function DashboardShell({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const activeItem = NAV_ITEMS.find((item) => pathname.startsWith(item.href))
 
   const collapsed = useSyncExternalStore(
     subscribeCollapsed,
@@ -57,23 +55,25 @@ export function DashboardShell({
   }
 
   return (
-    <div className="flex min-h-screen" style={{ background: 'var(--background-app)' }}>
-      <Sidebar
-        activePath={pathname}
-        userDisplayName={user.displayName}
-        userRole={user.role}
-        collapsed={collapsed}
-        onToggleCollapse={toggleCollapsed}
-      />
-      <div className="flex flex-1 flex-col">
-        <Topbar
-          title={activeItem?.label ?? 'HIVE'}
+    <BreadcrumbProvider>
+      <div className="flex min-h-screen" style={{ background: 'var(--background-app)' }}>
+        <Sidebar
+          activePath={pathname}
           userDisplayName={user.displayName}
-          userEmail={user.email}
-          userAvatarUrl={user.avatarUrl}
+          userRole={user.role}
+          collapsed={collapsed}
+          onToggleCollapse={toggleCollapsed}
         />
-        <main style={{ padding: 'var(--space-8)', maxWidth: 1600 }}>{children}</main>
+        <div className="flex flex-1 flex-col">
+          <Topbar
+            pathname={pathname}
+            userDisplayName={user.displayName}
+            userEmail={user.email}
+            userAvatarUrl={user.avatarUrl}
+          />
+          <main style={{ padding: 'var(--space-8)', maxWidth: 1600 }}>{children}</main>
+        </div>
       </div>
-    </div>
+    </BreadcrumbProvider>
   )
 }

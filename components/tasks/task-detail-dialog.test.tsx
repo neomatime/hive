@@ -40,6 +40,11 @@ vi.mock('@/services/tasks/watcher-service', () => ({
   listTaskWatcherIds: vi.fn().mockResolvedValue([]),
 }))
 
+vi.mock('@/services/tasks/dependency-service', () => ({
+  listBlockingTasks: vi.fn().mockResolvedValue([]),
+  listCandidateTasks: vi.fn().mockResolvedValue([]),
+}))
+
 vi.mock('@/app/dashboard/projects/[projectId]/board/detail-actions', () => ({
   addTaskCommentAction: vi.fn(),
   createTaskLabelAction: vi.fn(),
@@ -58,15 +63,20 @@ vi.mock('@/app/dashboard/projects/[projectId]/board/detail-actions', () => ({
   toggleSubtaskCompleteAction: vi.fn().mockResolvedValue({ error: null }),
   watchTaskAction: vi.fn().mockResolvedValue({ error: null }),
   unwatchTaskAction: vi.fn().mockResolvedValue({ error: null }),
+  addDependencyAction: vi.fn().mockResolvedValue({ dependencyId: 'dep-2', error: null }),
+  removeDependencyAction: vi.fn().mockResolvedValue({ error: null }),
 }))
 
 import {
+  addDependencyAction,
   createSubtaskAction,
+  removeDependencyAction,
   toggleSubtaskCompleteAction,
   watchTaskAction,
   unwatchTaskAction,
 } from '@/app/dashboard/projects/[projectId]/board/detail-actions'
 import { listTaskWatcherIds } from '@/services/tasks/watcher-service'
+import { listBlockingTasks, listCandidateTasks } from '@/services/tasks/dependency-service'
 
 const task: Task = {
   id: 'task-1',
@@ -128,5 +138,43 @@ describe('TaskDetailDialog watchers', () => {
     await userEvent.click(button)
     expect(unwatchTaskAction).toHaveBeenCalledWith('project-1', 'task-1')
     expect(await screen.findByRole('button', { name: 'Watch' })).toBeInTheDocument()
+  })
+})
+
+describe('TaskDetailDialog dependencies', () => {
+  it('lists blocking tasks with a completion indicator', async () => {
+    vi.mocked(listBlockingTasks).mockResolvedValueOnce([
+      { dependencyId: 'dep-1', taskId: 'task-2', title: 'Design API', isComplete: false },
+    ])
+    render(<TaskDetailDialog task={task} onClose={vi.fn()} />)
+    expect(await screen.findByText('Design API')).toBeInTheDocument()
+  })
+
+  it('shows an empty state with no blockers', async () => {
+    render(<TaskDetailDialog task={task} onClose={vi.fn()} />)
+    expect(await screen.findByText('Not blocked by any other task.')).toBeInTheDocument()
+  })
+
+  it('adds a blocking task from the candidate list', async () => {
+    vi.mocked(listCandidateTasks).mockResolvedValueOnce([{ id: 'task-2', title: 'Design API' }])
+    render(<TaskDetailDialog task={task} onClose={vi.fn()} />)
+    await userEvent.selectOptions(
+      await screen.findByRole('combobox', { name: 'Add blocking task' }),
+      'task-2'
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Add blocker' }))
+    expect(addDependencyAction).toHaveBeenCalledWith('project-1', 'task-2', 'task-1')
+    expect(await screen.findByText('Design API')).toBeInTheDocument()
+  })
+
+  it('removes a blocking task', async () => {
+    vi.mocked(listBlockingTasks).mockResolvedValueOnce([
+      { dependencyId: 'dep-1', taskId: 'task-2', title: 'Design API', isComplete: false },
+    ])
+    render(<TaskDetailDialog task={task} onClose={vi.fn()} />)
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Remove Design API as a blocker' })
+    )
+    expect(removeDependencyAction).toHaveBeenCalledWith('project-1', 'dep-1')
   })
 })

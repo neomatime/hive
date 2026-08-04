@@ -79,8 +79,8 @@ test('login, protected-route redirect, and logout', async ({ page }) => {
 
   // Login
   await page.getByLabel(/email/i).fill(testEmail)
-  await page.getByLabel(/password/i).fill(TEST_PASSWORD)
-  await page.getByRole('button', { name: /sign in/i }).click()
+  await page.getByLabel('Password', { exact: true }).fill(TEST_PASSWORD)
+  await page.getByRole('button', { name: 'Sign In', exact: true }).click()
   await expect(page).toHaveURL(/\/dashboard\/overview/)
   await expect(page.getByRole('heading', { name: /welcome/i })).toBeVisible()
 
@@ -100,7 +100,7 @@ test('login, protected-route redirect, and logout', async ({ page }) => {
 test('shows an error for wrong credentials', async ({ page }) => {
   await page.goto('/login')
   await page.getByLabel(/email/i).fill(testEmail)
-  await page.getByLabel(/password/i).fill('wrong-password')
-  await page.getByRole('button', { name: /sign in/i }).click()
+  await page.getByLabel('Password', { exact: true }).fill('wrong-password')
+  await page.getByRole('button', { name: 'Sign In', exact: true }).click()
   await expect(page.getByText('Invalid email or password.')).toBeVisible()
 })

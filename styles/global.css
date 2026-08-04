@@ -154,6 +154,31 @@ body {
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Auth shell (login/forgot-password/reset-password) dark glass treatment.
+   Deliberately scoped to .auth-dark, not .dark -- design-system.md §14
+   explicitly rules out a generic/mechanical dark mode for the app, and this
+   isn't one: it's a single-purpose, hand-tuned shell using HIVE's own
+   brand navy (Ink Deep / Midnight / Ocean), not shadcn's generic oklch grey
+   .dark palette above. Never toggles anywhere else in the app. */
+.auth-dark {
+  --background: var(--color-ink-deep);
+  --foreground: var(--color-white);
+  --card: var(--color-midnight);
+  --card-foreground: var(--color-white);
+  --popover: var(--color-midnight);
+  --popover-foreground: var(--color-white);
+  --secondary: var(--color-ocean-dark);
+  --secondary-foreground: var(--color-white);
+  --muted: var(--color-ocean-dark);
+  --muted-foreground: color-mix(in oklch, var(--color-white) 60%, transparent);
+  --accent: var(--color-ocean-dark);
+  --accent-foreground: var(--color-white);
+  --border: color-mix(in oklch, var(--color-white) 18%, transparent);
+  --input: color-mix(in oklch, var(--color-white) 18%, transparent);
+  --ring: var(--color-ocean);
+  color: var(--color-white);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

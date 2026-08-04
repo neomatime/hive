@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { NAV_ITEMS } from '@/constants/routes'
 import { ROLE_LABELS } from '@/constants/roles'
 import { SidebarNavItem } from './sidebar-nav-item'
@@ -17,11 +18,21 @@ export function Sidebar({
       className="flex flex-col justify-between"
       style={{ width: 240, background: 'var(--background-sidebar)', padding: 'var(--space-4)' }}
     >
-      <nav className="flex flex-col gap-1">
-        {NAV_ITEMS.map((item) => (
-          <SidebarNavItem key={item.href} item={item} active={activePath.startsWith(item.href)} />
-        ))}
-      </nav>
+      <div className="flex flex-col gap-6">
+        <Image
+          src="/brand/hive-logo.png"
+          alt="Hive"
+          width={460}
+          height={180}
+          priority
+          style={{ width: 150, height: 'auto' }}
+        />
+        <nav className="flex flex-col gap-1">
+          {NAV_ITEMS.map((item) => (
+            <SidebarNavItem key={item.href} item={item} active={activePath.startsWith(item.href)} />
+          ))}
+        </nav>
+      </div>
       <div className="text-sm" style={{ color: 'var(--text-primary)' }}>
         <div style={{ fontWeight: 600 }}>{userDisplayName}</div>
         <div style={{ color: 'var(--text-secondary)' }}>{ROLE_LABELS[userRole]}</div>

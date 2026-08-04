@@ -29,4 +29,9 @@ describe('Sidebar', () => {
     expect(screen.getByText('Jane Doe')).toBeInTheDocument()
     expect(screen.getByText('Admin')).toBeInTheDocument()
   })
+
+  it('shows the Hive logo', () => {
+    render(<Sidebar activePath="/dashboard/overview" userDisplayName="Jane Doe" userRole="admin" />)
+    expect(screen.getByRole('img', { name: /hive/i })).toBeInTheDocument()
+  })
 })

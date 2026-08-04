@@ -23,6 +23,8 @@ import {
 } from '@/services/tasks/task-detail-service'
 import { listSubtasks } from '@/services/tasks/subtask-service'
 import { listTaskWatcherIds } from '@/services/tasks/watcher-service'
+import { CommentBody } from './comment-body'
+import { CommentComposer } from './comment-composer'
 import type { Subtask, Task, TaskLabel } from '@/types/task'
 
 export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () => void }) {
@@ -430,12 +432,12 @@ export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () =>
         <section className="mt-8 space-y-3">
           <h3>Comments</h3>
           {comments.map((item) => (
-            <p key={item.id} className="rounded-lg bg-muted p-3 text-sm">
-              {item.content}
-            </p>
+            <div key={item.id} className="space-y-1 rounded-lg bg-muted p-3 text-sm">
+              <CommentBody content={item.content} />
+            </div>
           ))}
-          <form onSubmit={comment} className="flex gap-2">
-            <Input name="comment" aria-label="Add comment" placeholder="Write a comment�" />
+          <form onSubmit={comment} className="space-y-2">
+            <CommentComposer />
             <Button type="submit">Comment</Button>
           </form>
         </section>

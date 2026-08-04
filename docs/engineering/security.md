@@ -393,6 +393,12 @@ Before production release:
 
 ---
 
+## Changelog
+
+- **2026-08-03/04:** Closed 2 Critical + 8 Important findings from a live security audit of the `codex/*`-authored schema: offboarding not revoking project access (C-1); the tenant boundary being writable on project updates (C-2); direct-insert bypass of project creation (I-6); four `anon`-executable workspace functions (I-1); a public storage bucket with SVG uploads enabled (I-2); a last-owner demotion gap (I-3); missing workspace/project cross-validation on files and calendar events (I-5); unvalidated task assignees (I-7); and workspace-level actions missing from audit logging (I-4). See `supabase/migrations/2026080310000{1..9}*.sql` and `supabase/migrations/README.md`. One related gap remains open and is tracked, not fixed: Phase 1's `workspace_members_write_owner_admin` policy still lets an admin `PATCH` their own row directly to `role = 'owner'`, bypassing `add_workspace_member_by_email`'s guards entirely.
+
+---
+
 ## 20. Source of Truth
 
 This document governs security implementation for HIVE.

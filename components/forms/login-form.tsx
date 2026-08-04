@@ -166,13 +166,6 @@ export function LoginForm() {
           <MicrosoftLogo />
           Sign in with Microsoft
         </Button>
-        <a
-          href="/forgot-password"
-          className="text-sm block text-center"
-          style={{ color: 'var(--color-ocean)' }}
-        >
-          Forgot your password?
-        </a>
       </form>
     </Form>
   )

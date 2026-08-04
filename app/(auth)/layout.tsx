@@ -25,7 +25,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         sizes="100vw"
         className="object-cover"
       />
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-end px-4 pb-[6vh]">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-end px-4 pb-[4vh]">
         <div className="w-full max-w-md space-y-6 p-8">{children}</div>
       </div>
     </div>

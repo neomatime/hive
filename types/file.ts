@@ -14,5 +14,6 @@ export interface HiveFile {
   mimeType: string
   fileType: FileType
   sizeBytes: number
+  versionNumber: number
   createdAt: string
 }

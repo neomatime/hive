@@ -36,8 +36,50 @@ export async function listFiles(
         mimeType: file.mime_type,
         fileType: file.file_type,
         sizeBytes: file.size_bytes,
+        versionNumber: file.version_number,
         createdAt: file.created_at,
       },
     ]
   })
+}
+
+export async function renameFile(
+  client: Client,
+  fileId: string,
+  name: string
+): Promise<{ error: string | null }> {
+  const trimmed = name.trim()
+  if (!trimmed) return { error: 'File name cannot be empty.' }
+  const result = await client
+    .from('files')
+    .update({ name: trimmed, updated_at: new Date().toISOString() })
+    .eq('id', fileId)
+  return { error: result.error ? 'Could not rename file.' : null }
+}
+
+export async function replaceFile(
+  client: Client,
+  target: { id: string; storageKey: string; versionNumber: number },
+  file: File
+): Promise<{ error: string | null }> {
+  if (file.size > 52428800) return { error: 'Files must be 50 MB or smaller.' }
+  // Same storage_key as the original upload -- the object already exists, so
+  // this relies on a storage UPDATE policy (not just insert), unlike a fresh
+  // upload. See the project_files_storage_update migration.
+  const uploaded = await client.storage
+    .from('project-files')
+    .upload(target.storageKey, file, { contentType: file.type, upsert: true })
+  if (uploaded.error) return { error: 'Could not upload the replacement file.' }
+  const result = await client
+    .from('files')
+    .update({
+      mime_type: file.type,
+      size_bytes: file.size,
+      version_number: target.versionNumber + 1,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', target.id)
+  return {
+    error: result.error ? 'Replacement uploaded, but its record could not be updated.' : null,
+  }
 }

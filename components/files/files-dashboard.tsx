@@ -1,10 +1,11 @@
 'use client'
 
 import { useMemo, useRef, useState } from 'react'
-import { Download, FileText, Search, Trash2, Upload } from 'lucide-react'
+import { Download, FileText, Pencil, RefreshCw, Search, Trash2, Upload } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { renameFile, replaceFile } from '@/services/files/file-service'
 import type { Project } from '@/types/project'
 import type { FileType, HiveFile } from '@/types/file'
 
@@ -52,8 +53,12 @@ export function FilesDashboard({
     [search, setSearch] = useState(''),
     [projectId, setProjectId] = useState(fixedProjectId ?? projects[0]?.id ?? ''),
     [busy, setBusy] = useState(false),
-    [error, setError] = useState<string | null>(null)
+    [error, setError] = useState<string | null>(null),
+    [renamingId, setRenamingId] = useState<string | null>(null),
+    [replacingId, setReplacingId] = useState<string | null>(null)
   const picker = useRef<HTMLInputElement>(null)
+  const replacePicker = useRef<HTMLInputElement>(null)
+  const replaceTarget = useRef<HiveFile | null>(null)
   const visible = useMemo(
     () =>
       files.filter((file) =>
@@ -111,6 +116,7 @@ export function FilesDashboard({
         mimeType: file.type,
         fileType: metadata.data.file_type,
         sizeBytes: file.size,
+        versionNumber: metadata.data.version_number,
         createdAt: metadata.data.created_at,
       },
       ...current,
@@ -136,6 +142,36 @@ export function FilesDashboard({
     if (metadata.error) return setError('File removed, but its record could not be updated.')
     setFiles((current) => current.filter((item) => item.id !== file.id))
   }
+  async function rename(file: HiveFile, name: string) {
+    setRenamingId(null)
+    if (name.trim() === file.name) return
+    const result = await renameFile(createClient(), file.id, name)
+    if (result.error) return setError(result.error)
+    setFiles((current) =>
+      current.map((item) => (item.id === file.id ? { ...item, name: name.trim() } : item))
+    )
+  }
+  async function replace(file: HiveFile, newFile: File) {
+    if (!allowed.has(newFile.type)) return setError('Unsupported file type.')
+    setReplacingId(file.id)
+    setError(null)
+    const result = await replaceFile(createClient(), file, newFile)
+    setReplacingId(null)
+    if (result.error) return setError(result.error)
+    setFiles((current) =>
+      current.map((item) =>
+        item.id === file.id
+          ? {
+              ...item,
+              mimeType: newFile.type,
+              fileType: fileType(newFile.type),
+              sizeBytes: newFile.size,
+              versionNumber: item.versionNumber + 1,
+            }
+          : item
+      )
+    )
+  }
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -156,6 +192,19 @@ export function FilesDashboard({
             const file = event.target.files?.[0]
             if (file) upload(file)
             event.target.value = ''
+          }}
+        />
+        <input
+          ref={replacePicker}
+          type="file"
+          className="hidden"
+          accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.zip"
+          onChange={(event) => {
+            const newFile = event.target.files?.[0]
+            const target = replaceTarget.current
+            if (newFile && target) replace(target, newFile)
+            event.target.value = ''
+            replaceTarget.current = null
           }}
         />
       </div>
@@ -201,7 +250,7 @@ export function FilesDashboard({
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border">
-          <div className="grid grid-cols-[minmax(0,1fr)_150px_90px_90px] gap-3 bg-muted/50 px-4 py-2 text-xs font-medium text-muted-foreground">
+          <div className="grid grid-cols-[minmax(0,1fr)_150px_90px_170px] gap-3 bg-muted/50 px-4 py-2 text-xs font-medium text-muted-foreground">
             <span>Name</span>
             <span>Project</span>
             <span>Size</span>
@@ -210,15 +259,56 @@ export function FilesDashboard({
           {visible.map((file) => (
             <div
               key={file.id}
-              className="grid grid-cols-[minmax(0,1fr)_150px_90px_90px] items-center gap-3 border-t px-4 py-3 text-sm"
+              className="grid grid-cols-[minmax(0,1fr)_150px_90px_170px] items-center gap-3 border-t px-4 py-3 text-sm"
             >
               <div className="flex min-w-0 items-center gap-2">
                 <FileText className="size-4 shrink-0" />
-                <span className="truncate">{file.name}</span>
+                {renamingId === file.id ? (
+                  <Input
+                    aria-label={`Rename ${file.name}`}
+                    autoFocus
+                    defaultValue={file.name}
+                    className="h-7"
+                    onBlur={(event) => rename(file, event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') event.currentTarget.blur()
+                      if (event.key === 'Escape') setRenamingId(null)
+                    }}
+                  />
+                ) : (
+                  <span className="truncate">
+                    {file.name}
+                    {file.versionNumber > 1 && (
+                      <span className="ml-1 text-xs text-muted-foreground">
+                        v{file.versionNumber}
+                      </span>
+                    )}
+                  </span>
+                )}
               </div>
               <span className="truncate text-muted-foreground">{file.projectCode}</span>
               <span className="text-muted-foreground">{size(file.sizeBytes)}</span>
               <div className="flex">
+                <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  aria-label={`Rename ${file.name}`}
+                  onClick={() => setRenamingId(file.id)}
+                >
+                  <Pencil />
+                </Button>
+                <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  aria-label={`Replace ${file.name}`}
+                  disabled={replacingId === file.id}
+                  onClick={() => {
+                    replaceTarget.current = file
+                    replacePicker.current?.click()
+                  }}
+                >
+                  <RefreshCw className={replacingId === file.id ? 'animate-spin' : ''} />
+                </Button>
                 <Button
                   size="icon-sm"
                   variant="ghost"

@@ -91,28 +91,34 @@ export async function addWorkspaceMemberAction(
   return result
 }
 export async function removeWorkspaceMemberAction(membershipId: string) {
-  const result = await (
-    await createClient()
-  )
+  const client = await createClient()
+  const current = await getCurrentUserWithMembership(client)
+  if (current.status !== 'ok' || (current.user.role !== 'owner' && current.user.role !== 'admin')) {
+    return { error: 'Admin access is required to remove members.' }
+  }
+  const result = await client
     .from('workspace_members')
     .update({ is_active: false, updated_at: new Date().toISOString() })
     .eq('id', membershipId)
     .neq('role', 'owner')
   if (!result.error) revalidatePath('/dashboard/settings/team')
-  return { error: result.error ? 'Could not remove member. Admin access is required.' : null }
+  return { error: result.error ? 'Could not remove member.' : null }
 }
 export async function updateMemberRoleAction(
   membershipId: string,
   role: Database['public']['Enums']['workspace_role']
 ) {
-  const result = await (
-    await createClient()
-  )
+  const client = await createClient()
+  const current = await getCurrentUserWithMembership(client)
+  if (current.status !== 'ok' || (current.user.role !== 'owner' && current.user.role !== 'admin')) {
+    return { error: 'Admin access is required to change roles.' }
+  }
+  const result = await client
     .from('workspace_members')
     .update({ role, updated_at: new Date().toISOString() })
     .eq('id', membershipId)
   if (!result.error) revalidatePath('/dashboard/settings/team')
-  return { error: result.error ? 'Could not update role. Admin access is required.' : null }
+  return { error: result.error ? 'Could not update role.' : null }
 }
 export async function updateEmailAction(email: string) {
   if (!/^\S+@\S+\.\S+$/.test(email)) return { error: 'Enter a valid email address.' }

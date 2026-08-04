@@ -22,8 +22,8 @@ export function Sidebar({
         <Image
           src="/brand/hive-logo.png"
           alt="Hive"
-          width={460}
-          height={180}
+          width={459}
+          height={185}
           priority
           style={{ width: 150, height: 'auto' }}
         />

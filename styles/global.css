@@ -64,11 +64,11 @@ body {
      aliasing them with var(--radius-sm) etc., would either recreate shadcn's
      generic scale or shadow theme.css's --radius-sm with a same-named
      self-reference inside this layer. Literal values keep a single,
-     unambiguous source of truth: theme.css's 8/12/16/20px scale. */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+     unambiguous source of truth: theme.css's 6/8/10/14px scale. */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);

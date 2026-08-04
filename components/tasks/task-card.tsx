@@ -23,7 +23,7 @@ export function TaskCard({
       onKeyDown={(e) => {
         if (e.key === 'Enter') onOpen(task)
       }}
-      className="cursor-grab space-y-2 rounded-lg border bg-background p-3 shadow-sm"
+      className="cursor-grab space-y-2 rounded-md border bg-background p-3 transition-colors hover:border-foreground/25"
     >
       <div className="flex justify-between gap-2">
         <div className="flex items-start gap-2">
@@ -38,7 +38,7 @@ export function TaskCard({
           )}
           <h3 className="text-sm font-medium">{task.title}</h3>
         </div>
-        <span className="text-xs capitalize text-muted-foreground">{task.priority}</span>
+        <span className="eyebrow shrink-0">{task.priority}</span>
       </div>
       {task.labels.length > 0 && (
         <div className="flex flex-wrap gap-1">
@@ -54,8 +54,8 @@ export function TaskCard({
         </div>
       )}
       {task.dueDate && (
-        <p className="flex items-center gap-1 text-xs text-muted-foreground">
-          <CalendarDays className="size-3" />
+        <p className="font-data flex items-center gap-1 text-xs text-muted-foreground">
+          <CalendarDays className="size-3" aria-hidden="true" />
           {task.dueDate}
         </p>
       )}

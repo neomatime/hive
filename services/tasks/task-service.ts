@@ -72,6 +72,7 @@ export async function getProjectBoard(
     status: column.status_type,
     position: column.position,
     isTerminal: column.is_terminal,
+    wipLimit: column.wip_limit,
     tasks: tasks.filter((task) => task.columnId === column.id),
   }))
   return {
@@ -141,6 +142,33 @@ export async function moveTask(
     })
     .eq('id', taskId)
   return { error: result.error ? 'Could not move task.' : null }
+}
+export async function moveTasks(
+  client: Client,
+  taskIds: string[],
+  column: Pick<BoardColumn, 'id' | 'isTerminal'>
+) {
+  if (taskIds.length === 0) return { error: null }
+  const result = await client
+    .from('tasks')
+    .update({
+      column_id: column.id,
+      completed_at: column.isTerminal ? new Date().toISOString() : null,
+      progress_percentage: column.isTerminal ? 100 : 0,
+    })
+    .in('id', taskIds)
+  return { error: result.error ? 'Could not move the selected tasks.' : null }
+}
+export async function updateColumnWipLimit(
+  client: Client,
+  columnId: string,
+  wipLimit: number | null
+) {
+  const result = await client
+    .from('board_columns')
+    .update({ wip_limit: wipLimit })
+    .eq('id', columnId)
+  return { error: result.error ? 'Could not update the WIP limit.' : null }
 }
 export async function deleteTask(client: Client, taskId: string) {
   const result = await client

@@ -28,6 +28,7 @@ export interface BoardColumn {
   status: TaskStatus
   position: number
   isTerminal: boolean
+  wipLimit: number | null
   tasks: Task[]
 }
 export interface ProjectBoard {

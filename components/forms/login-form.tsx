@@ -157,7 +157,12 @@ export function LoginForm() {
           or
           <span className="h-px flex-1 bg-border" />
         </div>
-        <Button type="button" variant="outline" className="w-full" onClick={signInWithMicrosoft}>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full border-[var(--border)] bg-transparent text-white hover:bg-white/10"
+          onClick={signInWithMicrosoft}
+        >
           <MicrosoftLogo />
           Sign in with Microsoft
         </Button>

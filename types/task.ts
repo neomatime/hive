@@ -44,3 +44,14 @@ export interface Subtask {
   isComplete: boolean
   position: number
 }
+export interface BoardFilters {
+  search: string
+  priority: TaskPriority | 'all'
+  assigneeId: string | 'all' | 'unassigned'
+}
+export interface FilterPreset {
+  id: string
+  boardId: string
+  name: string
+  filters: BoardFilters
+}

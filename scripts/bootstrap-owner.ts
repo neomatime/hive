@@ -2,7 +2,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { parseBootstrapArgs, ensureWorkspace } from './bootstrap-owner-logic'
 
 async function main() {
-  const { email, role } = parseBootstrapArgs(process.argv.slice(2))
+  const { email, role, firstName, lastName } = parseBootstrapArgs(process.argv.slice(2))
   const admin = createAdminClient()
 
   const workspace = await ensureWorkspace(admin)
@@ -17,8 +17,18 @@ async function main() {
   // straight at /reset-password, whose SessionGate
   // (components/auth/session-gate.tsx) reads the fragment client-side and
   // establishes the session before the password form renders.
+  // The signup trigger (handle_new_auth_user) falls back to raw_user_meta_data
+  // for first_name/last_name/display_name, defaulting display_name to the
+  // email address if none is supplied here -- pass --first-name/--last-name
+  // so real invitees don't end up with their email as their display name.
+  const displayName = firstName && lastName ? `${firstName} ${lastName}` : (firstName ?? lastName)
   const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
     redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/reset-password`,
+    data: {
+      ...(firstName && { first_name: firstName }),
+      ...(lastName && { last_name: lastName }),
+      ...(displayName && { display_name: displayName }),
+    },
   })
   if (inviteError || !invited.user) {
     throw new Error(`Failed to invite ${email}: ${inviteError?.message}`)

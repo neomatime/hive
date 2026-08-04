@@ -4,9 +4,16 @@ import type { WorkspaceRole } from '@/types/workspace'
 
 const VALID_ROLES: WorkspaceRole[] = ['owner', 'admin', 'member', 'viewer']
 
-export function parseBootstrapArgs(argv: string[]): { email: string; role: WorkspaceRole } {
+export function parseBootstrapArgs(argv: string[]): {
+  email: string
+  role: WorkspaceRole
+  firstName: string | undefined
+  lastName: string | undefined
+} {
   const emailArg = argv.find((a) => a.startsWith('--email='))
   const roleArg = argv.find((a) => a.startsWith('--role='))
+  const firstNameArg = argv.find((a) => a.startsWith('--first-name='))
+  const lastNameArg = argv.find((a) => a.startsWith('--last-name='))
 
   if (!emailArg) {
     throw new Error('--email is required, e.g. --email=owner@himark.com')
@@ -23,7 +30,12 @@ export function parseBootstrapArgs(argv: string[]): { email: string; role: Works
     throw new Error(`invalid role "${role}" — must be one of ${VALID_ROLES.join(', ')}`)
   }
 
-  return { email, role }
+  return {
+    email,
+    role,
+    firstName: firstNameArg?.split('=')[1],
+    lastName: lastNameArg?.split('=')[1],
+  }
 }
 
 export async function ensureWorkspace(admin: SupabaseClient<Database>): Promise<{ id: string }> {

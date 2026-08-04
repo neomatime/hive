@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { Sidebar } from './sidebar'
 
 describe('Sidebar', () => {
@@ -33,5 +34,35 @@ describe('Sidebar', () => {
   it('shows the Hive logo', () => {
     render(<Sidebar activePath="/dashboard/overview" userDisplayName="Jane Doe" userRole="admin" />)
     expect(screen.getByRole('img', { name: /hive/i })).toBeInTheDocument()
+  })
+
+  it('toggles collapsed state via the collapse button', async () => {
+    const onToggleCollapse = vi.fn()
+    render(
+      <Sidebar
+        activePath="/dashboard/overview"
+        userDisplayName="Jane Doe"
+        userRole="admin"
+        collapsed={false}
+        onToggleCollapse={onToggleCollapse}
+      />
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Collapse sidebar' }))
+    expect(onToggleCollapse).toHaveBeenCalled()
+  })
+
+  it('hides nav labels but keeps them accessible when collapsed', () => {
+    render(
+      <Sidebar
+        activePath="/dashboard/overview"
+        userDisplayName="Jane Doe"
+        userRole="admin"
+        collapsed
+        onToggleCollapse={vi.fn()}
+      />
+    )
+    // Accessible name survives collapse (visually-hidden, not removed).
+    expect(screen.getByRole('link', { name: /overview/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Expand sidebar' })).toBeInTheDocument()
   })
 })

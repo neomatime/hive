@@ -40,6 +40,7 @@ export async function getProjectBoard(
       .select('*')
       .eq('board_id', boardResult.data.id)
       .is('deleted_at', null)
+      .is('parent_task_id', null)
       .order('position'),
   ])
   if (columnsResult.error || tasksResult.error) return null

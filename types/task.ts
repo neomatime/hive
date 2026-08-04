@@ -37,3 +37,10 @@ export interface ProjectBoard {
   name: string
   columns: BoardColumn[]
 }
+export interface Subtask {
+  id: string
+  parentTaskId: string
+  title: string
+  isComplete: boolean
+  position: number
+}

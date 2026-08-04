@@ -3,12 +3,15 @@ import { useEffect, useRef, useState } from 'react'
 import { Download, Paperclip, Upload } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
   addTaskCommentAction,
+  createSubtaskAction,
   createTaskLabelAction,
   setTaskLabelAction,
+  toggleSubtaskCompleteAction,
   updateTaskAction,
 } from '@/app/dashboard/projects/[projectId]/board/detail-actions'
 import {
@@ -16,7 +19,8 @@ import {
   listTaskComments,
   type TaskComment,
 } from '@/services/tasks/task-detail-service'
-import type { Task, TaskLabel } from '@/types/task'
+import { listSubtasks } from '@/services/tasks/subtask-service'
+import type { Subtask, Task, TaskLabel } from '@/types/task'
 
 export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () => void }) {
   const [comments, setComments] = useState<TaskComment[]>([])
@@ -24,6 +28,7 @@ export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () =>
   const [selectedLabelIds, setSelectedLabelIds] = useState(
     () => new Set(task.labels.map((l) => l.id))
   )
+  const [subtasks, setSubtasks] = useState<Subtask[]>([])
   const [error, setError] = useState<string | null>(null)
   const [attachments, setAttachments] = useState<
     Array<{ id: string; name: string; storage_key: string; size_bytes: number }>
@@ -37,11 +42,43 @@ export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () =>
     Promise.all([
       listTaskComments(client, task.id),
       listProjectLabels(client, task.projectId),
-    ]).then(([nextComments, nextLabels]) => {
+      listSubtasks(client, task.id),
+    ]).then(([nextComments, nextLabels, nextSubtasks]) => {
       setComments(nextComments)
       setLabels(nextLabels)
+      setSubtasks(nextSubtasks)
     })
   }, [task.id, task.projectId])
+
+  async function addSubtask(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const form = e.currentTarget
+    const data = new FormData(form)
+    const title = String(data.get('subtaskTitle')).trim()
+    if (!title) return
+    const result = await createSubtaskAction(task.projectId, {
+      parentTaskId: task.id,
+      boardId: task.boardId,
+      columnId: task.columnId,
+      title,
+    })
+    if (result.error || !result.subtask) return setError(result.error)
+    setSubtasks((current) => [...current, result.subtask!])
+    form.reset()
+  }
+
+  async function toggleSubtask(subtaskId: string, isComplete: boolean) {
+    setSubtasks((current) =>
+      current.map((item) => (item.id === subtaskId ? { ...item, isComplete } : item))
+    )
+    const result = await toggleSubtaskCompleteAction(task.projectId, subtaskId, isComplete)
+    if (result.error) {
+      setError(result.error)
+      setSubtasks((current) =>
+        current.map((item) => (item.id === subtaskId ? { ...item, isComplete: !isComplete } : item))
+      )
+    }
+  }
 
   async function save(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -321,6 +358,42 @@ export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () =>
               </div>
             ))
           )}
+        </section>
+
+        <section className="mt-8 space-y-3" aria-labelledby="subtasks-title">
+          <h3 id="subtasks-title">
+            Subtasks
+            {subtasks.length > 0 && (
+              <span className="ml-2 text-xs font-normal text-muted-foreground">
+                {subtasks.filter((s) => s.isComplete).length}/{subtasks.length} complete
+              </span>
+            )}
+          </h3>
+          {subtasks.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No subtasks yet.</p>
+          ) : (
+            <ul className="space-y-1">
+              {subtasks.map((subtask) => (
+                <li key={subtask.id} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    aria-label={`Mark ${subtask.title} complete`}
+                    checked={subtask.isComplete}
+                    onChange={(e) => toggleSubtask(subtask.id, e.target.checked)}
+                  />
+                  <span className={cn(subtask.isComplete && 'text-muted-foreground line-through')}>
+                    {subtask.title}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <form onSubmit={addSubtask} className="flex gap-2">
+            <Input name="subtaskTitle" aria-label="Add subtask" placeholder="Add a subtask…" />
+            <Button type="submit" variant="outline">
+              Add
+            </Button>
+          </form>
         </section>
 
         <section className="mt-8 space-y-3">

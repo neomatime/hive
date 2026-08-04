@@ -9,6 +9,7 @@ import {
   removeTaskLabel,
   updateTask,
 } from '@/services/tasks/task-detail-service'
+import { createSubtask, toggleSubtaskComplete } from '@/services/tasks/subtask-service'
 import type { TaskPriority } from '@/types/project'
 const path = (id: string) => `/dashboard/projects/${id}/board`
 export async function updateTaskAction(
@@ -50,6 +51,35 @@ export async function setTaskLabelAction(
   const result = selected
     ? await addTaskLabel(client, taskId, labelId)
     : await removeTaskLabel(client, taskId, labelId)
+  if (!result.error) revalidatePath(path(projectId))
+  return result
+}
+
+export async function createSubtaskAction(
+  projectId: string,
+  input: { parentTaskId: string; boardId: string; columnId: string; title: string }
+) {
+  const client = await createClient()
+  const user = await getCurrentUserWithMembership(client)
+  if (user.status !== 'ok') return { subtask: null, error: 'Could not create subtask.' }
+  const result = await createSubtask(client, {
+    parentTaskId: input.parentTaskId,
+    projectId,
+    boardId: input.boardId,
+    columnId: input.columnId,
+    title: input.title,
+    createdBy: user.user.id,
+  })
+  if (!result.error) revalidatePath(path(projectId))
+  return result
+}
+
+export async function toggleSubtaskCompleteAction(
+  projectId: string,
+  subtaskId: string,
+  isComplete: boolean
+) {
+  const result = await toggleSubtaskComplete(await createClient(), subtaskId, isComplete)
   if (!result.error) revalidatePath(path(projectId))
   return result
 }

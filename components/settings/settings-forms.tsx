@@ -118,9 +118,9 @@ export function WorkspaceForm({
         if (logo?.size) {
           if (
             logo.size > 2 * 1024 * 1024 ||
-            !['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'].includes(logo.type)
+            !['image/png', 'image/jpeg', 'image/webp'].includes(logo.type)
           ) {
-            setError('Logo must be a PNG, JPEG, WebP, or SVG under 2 MB.')
+            setError('Logo must be a PNG, JPEG, or WebP under 2 MB.')
             return
           }
           const client = createClient()
@@ -133,8 +133,16 @@ export function WorkspaceForm({
             setError('Could not upload workspace logo.')
             return
           }
-          nextLogoUrl = client.storage.from('workspace-branding').getPublicUrl(storagePath)
-            .data.publicUrl
+          // workspace-branding is a private bucket (audit I-2) -- a public
+          // URL would 403; use a signed URL instead.
+          const signed = await client.storage
+            .from('workspace-branding')
+            .createSignedUrl(storagePath, 60 * 60 * 24 * 7)
+          if (signed.error || !signed.data) {
+            setError('Logo uploaded, but could not generate a preview URL.')
+            return
+          }
+          nextLogoUrl = signed.data.signedUrl
           setLogoUrl(nextLogoUrl)
         }
         const r = await updateWorkspaceAction(workspace.id, {

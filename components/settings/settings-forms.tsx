@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -13,6 +13,7 @@ import {
   updateProfileAction,
   updateWorkspaceAction,
 } from '@/app/dashboard/settings/actions'
+import { getProfile } from '@/services/settings/settings-service'
 import type { Database } from '@/types/database'
 
 function Message({ error, saved }: { error: string | null; saved: boolean }) {
@@ -32,10 +33,20 @@ function Message({ error, saved }: { error: string | null; saved: boolean }) {
 }
 export function ProfileForm({
   profile,
+  onSaved,
 }: {
   profile: NonNullable<
     Awaited<ReturnType<typeof import('@/services/settings/settings-service').getProfile>>
   >
+  onSaved?: (input: {
+    displayName: string
+    firstName: string
+    lastName: string
+    jobTitle: string
+    department: string
+    phoneNumber: string
+    timezone: string
+  }) => void
 }) {
   const [error, setError] = useState<string | null>(null),
     [saved, setSaved] = useState(false)
@@ -45,7 +56,7 @@ export function ProfileForm({
       onSubmit={async (e) => {
         e.preventDefault()
         const d = new FormData(e.currentTarget)
-        const r = await updateProfileAction(profile.id, {
+        const input = {
           displayName: String(d.get('displayName')),
           firstName: String(d.get('firstName')),
           lastName: String(d.get('lastName')),
@@ -53,9 +64,11 @@ export function ProfileForm({
           department: String(d.get('department')),
           phoneNumber: String(d.get('phoneNumber')),
           timezone: String(d.get('timezone')),
-        })
+        }
+        const r = await updateProfileAction(profile.id, input)
         setError(r.error)
         setSaved(!r.error)
+        if (!r.error) onSaved?.(input)
       }}
     >
       <div className="grid gap-4 sm:grid-cols-2">
@@ -271,18 +284,75 @@ export function PasswordForm() {
     </form>
   )
 }
+type TeamMember = Awaited<
+  ReturnType<typeof import('@/services/settings/settings-service').listWorkspaceTeam>
+>[number]
+
+function TeamMemberProfileDialog({
+  userId,
+  onClose,
+  onSaved,
+}: {
+  userId: string
+  onClose: () => void
+  onSaved: (input: { displayName: string; jobTitle: string }) => void
+}) {
+  const [profile, setProfile] = useState<Awaited<ReturnType<typeof getProfile>> | null | undefined>(
+    undefined
+  )
+  useEffect(() => {
+    let active = true
+    getProfile(createClient(), userId).then((data) => {
+      if (active) setProfile(data)
+    })
+    return () => {
+      active = false
+    }
+  }, [userId])
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="member-profile-title"
+        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-background p-6 shadow-xl"
+      >
+        <div className="mb-5 flex justify-between">
+          <h2 id="member-profile-title">Edit profile</h2>
+          <Button variant="ghost" onClick={onClose}>
+            Close
+          </Button>
+        </div>
+        {profile === undefined && <p className="text-sm text-muted-foreground">Loading…</p>}
+        {profile === null && (
+          <p role="alert" className="text-sm text-destructive">
+            Could not load this member&apos;s profile.
+          </p>
+        )}
+        {profile && (
+          <ProfileForm
+            profile={profile}
+            onSaved={(input) =>
+              onSaved({ displayName: input.displayName, jobTitle: input.jobTitle })
+            }
+          />
+        )}
+      </section>
+    </div>
+  )
+}
 export function TeamTable({
   members,
   canEdit,
   workspaceId,
 }: {
-  members: Awaited<
-    ReturnType<typeof import('@/services/settings/settings-service').listWorkspaceTeam>
-  >
+  members: TeamMember[]
   canEdit: boolean
   workspaceId: string
 }) {
   const [error, setError] = useState<string | null>(null)
+  const [teamMembers, setTeamMembers] = useState(members)
+  const [editingUserId, setEditingUserId] = useState<string | null>(null)
   return (
     <div className="space-y-4">
       {canEdit && (
@@ -323,18 +393,32 @@ export function TeamTable({
             {error}
           </p>
         )}
-        {members.map((member) => (
+        {teamMembers.map((member) => (
           <div
             key={member.id}
             className="grid gap-4 border-t p-4 first:border-t-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
           >
-            <div>
-              <p className="font-medium">{member.user?.display_name ?? 'Unknown user'}</p>
-              <p className="text-xs text-muted-foreground">
-                {member.user?.email}
-                {member.user?.job_title ? ` � ${member.user.job_title}` : ''}
-              </p>
-            </div>
+            {canEdit ? (
+              <button
+                type="button"
+                className="rounded-lg text-left hover:underline"
+                onClick={() => setEditingUserId(member.user_id)}
+              >
+                <p className="font-medium">{member.user?.display_name ?? 'Unknown user'}</p>
+                <p className="text-xs text-muted-foreground">
+                  {member.user?.email}
+                  {member.user?.job_title ? ` • ${member.user.job_title}` : ''}
+                </p>
+              </button>
+            ) : (
+              <div>
+                <p className="font-medium">{member.user?.display_name ?? 'Unknown user'}</p>
+                <p className="text-xs text-muted-foreground">
+                  {member.user?.email}
+                  {member.user?.job_title ? ` • ${member.user.job_title}` : ''}
+                </p>
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <select
                 aria-label={`Role for ${member.user?.display_name ?? 'user'}`}
@@ -371,6 +455,29 @@ export function TeamTable({
           </div>
         ))}
       </div>
+      {editingUserId && (
+        <TeamMemberProfileDialog
+          userId={editingUserId}
+          onClose={() => setEditingUserId(null)}
+          onSaved={(input) => {
+            setTeamMembers((current) =>
+              current.map((member) =>
+                member.user_id === editingUserId && member.user
+                  ? {
+                      ...member,
+                      user: {
+                        ...member.user,
+                        display_name: input.displayName,
+                        job_title: input.jobTitle || null,
+                      },
+                    }
+                  : member
+              )
+            )
+            setEditingUserId(null)
+          }}
+        />
+      )}
     </div>
   )
 }

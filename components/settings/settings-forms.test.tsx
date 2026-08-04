@@ -1,12 +1,14 @@
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { TeamTable } from './settings-forms'
 import {
   addWorkspaceMemberAction,
   removeWorkspaceMemberAction,
   updateMemberRoleAction,
+  updateProfileAction,
 } from '@/app/dashboard/settings/actions'
+import { getProfile } from '@/services/settings/settings-service'
 
 vi.mock('@/app/dashboard/settings/actions', () => ({
   addWorkspaceMemberAction: vi.fn(),
@@ -16,6 +18,8 @@ vi.mock('@/app/dashboard/settings/actions', () => ({
   updateProfileAction: vi.fn(),
   updateWorkspaceAction: vi.fn(),
 }))
+vi.mock('@/lib/supabase/client', () => ({ createClient: vi.fn() }))
+vi.mock('@/services/settings/settings-service', () => ({ getProfile: vi.fn() }))
 const members = [
   {
     id: 'm1',
@@ -74,5 +78,38 @@ describe('TeamTable', () => {
     expect(screen.getAllByRole('button', { name: 'Remove' })).toHaveLength(1)
     await userEvent.click(screen.getByRole('button', { name: 'Remove' }))
     expect(removeWorkspaceMemberAction).toHaveBeenCalledWith('m2')
+  })
+  it('is not clickable for non-admins', () => {
+    render(<TeamTable members={members} canEdit={false} workspaceId="w1" />)
+    expect(screen.queryByRole('button', { name: /Member User/ })).not.toBeInTheDocument()
+  })
+  it('opens a teammate profile editor on click and saves through updateProfileAction', async () => {
+    vi.mocked(getProfile).mockResolvedValue({
+      id: 'u2',
+      display_name: 'Member User',
+      first_name: 'Member',
+      last_name: 'User',
+      job_title: null,
+      department: null,
+      phone_number: null,
+      timezone: 'UTC',
+      email: 'member@example.com',
+    })
+    vi.mocked(updateProfileAction).mockResolvedValue({ error: null })
+    render(<TeamTable members={members} canEdit workspaceId="w1" />)
+    await userEvent.click(screen.getByRole('button', { name: /Member User/ }))
+    expect(getProfile).toHaveBeenCalledWith(undefined, 'u2')
+    await waitFor(() => screen.getByLabelText('Job title'))
+    await userEvent.type(screen.getByLabelText('Job title'), 'Engineer')
+    await userEvent.click(screen.getByRole('button', { name: 'Save profile' }))
+    expect(updateProfileAction).toHaveBeenCalledWith(
+      'u2',
+      expect.objectContaining({ displayName: 'Member User', jobTitle: 'Engineer' })
+    )
+    // the dialog closes and the row reflects the new job title
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    )
+    expect(screen.getByText(/Engineer/)).toBeInTheDocument()
   })
 })

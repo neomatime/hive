@@ -19,9 +19,17 @@ export async function updateProfileAction(
     timezone: string
   }
 ) {
-  const result = await (
-    await createClient()
-  )
+  const client = await createClient()
+  const current = await getCurrentUserWithMembership(client)
+  if (current.status !== 'ok') return { error: 'Could not update profile.' }
+  if (
+    current.user.id !== userId &&
+    current.user.role !== 'owner' &&
+    current.user.role !== 'admin'
+  ) {
+    return { error: "Admin access is required to edit another member's profile." }
+  }
+  const result = await client
     .from('users')
     .update({
       display_name: input.displayName.trim(),
@@ -34,7 +42,10 @@ export async function updateProfileAction(
       updated_at: new Date().toISOString(),
     })
     .eq('id', userId)
-  if (!result.error) revalidatePath('/dashboard/settings/profile')
+  if (!result.error) {
+    revalidatePath('/dashboard/settings/profile')
+    revalidatePath('/dashboard/settings/team')
+  }
   return { error: result.error ? 'Could not update profile.' : null }
 }
 export async function updateWorkspaceAction(

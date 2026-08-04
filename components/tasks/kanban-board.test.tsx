@@ -10,10 +10,24 @@ vi.mock('@/app/dashboard/projects/[projectId]/board/actions', () => ({
   moveTaskAction: vi.fn().mockResolvedValue({ error: null }),
   moveTasksAction: vi.fn().mockResolvedValue({ error: null }),
   updateColumnWipLimitAction: vi.fn().mockResolvedValue({ error: null }),
+  saveFilterPresetAction: vi
+    .fn()
+    .mockResolvedValue({
+      preset: {
+        id: 'preset-2',
+        boardId: 'board-1',
+        name: 'Highs',
+        filters: { search: '', priority: 'high', assigneeId: 'all' },
+      },
+      error: null,
+    }),
+  deleteFilterPresetAction: vi.fn().mockResolvedValue({ error: null }),
 }))
 
 import {
+  deleteFilterPresetAction,
   moveTasksAction,
+  saveFilterPresetAction,
   updateColumnWipLimitAction,
 } from '@/app/dashboard/projects/[projectId]/board/actions'
 
@@ -218,5 +232,52 @@ describe('KanbanBoard swimlanes', () => {
     expect(within(highLane).getByText('Write copy')).toBeInTheDocument()
     const lowLane = screen.getByLabelText('Swimlane: Low')
     expect(within(lowLane).getByText('Build API')).toBeInTheDocument()
+  })
+})
+
+const presets = [
+  {
+    id: 'preset-1',
+    boardId: 'board-1',
+    name: 'Low priority only',
+    filters: { search: '', priority: 'low' as const, assigneeId: 'all' as const },
+  },
+]
+
+describe('KanbanBoard saved filter presets', () => {
+  it('applies a saved preset', async () => {
+    render(<KanbanBoard board={filterableBoard()} members={members} presets={presets} />)
+    await userEvent.selectOptions(
+      screen.getByRole('combobox', { name: 'Saved filters' }),
+      'Low priority only'
+    )
+    expect(screen.getByText('Build API')).toBeInTheDocument()
+    expect(screen.queryByText('Design homepage')).not.toBeInTheDocument()
+  })
+
+  it('saves the current filters as a new preset', async () => {
+    render(<KanbanBoard board={filterableBoard()} members={members} presets={presets} />)
+    await userEvent.selectOptions(
+      screen.getByRole('combobox', { name: 'Filter by priority' }),
+      'high'
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Save as preset' }))
+    await userEvent.type(screen.getByRole('textbox', { name: 'Preset name' }), 'Highs')
+    await userEvent.click(screen.getByRole('button', { name: 'Save preset' }))
+    expect(saveFilterPresetAction).toHaveBeenCalledWith('project-1', 'board-1', 'Highs', {
+      search: '',
+      priority: 'high',
+      assigneeId: 'all',
+    })
+  })
+
+  it('deletes the selected preset', async () => {
+    render(<KanbanBoard board={filterableBoard()} members={members} presets={presets} />)
+    await userEvent.selectOptions(
+      screen.getByRole('combobox', { name: 'Saved filters' }),
+      'Low priority only'
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Delete preset' }))
+    expect(deleteFilterPresetAction).toHaveBeenCalledWith('project-1', 'preset-1')
   })
 })

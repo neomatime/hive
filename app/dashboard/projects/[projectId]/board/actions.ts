@@ -9,7 +9,9 @@ import {
   moveTasks,
   updateColumnWipLimit,
 } from '@/services/tasks/task-service'
+import { deleteFilterPreset, saveFilterPreset } from '@/services/tasks/filter-preset-service'
 import type { TaskPriority } from '@/types/project'
+import type { BoardFilters } from '@/types/task'
 
 const path = (id: string) => `/dashboard/projects/${id}/board`
 export async function createTaskAction(input: {
@@ -64,6 +66,24 @@ export async function updateColumnWipLimitAction(
   wipLimit: number | null
 ) {
   const result = await updateColumnWipLimit(await createClient(), columnId, wipLimit)
+  if (!result.error) revalidatePath(path(projectId))
+  return result
+}
+export async function saveFilterPresetAction(
+  projectId: string,
+  boardId: string,
+  name: string,
+  filters: BoardFilters
+) {
+  const client = await createClient()
+  const user = await getCurrentUserWithMembership(client)
+  if (user.status !== 'ok') return { preset: null, error: 'Could not save the filter preset.' }
+  const result = await saveFilterPreset(client, { boardId, userId: user.user.id, name, filters })
+  if (!result.error) revalidatePath(path(projectId))
+  return result
+}
+export async function deleteFilterPresetAction(projectId: string, presetId: string) {
+  const result = await deleteFilterPreset(await createClient(), presetId)
   if (!result.error) revalidatePath(path(projectId))
   return result
 }

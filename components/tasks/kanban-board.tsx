@@ -6,21 +6,17 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import {
+  deleteFilterPresetAction,
   moveTaskAction,
   moveTasksAction,
+  saveFilterPresetAction,
   updateColumnWipLimitAction,
 } from '@/app/dashboard/projects/[projectId]/board/actions'
 import { TaskCard } from './task-card'
 import { CreateTaskForm } from './create-task-form'
 import { TaskDetailDialog } from './task-detail-dialog'
-import type { ProjectBoard, Task } from '@/types/task'
+import type { BoardFilters, FilterPreset, ProjectBoard, Task } from '@/types/task'
 import type { ProjectMember, TaskPriority } from '@/types/project'
-
-export interface BoardFilters {
-  search: string
-  priority: TaskPriority | 'all'
-  assigneeId: string | 'all' | 'unassigned'
-}
 
 const defaultFilters: BoardFilters = { search: '', priority: 'all', assigneeId: 'all' }
 
@@ -119,9 +115,11 @@ function WipLimitEditor({
 export function KanbanBoard({
   board,
   members = [],
+  presets: initialPresets = [],
 }: {
   board: ProjectBoard
   members?: ProjectMember[]
+  presets?: FilterPreset[]
 }) {
   const [dragged, setDragged] = useState<Task | null>(null),
     [selected, setSelected] = useState<Task | null>(null),
@@ -129,7 +127,10 @@ export function KanbanBoard({
     [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set()),
     [bulkTargetColumnId, setBulkTargetColumnId] = useState(board.columns[0]?.id ?? ''),
     [filters, setFilters] = useState<BoardFilters>(defaultFilters),
-    [groupBy, setGroupBy] = useState<GroupBy>('none')
+    [groupBy, setGroupBy] = useState<GroupBy>('none'),
+    [presets, setPresets] = useState<FilterPreset[]>(initialPresets),
+    [selectedPresetId, setSelectedPresetId] = useState(''),
+    [savingPreset, setSavingPreset] = useState(false)
   const router = useRouter()
   const visibleTasks = board.columns
     .flatMap((column) => column.tasks)
@@ -168,6 +169,25 @@ export function KanbanBoard({
     )
     setSelectedTaskIds(new Set())
     router.refresh()
+  }
+  function applyPreset(presetId: string) {
+    setSelectedPresetId(presetId)
+    const preset = presets.find((item) => item.id === presetId)
+    if (preset) setFilters(preset.filters)
+  }
+  async function saveCurrentAsPreset(name: string) {
+    const result = await saveFilterPresetAction(board.projectId, board.id, name, filters)
+    if (result.preset) {
+      setPresets((current) => [...current, result.preset!])
+      setSelectedPresetId(result.preset.id)
+    }
+    setSavingPreset(false)
+  }
+  async function deleteSelectedPreset() {
+    if (!selectedPresetId) return
+    await deleteFilterPresetAction(board.projectId, selectedPresetId)
+    setPresets((current) => current.filter((item) => item.id !== selectedPresetId))
+    setSelectedPresetId('')
   }
   return (
     <>
@@ -221,6 +241,55 @@ export function KanbanBoard({
           <option value="assignee">Assignee</option>
           <option value="priority">Priority</option>
         </select>
+        <select
+          aria-label="Saved filters"
+          className="h-8 rounded-lg border bg-background px-2 text-sm"
+          value={selectedPresetId}
+          onChange={(e) => applyPreset(e.target.value)}
+        >
+          <option value="">Saved filters…</option>
+          {presets.map((preset) => (
+            <option key={preset.id} value={preset.id}>
+              {preset.name}
+            </option>
+          ))}
+        </select>
+        {selectedPresetId && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-label="Delete preset"
+            onClick={deleteSelectedPreset}
+          >
+            Delete preset
+          </Button>
+        )}
+        {savingPreset ? (
+          <form
+            className="flex items-center gap-2"
+            onSubmit={(e) => {
+              e.preventDefault()
+              const name = new FormData(e.currentTarget).get('presetName')
+              if (typeof name === 'string' && name.trim()) saveCurrentAsPreset(name.trim())
+            }}
+          >
+            <Input
+              name="presetName"
+              aria-label="Preset name"
+              placeholder="Preset name"
+              autoFocus
+              className="h-8 w-40"
+            />
+            <Button type="submit" size="sm">
+              Save preset
+            </Button>
+          </form>
+        ) : (
+          <Button type="button" variant="outline" size="sm" onClick={() => setSavingPreset(true)}>
+            Save as preset
+          </Button>
+        )}
       </div>
       {selectedTaskIds.size > 0 && (
         <div className="mb-3 flex items-center justify-between rounded-lg border bg-muted/40 px-4 py-2 text-sm">

@@ -441,7 +441,9 @@ export function KanbanBoard({
           ))}
         </div>
       )}
-      {selected && <TaskDetailDialog task={selected} onClose={() => setSelected(null)} />}
+      {selected && (
+        <TaskDetailDialog task={selected} onClose={() => setSelected(null)} members={members} />
+      )}
     </>
   )
 }

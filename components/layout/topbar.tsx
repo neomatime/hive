@@ -1,18 +1,23 @@
-﻿import { NotificationCenter } from '@/components/notifications/notification-center'
+'use client'
+
+import { NotificationCenter } from '@/components/notifications/notification-center'
 import { GlobalSearchBox } from '@/components/search/global-search-box'
+import { Breadcrumbs } from '@/components/layout/breadcrumbs'
+import { useBreadcrumbOverrides } from '@/components/layout/breadcrumb-context'
 import { UserMenu } from './user-menu'
 
 export function Topbar({
-  title,
+  pathname,
   userDisplayName,
   userEmail,
   userAvatarUrl,
 }: {
-  title: string
+  pathname: string
   userDisplayName: string
   userEmail: string
   userAvatarUrl: string | null
 }) {
+  const overrides = useBreadcrumbOverrides()
   return (
     <header
       className="flex items-center justify-between gap-6"
@@ -23,9 +28,9 @@ export function Topbar({
         borderBottom: '1px solid var(--border-default)',
       }}
     >
-      <h2 className="shrink-0" style={{ margin: 0 }}>
-        {title}
-      </h2>
+      <div className="min-w-0 shrink-0">
+        <Breadcrumbs pathname={pathname} overrides={overrides} />
+      </div>
       <GlobalSearchBox />
       <div className="flex items-center gap-3">
         <NotificationCenter />

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { RegisterBreadcrumbLabel } from '@/components/layout/breadcrumb-context'
 import type { Project } from '@/types/project'
 
 const tabs = ['overview', 'board', 'files', 'calendar', 'activity', 'settings'] as const
@@ -11,6 +12,7 @@ export function ProjectShell({
 }) {
   return (
     <div className="space-y-6">
+      <RegisterBreadcrumbLabel segment={project.id} label={project.name} />
       <header className="space-y-4">
         <div>
           <p className="text-sm text-muted-foreground">{project.projectCode}</p>

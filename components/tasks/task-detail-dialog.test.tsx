@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { TaskDetailDialog } from './task-detail-dialog'
 import type { Task } from '@/types/task'
@@ -49,7 +49,7 @@ vi.mock('@/app/dashboard/projects/[projectId]/board/detail-actions', () => ({
   addTaskCommentAction: vi.fn(),
   createTaskLabelAction: vi.fn(),
   setTaskLabelAction: vi.fn(),
-  updateTaskAction: vi.fn(),
+  updateTaskAction: vi.fn().mockResolvedValue({ error: null }),
   createSubtaskAction: vi.fn().mockResolvedValue({
     subtask: {
       id: 'sub-2',
@@ -72,6 +72,7 @@ import {
   createSubtaskAction,
   removeDependencyAction,
   toggleSubtaskCompleteAction,
+  updateTaskAction,
   watchTaskAction,
   unwatchTaskAction,
 } from '@/app/dashboard/projects/[projectId]/board/detail-actions'
@@ -176,5 +177,59 @@ describe('TaskDetailDialog dependencies', () => {
       await screen.findByRole('button', { name: 'Remove Design API as a blocker' })
     )
     expect(removeDependencyAction).toHaveBeenCalledWith('project-1', 'dep-1')
+  })
+})
+
+const members = [
+  {
+    id: 'm-1',
+    projectId: 'project-1',
+    userId: 'user-1',
+    role: 'contributor' as const,
+    displayName: 'Ada Lovelace',
+    avatarUrl: null,
+  },
+  {
+    id: 'm-2',
+    projectId: 'project-1',
+    userId: 'user-2',
+    role: 'contributor' as const,
+    displayName: 'Grace Hopper',
+    avatarUrl: null,
+  },
+]
+
+describe('TaskDetailDialog assignee', () => {
+  it('lists project members by name instead of a raw id field', async () => {
+    render(<TaskDetailDialog task={task} onClose={vi.fn()} members={members} />)
+    const select = screen.getByRole('combobox', { name: 'Assignee' })
+    expect(within(select).getByRole('option', { name: 'Unassigned' })).toBeInTheDocument()
+    expect(within(select).getByRole('option', { name: 'Ada Lovelace' })).toBeInTheDocument()
+    expect(within(select).getByRole('option', { name: 'Grace Hopper' })).toBeInTheDocument()
+  })
+
+  it('saves the selected member as the assignee', async () => {
+    render(<TaskDetailDialog task={task} onClose={vi.fn()} members={members} />)
+    await userEvent.selectOptions(
+      screen.getByRole('combobox', { name: 'Assignee' }),
+      'Grace Hopper'
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Save task' }))
+    expect(updateTaskAction).toHaveBeenCalledWith(
+      'project-1',
+      'task-1',
+      expect.objectContaining({ assigneeId: 'user-2' })
+    )
+  })
+
+  it('pre-selects the current assignee', async () => {
+    render(
+      <TaskDetailDialog
+        task={{ ...task, assigneeId: 'user-1' }}
+        onClose={vi.fn()}
+        members={members}
+      />
+    )
+    expect(screen.getByRole('combobox', { name: 'Assignee' })).toHaveValue('user-1')
   })
 })

@@ -13,6 +13,24 @@
   transition-timing-function: var(--motion-easing);
 }
 
+/* Page-to-page transition (app/template.tsx). A template re-mounts on every
+   navigation, unlike layout.tsx, so this animation naturally re-triggers per
+   route change without any client-side pathname-watching code. */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition-in {
+  animation: page-enter var(--motion-standard) var(--motion-easing);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

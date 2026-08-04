@@ -33,8 +33,17 @@ import {
 import { CommentBody } from './comment-body'
 import { CommentComposer } from './comment-composer'
 import type { Subtask, Task, TaskLabel } from '@/types/task'
+import type { ProjectMember } from '@/types/project'
 
-export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () => void }) {
+export function TaskDetailDialog({
+  task,
+  onClose,
+  members = [],
+}: {
+  task: Task
+  onClose: () => void
+  members?: ProjectMember[]
+}) {
   const [comments, setComments] = useState<TaskComment[]>([])
   const [labels, setLabels] = useState<TaskLabel[]>([])
   const [selectedLabelIds, setSelectedLabelIds] = useState(
@@ -328,8 +337,20 @@ export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () =>
             </label>
           </div>
           <label className="grid gap-1 text-sm">
-            Assignee ID
-            <Input name="assigneeId" defaultValue={task.assigneeId ?? ''} />
+            Assignee
+            <select
+              name="assigneeId"
+              aria-label="Assignee"
+              defaultValue={task.assigneeId ?? ''}
+              className="h-8 rounded-lg border bg-background px-2"
+            >
+              <option value="">Unassigned</option>
+              {members.map((member) => (
+                <option key={member.userId} value={member.userId}>
+                  {member.displayName}
+                </option>
+              ))}
+            </select>
           </label>
           {error && (
             <p role="alert" className="text-sm text-destructive">

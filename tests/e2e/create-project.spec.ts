@@ -38,8 +38,8 @@ test('creates a project and opens its overview', async ({ page }) => {
   const name = `E2E Project ${Date.now()}`
   await page.goto('/login')
   await page.getByLabel(/email/i).fill(email)
-  await page.getByLabel(/password/i).fill(password)
-  await page.getByRole('button', { name: /sign in/i }).click()
+  await page.getByLabel('Password', { exact: true }).fill(password)
+  await page.getByRole('button', { name: 'Sign In', exact: true }).click()
   await expect(page).toHaveURL(/\/dashboard\/overview/)
   await page.goto('/dashboard/projects')
   await page.getByRole('button', { name: 'New project' }).click()

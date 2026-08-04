@@ -85,8 +85,8 @@ test.describe('invite flow (fragment-based session establishment)', () => {
     try {
       await page.goto('/login')
       await page.getByLabel(/email/i).fill(email)
-      await page.getByLabel(/password/i).fill(TEST_PASSWORD)
-      await page.getByRole('button', { name: /sign in/i }).click()
+      await page.getByLabel('Password', { exact: true }).fill(TEST_PASSWORD)
+      await page.getByRole('button', { name: 'Sign In', exact: true }).click()
       await expect(page).toHaveURL(/\/dashboard\/overview/)
 
       // Now, with a valid session cookie already present and no fragment,

@@ -1,10 +1,32 @@
 'use client'
 
+import { useSyncExternalStore } from 'react'
 import { usePathname } from 'next/navigation'
 import { Sidebar } from '@/components/navigation/sidebar'
 import { Topbar } from '@/components/layout/topbar'
 import { NAV_ITEMS } from '@/constants/routes'
 import type { CurrentUserWithMembership } from '@/services/workspace/workspace-service'
+
+const SIDEBAR_COLLAPSED_KEY = 'hive-sidebar-collapsed'
+
+// useSyncExternalStore (not useState + useEffect) so the persisted preference
+// reads correctly on the client's very first render with no hydration
+// mismatch -- getServerSnapshot below matches the always-expanded server HTML.
+const collapseListeners = new Set<() => void>()
+function subscribeCollapsed(listener: () => void) {
+  collapseListeners.add(listener)
+  return () => collapseListeners.delete(listener)
+}
+function getCollapsedSnapshot() {
+  return window.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true'
+}
+function getCollapsedServerSnapshot() {
+  return false
+}
+function setSidebarCollapsed(next: boolean) {
+  window.localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(next))
+  collapseListeners.forEach((listener) => listener())
+}
 
 // This is a client component so it can read the current pathname via `usePathname()`.
 // Empirically verified (Task 13): reading the pathname from a Server Component via
@@ -25,9 +47,24 @@ export function DashboardShell({
   const pathname = usePathname()
   const activeItem = NAV_ITEMS.find((item) => pathname.startsWith(item.href))
 
+  const collapsed = useSyncExternalStore(
+    subscribeCollapsed,
+    getCollapsedSnapshot,
+    getCollapsedServerSnapshot
+  )
+  function toggleCollapsed() {
+    setSidebarCollapsed(!collapsed)
+  }
+
   return (
     <div className="flex min-h-screen" style={{ background: 'var(--background-app)' }}>
-      <Sidebar activePath={pathname} userDisplayName={user.displayName} userRole={user.role} />
+      <Sidebar
+        activePath={pathname}
+        userDisplayName={user.displayName}
+        userRole={user.role}
+        collapsed={collapsed}
+        onToggleCollapse={toggleCollapsed}
+      />
       <div className="flex flex-1 flex-col">
         <Topbar
           title={activeItem?.label ?? 'HIVE'}

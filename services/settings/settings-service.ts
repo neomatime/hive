@@ -2,6 +2,13 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
 
 type Client = SupabaseClient<Database>
+type WorkspaceRole = Database['public']['Enums']['workspace_role']
+interface InviteCapableAdmin {
+  inviteUserByEmail: (
+    email: string,
+    options: { redirectTo: string }
+  ) => Promise<{ data: { user: { id: string } | null }; error: { message: string } | null }>
+}
 export async function getProfile(client: Client, userId: string) {
   const result = await client
     .from('users')
@@ -37,6 +44,39 @@ export async function listWorkspaceTeam(client: Client, workspaceId: string) {
     user: users.data?.find((user) => user.id === item.user_id) ?? null,
   }))
 }
+// The workspace's own "Add member" form previously only worked for emails
+// that already had a Hive account -- add_workspace_member_by_email() raises
+// when it can't find one -- with no way for a workspace owner to actually
+// onboard someone new short of running the bootstrap CLI script for them.
+// This sends a real invite (same mechanism as scripts/bootstrap-owner.ts)
+// first when no account is found, then adds them via the existing
+// RLS-gated RPC, which already enforces the caller is a workspace admin.
+export async function inviteOrAddWorkspaceMember(
+  client: Client,
+  admin: InviteCapableAdmin,
+  input: { workspaceId: string; email: string; role: WorkspaceRole; redirectTo: string }
+): Promise<{ error: string | null }> {
+  if (input.role === 'owner') {
+    return { error: 'Ownership cannot be assigned through an invite.' }
+  }
+  const email = input.email.trim()
+
+  const existing = await client.from('users').select('id').ilike('email', email).maybeSingle()
+  if (!existing.data) {
+    const invited = await admin.inviteUserByEmail(email, { redirectTo: input.redirectTo })
+    if (invited.error && !/already (registered|exists)/i.test(invited.error.message)) {
+      return { error: 'Could not send an invite to that email.' }
+    }
+  }
+
+  const result = await client.rpc('add_workspace_member_by_email', {
+    p_workspace_id: input.workspaceId,
+    p_email: email,
+    p_role: input.role,
+  } as never)
+  return { error: result.error ? 'Could not add them to this workspace.' : null }
+}
+
 export const DEFAULT_NOTIFICATION_PREFERENCES = {
   in_app_enabled: true,
   email_enabled: true,

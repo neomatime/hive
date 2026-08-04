@@ -161,3 +161,54 @@ export async function toggleFavourite(
     .eq('id', projectId)
   return { error: error ? 'Could not update favourite.' : null }
 }
+
+export async function duplicateProject(
+  supabase: SupabaseClient<Database>,
+  projectId: string,
+  newOwnerId: string
+): Promise<{ project: Project | null; error: string | null }> {
+  const source = await supabase
+    .from('projects')
+    .select('name, description, priority, workspace_id')
+    .eq('id', projectId)
+    .single()
+  if (!source.data) return { project: null, error: 'Could not duplicate project.' }
+
+  const members = await supabase
+    .from('project_members')
+    .select('user_id')
+    .eq('project_id', projectId)
+  const memberIds = (members.data ?? [])
+    .map((member) => member.user_id)
+    .filter((userId) => userId !== newOwnerId)
+
+  return createProject(supabase, {
+    workspaceId: source.data.workspace_id,
+    name: `${source.data.name} (copy)`,
+    description: source.data.description,
+    status: 'not_started',
+    priority: source.data.priority as TaskPriority,
+    ownerId: newOwnerId,
+    startDate: null,
+    dueDate: null,
+    memberIds,
+  })
+}
+
+export async function archiveProjects(supabase: SupabaseClient<Database>, projectIds: string[]) {
+  if (projectIds.length === 0) return { error: null }
+  const { error } = await supabase
+    .from('projects')
+    .update({ status: 'archived', archived_at: new Date().toISOString() })
+    .in('id', projectIds)
+  return { error: error ? 'Could not archive the selected projects.' : null }
+}
+
+export async function restoreProjects(supabase: SupabaseClient<Database>, projectIds: string[]) {
+  if (projectIds.length === 0) return { error: null }
+  const { error } = await supabase
+    .from('projects')
+    .update({ status: 'active', archived_at: null })
+    .in('id', projectIds)
+  return { error: error ? 'Could not restore the selected projects.' : null }
+}

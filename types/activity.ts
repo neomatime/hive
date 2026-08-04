@@ -19,3 +19,8 @@ export interface ProjectActivity {
   metadata: Record<string, unknown>
   createdAt: string
 }
+
+export interface WorkspaceActivity extends ProjectActivity {
+  projectId: string | null
+  projectName: string | null
+}

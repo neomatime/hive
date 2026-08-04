@@ -5,10 +5,14 @@ export function TaskCard({
   task,
   onDragStart,
   onOpen,
+  isSelected,
+  onToggleSelect,
 }: {
   task: Task
   onDragStart: (task: Task) => void
   onOpen: (task: Task) => void
+  isSelected?: boolean
+  onToggleSelect?: (id: string, next: boolean) => void
 }) {
   return (
     <article
@@ -22,7 +26,18 @@ export function TaskCard({
       className="cursor-grab space-y-2 rounded-lg border bg-background p-3 shadow-sm"
     >
       <div className="flex justify-between gap-2">
-        <h3 className="text-sm font-medium">{task.title}</h3>
+        <div className="flex items-start gap-2">
+          {onToggleSelect && (
+            <input
+              type="checkbox"
+              aria-label={`Select ${task.title}`}
+              checked={isSelected ?? false}
+              onClick={(event) => event.stopPropagation()}
+              onChange={(event) => onToggleSelect(task.id, event.target.checked)}
+            />
+          )}
+          <h3 className="text-sm font-medium">{task.title}</h3>
+        </div>
         <span className="text-xs capitalize text-muted-foreground">{task.priority}</span>
       </div>
       {task.labels.length > 0 && (

@@ -1,0 +1,15 @@
+# Migrations
+
+Applied via the Supabase MCP `apply_migration` tool against project `ecesnhnkdqkhtdtzwisi`. The `version` recorded in `supabase_migrations.schema_migrations` is stamped by Supabase at apply time and will not match this directory's filenames — this is expected, not a defect (confirmed in the 2026-08-03 security audit, finding I-8).
+
+## Known pre-existing gaps (documented, not fixed, as of 2026-08-04)
+
+- `20260802224612_fix_activity_actor_resolution.sql` and `20260802223615_fix_project_file_storage_paths.sql` are functionally no-ops against what's live today. Whatever they were meant to fix was either superseded by later migrations (actor resolution, by `20260803100009_expand_audit_logging.sql`, which fully replaces `private.record_project_activity()`) or is no longer reproducible (storage paths — the live `project_files_storage_insert` policy already validates both the workspace and project path segments correctly, confirmed live). Left in place for historical record; do not assume either migration name describes current behaviour.
+- A storage bucket named `HIVE` exists live with `public = false` and zero policies (confirmed live: 0 policies on `storage.objects` reference it), so only `service_role` can reach it. No migration in this directory creates it. Harmless as configured, but undocumented in origin — if you learn what it's for, replace this note with a real migration and description.
+
+## 2026-08-03/04 security remediation pass
+
+`20260803100001` through `20260803100009` (plus follow-up corrections `20260803100002b`, `20260803100002c`, `20260803100004b`) close the 2 Critical + 8 Important findings from `.superpowers/sdd/2026-08-02-projects/codex-audit-migrations-report.md`. See `docs/engineering/security.md`'s changelog for a summary. Two of these went through a real fix cycle worth knowing about if you're reading the migration history cold:
+
+- `20260803100002` (C-2 first attempt) shipped a `WITH CHECK` clause with a self-referential subquery bug (`where p.id = id` resolves to `p.id = p.id` when the subquery aliases the same table — always true, not a filter). It silently no-op'd while the `projects` table had exactly one row, then would have hard-failed every ordinary project update the moment a second row existed. `20260803100002b` added a `BEFORE UPDATE` trigger as the real fix; `20260803100002c` removed the broken policy clause entirely once the trigger was confirmed correct. If you ever write a `WITH CHECK`/`USING` subquery that queries the same table the policy is on, don't alias it in a way that shadows the checked row's own columns — prefer a trigger comparing `OLD`/`NEW` directly instead.
+- `20260803100004` (I-1) only revoked the `PUBLIC` pseudo-role grant on 4 functions; `anon` (and, for `handle_new_auth_user`, `authenticated`) held separate independent grants that survived it. `20260803100004b` revoked those directly. If you're closing an `anon`-callable-function finding elsewhere in this schema, check `proacl` for a role-specific entry, not just a bare `=X/postgres` PUBLIC entry — Supabase's default `alter default privileges` grants some roles independently of PUBLIC.

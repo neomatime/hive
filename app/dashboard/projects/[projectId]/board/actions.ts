@@ -2,7 +2,13 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUserWithMembership } from '@/services/workspace/workspace-service'
-import { createTask, deleteTask, moveTask } from '@/services/tasks/task-service'
+import {
+  createTask,
+  deleteTask,
+  moveTask,
+  moveTasks,
+  updateColumnWipLimit,
+} from '@/services/tasks/task-service'
 import type { TaskPriority } from '@/types/project'
 
 const path = (id: string) => `/dashboard/projects/${id}/board`
@@ -39,6 +45,25 @@ export async function moveTaskAction(
 }
 export async function deleteTaskAction(projectId: string, taskId: string) {
   const result = await deleteTask(await createClient(), taskId)
+  if (!result.error) revalidatePath(path(projectId))
+  return result
+}
+export async function moveTasksAction(
+  projectId: string,
+  taskIds: string[],
+  columnId: string,
+  isTerminal: boolean
+) {
+  const result = await moveTasks(await createClient(), taskIds, { id: columnId, isTerminal })
+  if (!result.error) revalidatePath(path(projectId))
+  return result
+}
+export async function updateColumnWipLimitAction(
+  projectId: string,
+  columnId: string,
+  wipLimit: number | null
+) {
+  const result = await updateColumnWipLimit(await createClient(), columnId, wipLimit)
   if (!result.error) revalidatePath(path(projectId))
   return result
 }

@@ -28,6 +28,7 @@ export interface BoardColumn {
   status: TaskStatus
   position: number
   isTerminal: boolean
+  wipLimit: number | null
   tasks: Task[]
 }
 export interface ProjectBoard {
@@ -35,4 +36,11 @@ export interface ProjectBoard {
   projectId: string
   name: string
   columns: BoardColumn[]
+}
+export interface Subtask {
+  id: string
+  parentTaskId: string
+  title: string
+  isComplete: boolean
+  position: number
 }

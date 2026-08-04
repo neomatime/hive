@@ -25,16 +25,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         sizes="100vw"
         className="object-cover"
       />
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 pt-[13vh]">
-        <div
-          className="w-full max-w-md space-y-6 rounded-2xl p-8 backdrop-blur-lg"
-          style={{
-            background: 'color-mix(in oklch, var(--color-midnight) 38%, transparent)',
-            border: '1px solid color-mix(in oklch, var(--color-white) 8%, transparent)',
-          }}
-        >
-          {children}
-        </div>
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 pt-[24vh]">
+        <div className="w-full max-w-md space-y-6 p-8">{children}</div>
       </div>
     </div>
   )

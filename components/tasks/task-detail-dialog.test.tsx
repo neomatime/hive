@@ -7,7 +7,16 @@ import type { Task } from '@/types/task'
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: vi.fn() }) }))
 
 vi.mock('@/lib/supabase/client', () => ({
-  createClient: () => ({}),
+  createClient: () => ({
+    auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'auth-1' } } }) },
+    from: vi.fn(() => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          single: vi.fn().mockResolvedValue({ data: { id: 'user-1' } }),
+        })),
+      })),
+    })),
+  }),
 }))
 
 vi.mock('@/services/tasks/task-detail-service', () => ({
@@ -16,17 +25,19 @@ vi.mock('@/services/tasks/task-detail-service', () => ({
 }))
 
 vi.mock('@/services/tasks/subtask-service', () => ({
-  listSubtasks: vi
-    .fn()
-    .mockResolvedValue([
-      {
-        id: 'sub-1',
-        parentTaskId: 'task-1',
-        title: 'Write copy',
-        isComplete: false,
-        position: 1024,
-      },
-    ]),
+  listSubtasks: vi.fn().mockResolvedValue([
+    {
+      id: 'sub-1',
+      parentTaskId: 'task-1',
+      title: 'Write copy',
+      isComplete: false,
+      position: 1024,
+    },
+  ]),
+}))
+
+vi.mock('@/services/tasks/watcher-service', () => ({
+  listTaskWatcherIds: vi.fn().mockResolvedValue([]),
 }))
 
 vi.mock('@/app/dashboard/projects/[projectId]/board/detail-actions', () => ({
@@ -45,12 +56,17 @@ vi.mock('@/app/dashboard/projects/[projectId]/board/detail-actions', () => ({
     error: null,
   }),
   toggleSubtaskCompleteAction: vi.fn().mockResolvedValue({ error: null }),
+  watchTaskAction: vi.fn().mockResolvedValue({ error: null }),
+  unwatchTaskAction: vi.fn().mockResolvedValue({ error: null }),
 }))
 
 import {
   createSubtaskAction,
   toggleSubtaskCompleteAction,
+  watchTaskAction,
+  unwatchTaskAction,
 } from '@/app/dashboard/projects/[projectId]/board/detail-actions'
+import { listTaskWatcherIds } from '@/services/tasks/watcher-service'
 
 const task: Task = {
   id: 'task-1',
@@ -93,5 +109,24 @@ describe('TaskDetailDialog subtasks', () => {
     render(<TaskDetailDialog task={task} onClose={vi.fn()} />)
     await userEvent.click(await screen.findByRole('checkbox', { name: 'Mark Write copy complete' }))
     expect(toggleSubtaskCompleteAction).toHaveBeenCalledWith('project-1', 'sub-1', true)
+  })
+})
+
+describe('TaskDetailDialog watchers', () => {
+  it('shows Watch and switches to Watching when clicked', async () => {
+    render(<TaskDetailDialog task={task} onClose={vi.fn()} />)
+    const button = await screen.findByRole('button', { name: 'Watch' })
+    await userEvent.click(button)
+    expect(watchTaskAction).toHaveBeenCalledWith('project-1', 'task-1')
+    expect(await screen.findByRole('button', { name: 'Watching' })).toBeInTheDocument()
+  })
+
+  it('shows Watching when the current user already watches the task', async () => {
+    vi.mocked(listTaskWatcherIds).mockResolvedValueOnce(['user-1'])
+    render(<TaskDetailDialog task={task} onClose={vi.fn()} />)
+    const button = await screen.findByRole('button', { name: 'Watching' })
+    await userEvent.click(button)
+    expect(unwatchTaskAction).toHaveBeenCalledWith('project-1', 'task-1')
+    expect(await screen.findByRole('button', { name: 'Watch' })).toBeInTheDocument()
   })
 })

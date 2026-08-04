@@ -12,7 +12,9 @@ import {
   createTaskLabelAction,
   setTaskLabelAction,
   toggleSubtaskCompleteAction,
+  unwatchTaskAction,
   updateTaskAction,
+  watchTaskAction,
 } from '@/app/dashboard/projects/[projectId]/board/detail-actions'
 import {
   listProjectLabels,
@@ -20,6 +22,7 @@ import {
   type TaskComment,
 } from '@/services/tasks/task-detail-service'
 import { listSubtasks } from '@/services/tasks/subtask-service'
+import { listTaskWatcherIds } from '@/services/tasks/watcher-service'
 import type { Subtask, Task, TaskLabel } from '@/types/task'
 
 export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () => void }) {
@@ -29,6 +32,7 @@ export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () =>
     () => new Set(task.labels.map((l) => l.id))
   )
   const [subtasks, setSubtasks] = useState<Subtask[]>([])
+  const [isWatching, setIsWatching] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [attachments, setAttachments] = useState<
     Array<{ id: string; name: string; storage_key: string; size_bytes: number }>
@@ -43,12 +47,34 @@ export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () =>
       listTaskComments(client, task.id),
       listProjectLabels(client, task.projectId),
       listSubtasks(client, task.id),
-    ]).then(([nextComments, nextLabels, nextSubtasks]) => {
+      listTaskWatcherIds(client, task.id),
+      client.auth.getUser(),
+    ]).then(async ([nextComments, nextLabels, nextSubtasks, watcherIds, auth]) => {
       setComments(nextComments)
       setLabels(nextLabels)
       setSubtasks(nextSubtasks)
+      if (auth.data.user) {
+        const user = await client
+          .from('users')
+          .select('id')
+          .eq('auth_user_id', auth.data.user.id)
+          .single()
+        if (user.data) setIsWatching(watcherIds.includes(user.data.id))
+      }
     })
   }, [task.id, task.projectId])
+
+  async function toggleWatch() {
+    const next = !isWatching
+    setIsWatching(next)
+    const result = next
+      ? await watchTaskAction(task.projectId, task.id)
+      : await unwatchTaskAction(task.projectId, task.id)
+    if (result.error) {
+      setError(result.error)
+      setIsWatching(!next)
+    }
+  }
 
   async function addSubtask(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -215,9 +241,14 @@ export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () =>
       >
         <div className="mb-5 flex justify-between">
           <h2 id="task-title">Task details</h2>
-          <Button variant="ghost" onClick={onClose}>
-            Close
-          </Button>
+          <div className="flex gap-2">
+            <Button variant={isWatching ? 'default' : 'outline'} size="sm" onClick={toggleWatch}>
+              {isWatching ? 'Watching' : 'Watch'}
+            </Button>
+            <Button variant="ghost" onClick={onClose}>
+              Close
+            </Button>
+          </div>
         </div>
         <form onSubmit={save} className="space-y-4">
           <label className="grid gap-1 text-sm">

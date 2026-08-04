@@ -7,9 +7,11 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
+  addDependencyAction,
   addTaskCommentAction,
   createSubtaskAction,
   createTaskLabelAction,
+  removeDependencyAction,
   setTaskLabelAction,
   toggleSubtaskCompleteAction,
   unwatchTaskAction,
@@ -23,6 +25,11 @@ import {
 } from '@/services/tasks/task-detail-service'
 import { listSubtasks } from '@/services/tasks/subtask-service'
 import { listTaskWatcherIds } from '@/services/tasks/watcher-service'
+import {
+  listBlockingTasks,
+  listCandidateTasks,
+  type BlockingTask,
+} from '@/services/tasks/dependency-service'
 import { CommentBody } from './comment-body'
 import { CommentComposer } from './comment-composer'
 import type { Subtask, Task, TaskLabel } from '@/types/task'
@@ -35,6 +42,9 @@ export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () =>
   )
   const [subtasks, setSubtasks] = useState<Subtask[]>([])
   const [isWatching, setIsWatching] = useState(false)
+  const [blockingTasks, setBlockingTasks] = useState<BlockingTask[]>([])
+  const [candidateTasks, setCandidateTasks] = useState<{ id: string; title: string }[]>([])
+  const [selectedBlockerId, setSelectedBlockerId] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [attachments, setAttachments] = useState<
     Array<{ id: string; name: string; storage_key: string; size_bytes: number }>
@@ -50,21 +60,54 @@ export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () =>
       listProjectLabels(client, task.projectId),
       listSubtasks(client, task.id),
       listTaskWatcherIds(client, task.id),
+      listBlockingTasks(client, task.id),
+      listCandidateTasks(client, task.projectId, task.id),
       client.auth.getUser(),
-    ]).then(async ([nextComments, nextLabels, nextSubtasks, watcherIds, auth]) => {
-      setComments(nextComments)
-      setLabels(nextLabels)
-      setSubtasks(nextSubtasks)
-      if (auth.data.user) {
-        const user = await client
-          .from('users')
-          .select('id')
-          .eq('auth_user_id', auth.data.user.id)
-          .single()
-        if (user.data) setIsWatching(watcherIds.includes(user.data.id))
+    ]).then(
+      async ([nextComments, nextLabels, nextSubtasks, watcherIds, blockers, candidates, auth]) => {
+        setComments(nextComments)
+        setLabels(nextLabels)
+        setSubtasks(nextSubtasks)
+        setBlockingTasks(blockers)
+        setCandidateTasks(candidates)
+        if (auth.data.user) {
+          const user = await client
+            .from('users')
+            .select('id')
+            .eq('auth_user_id', auth.data.user.id)
+            .single()
+          if (user.data) setIsWatching(watcherIds.includes(user.data.id))
+        }
       }
-    })
+    )
   }, [task.id, task.projectId])
+
+  async function addBlocker() {
+    if (!selectedBlockerId) return
+    const result = await addDependencyAction(task.projectId, selectedBlockerId, task.id)
+    if (result.error || !result.dependencyId) return setError(result.error)
+    const candidate = candidateTasks.find((item) => item.id === selectedBlockerId)
+    if (candidate) {
+      setBlockingTasks((current) => [
+        ...current,
+        {
+          dependencyId: result.dependencyId!,
+          taskId: candidate.id,
+          title: candidate.title,
+          isComplete: false,
+        },
+      ])
+    }
+    setSelectedBlockerId('')
+    router.refresh()
+  }
+
+  async function removeBlocker(dependencyId: string) {
+    setBlockingTasks((current) => current.filter((item) => item.dependencyId !== dependencyId))
+    const result = await removeDependencyAction(task.projectId, dependencyId)
+    if (result.error) setError(result.error)
+    router.refresh()
+  }
 
   async function toggleWatch() {
     const next = !isWatching
@@ -427,6 +470,61 @@ export function TaskDetailDialog({ task, onClose }: { task: Task; onClose: () =>
               Add
             </Button>
           </form>
+        </section>
+
+        <section className="mt-8 space-y-3" aria-labelledby="dependencies-title">
+          <h3 id="dependencies-title">Blocked by</h3>
+          {blockingTasks.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Not blocked by any other task.</p>
+          ) : (
+            <ul className="space-y-1">
+              {blockingTasks.map((blocker) => (
+                <li key={blocker.dependencyId} className="flex items-center gap-2 text-sm">
+                  <span
+                    className="size-2 shrink-0 rounded-full"
+                    style={{
+                      background: blocker.isComplete ? 'var(--success)' : 'var(--danger)',
+                    }}
+                    aria-hidden="true"
+                  />
+                  <span className={cn('flex-1', blocker.isComplete && 'text-muted-foreground')}>
+                    {blocker.title}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    aria-label={`Remove ${blocker.title} as a blocker`}
+                    onClick={() => removeBlocker(blocker.dependencyId)}
+                  >
+                    Remove
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {candidateTasks.length > 0 && (
+            <div className="flex gap-2">
+              <select
+                aria-label="Add blocking task"
+                className="h-8 flex-1 rounded-md border bg-background px-2 text-sm"
+                value={selectedBlockerId}
+                onChange={(e) => setSelectedBlockerId(e.target.value)}
+              >
+                <option value="">Select a task…</option>
+                {candidateTasks
+                  .filter((t) => !blockingTasks.some((b) => b.taskId === t.id))
+                  .map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.title}
+                    </option>
+                  ))}
+              </select>
+              <Button type="button" variant="outline" onClick={addBlocker}>
+                Add blocker
+              </Button>
+            </div>
+          )}
         </section>
 
         <section className="mt-8 space-y-3">

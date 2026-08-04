@@ -11,6 +11,7 @@ import {
 } from '@/services/tasks/task-detail-service'
 import { createSubtask, toggleSubtaskComplete } from '@/services/tasks/subtask-service'
 import { watchTask, unwatchTask } from '@/services/tasks/watcher-service'
+import { addDependency, removeDependency } from '@/services/tasks/dependency-service'
 import type { TaskPriority } from '@/types/project'
 const path = (id: string) => `/dashboard/projects/${id}/board`
 export async function updateTaskAction(
@@ -99,6 +100,22 @@ export async function unwatchTaskAction(projectId: string, taskId: string) {
   const user = await getCurrentUserWithMembership(client)
   if (user.status !== 'ok') return { error: 'Could not unwatch task.' }
   const result = await unwatchTask(client, taskId, user.user.id)
+  if (!result.error) revalidatePath(path(projectId))
+  return result
+}
+
+export async function addDependencyAction(
+  projectId: string,
+  blockingTaskId: string,
+  blockedTaskId: string
+) {
+  const result = await addDependency(await createClient(), blockingTaskId, blockedTaskId)
+  if (!result.error) revalidatePath(path(projectId))
+  return result
+}
+
+export async function removeDependencyAction(projectId: string, dependencyId: string) {
+  const result = await removeDependency(await createClient(), dependencyId)
   if (!result.error) revalidatePath(path(projectId))
   return result
 }

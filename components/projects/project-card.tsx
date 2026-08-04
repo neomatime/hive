@@ -63,7 +63,7 @@ export function ProjectCard({
             )}
             <div>
               <h3 className="font-semibold">{project.name}</h3>
-              <p className="text-xs text-muted-foreground">{project.projectCode}</p>
+              <p className="font-data text-xs text-muted-foreground">{project.projectCode}</p>
             </div>
           </div>
           <div className="flex items-center">
@@ -107,13 +107,13 @@ export function ProjectCard({
         </div>
         <div className="flex justify-between text-sm">
           <span>{labels[project.status]}</span>
-          <span>{project.progressPercentage}% complete</span>
+          <span className="font-data">{project.progressPercentage}% complete</span>
         </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-muted">
           <div className="h-full bg-primary" style={{ width: `${project.progressPercentage}%` }} />
         </div>
         {project.dueDate && (
-          <p className="text-xs text-muted-foreground">
+          <p className="font-data text-xs text-muted-foreground">
             Due {new Date(`${project.dueDate}T00:00:00`).toLocaleDateString('en-GB')}
           </p>
         )}

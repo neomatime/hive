@@ -1,21 +1,28 @@
 :root {
   --font-family-base:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    var(--font-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    sans-serif;
+  /* Reserved for page-level titles only -- see .font-display below. Never
+     for body copy or dense UI chrome (nav labels, column headers, etc). */
+  --font-family-display: var(--font-display), Georgia, 'Times New Roman', serif;
+  /* Every instrument value in HIVE -- project codes, WIP counts, dates,
+     percentages -- renders in this face with tabular figures. */
+  --font-family-mono: var(--font-mono), ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
-  --text-display-size: 36px;
-  --text-display-line: 44px;
-  --text-display-weight: 600;
-  --text-h1-size: 30px;
-  --text-h1-line: 38px;
-  --text-h1-weight: 600;
-  --text-h2-size: 24px;
-  --text-h2-line: 32px;
+  --text-display-size: 38px;
+  --text-display-line: 46px;
+  --text-display-weight: 500;
+  --text-h1-size: 32px;
+  --text-h1-line: 40px;
+  --text-h1-weight: 500;
+  --text-h2-size: 22px;
+  --text-h2-line: 30px;
   --text-h2-weight: 600;
-  --text-h3-size: 20px;
-  --text-h3-line: 28px;
+  --text-h3-size: 17px;
+  --text-h3-line: 25px;
   --text-h3-weight: 600;
-  --text-h4-size: 16px;
-  --text-h4-line: 24px;
+  --text-h4-size: 15px;
+  --text-h4-line: 22px;
   --text-h4-weight: 600;
   --text-body-lg-size: 16px;
   --text-body-lg-line: 26px;
@@ -26,9 +33,10 @@
   --text-body-sm-size: 13px;
   --text-body-sm-line: 20px;
   --text-body-sm-weight: 400;
-  --text-label-size: 12px;
+  --text-label-size: 11px;
   --text-label-line: 16px;
   --text-label-weight: 600;
+  --text-label-tracking: 0.08em;
   --text-caption-size: 11px;
   --text-caption-line: 16px;
   --text-caption-weight: 500;
@@ -42,9 +50,11 @@ body {
 }
 
 h1 {
+  font-family: var(--font-family-display);
   font-size: var(--text-h1-size);
   line-height: var(--text-h1-line);
   font-weight: var(--text-h1-weight);
+  letter-spacing: -0.01em;
 }
 h2 {
   font-size: var(--text-h2-size);
@@ -60,4 +70,32 @@ h4 {
   font-size: var(--text-h4-size);
   line-height: var(--text-h4-line);
   font-weight: var(--text-h4-weight);
+}
+
+/* Rare major header only (design-system.md §5.2's "Display" row) -- not for
+   routine page titles, which use h1. Never nest inside a card or list row. */
+.font-display {
+  font-family: var(--font-family-display);
+  font-size: var(--text-display-size);
+  line-height: var(--text-display-line);
+  font-weight: var(--text-display-weight);
+  letter-spacing: -0.01em;
+}
+
+/* Instrument data: project codes, WIP counts, dates, percentages. Tabular
+   figures keep columns of numbers aligned the way a real ledger would. */
+.font-data {
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Tracked-out uppercase tag for section labels and dossier-style captions. */
+.eyebrow {
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-line);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--text-muted);
 }

@@ -330,7 +330,7 @@ export function KanbanBoard({
                 key={column.id}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={() => drop(column.id, column.isTerminal, column.tasks.length)}
-                className="w-72 shrink-0 space-y-3 rounded-xl bg-muted/50 p-3"
+                className="w-72 shrink-0 space-y-3 rounded-md border bg-muted/30 p-3"
               >
                 <header className="flex items-center justify-between">
                   <h2 className="text-sm font-semibold">{column.name}</h2>
@@ -393,7 +393,7 @@ export function KanbanBoard({
                     data-testid={`wip-count-${column.id}`}
                     data-at-limit={atLimit}
                     className={cn(
-                      'text-xs',
+                      'font-data text-xs',
                       atLimit ? 'font-semibold text-destructive' : 'text-muted-foreground'
                     )}
                   >
@@ -407,9 +407,7 @@ export function KanbanBoard({
           </div>
           {lanes.map((laneKey) => (
             <section key={laneKey} aria-label={`Swimlane: ${laneLabel(laneKey, members)}`}>
-              <h3 className="mb-2 text-sm font-medium text-muted-foreground">
-                {laneLabel(laneKey, members)}
-              </h3>
+              <h3 className="eyebrow mb-2">{laneLabel(laneKey, members)}</h3>
               <div
                 className="grid gap-4"
                 style={{ gridTemplateColumns: `repeat(${board.columns.length}, 18rem)` }}
@@ -419,7 +417,7 @@ export function KanbanBoard({
                     key={column.id}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={() => drop(column.id, column.isTerminal, column.tasks.length)}
-                    className="min-h-16 space-y-2 rounded-xl bg-muted/50 p-3"
+                    className="min-h-16 space-y-2 rounded-md border bg-muted/30 p-3"
                   >
                     {column.tasks
                       .filter(

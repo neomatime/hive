@@ -42,6 +42,11 @@
   --border-subtle: var(--neutral-100);
   --border-default: var(--neutral-200);
   --border-strong: var(--neutral-300);
+  /* Semantic alias for the hairline-rule structuring device (design-system.md
+     §20 exception, documented alongside the radius/shadow changes below) --
+     same value as --border-default, named for what it's used for: ruling off
+     sections, list rows, and sidebar nav the way a bound ledger would. */
+  --rule: var(--border-default);
 
   --focus-ring: rgba(95, 129, 144, 0.35);
 
@@ -59,17 +64,22 @@
   --space-16: 64px;
   --space-20: 80px;
 
-  /* Radius */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  /* Radius -- tightened from the documented 8/12/16/20 scale (design-system.md
+     §4.3) as a deliberate, documented exception: sharper corners read more
+     institutional and less generic-SaaS, in service of the editorial
+     direction. See design-system.md's changelog note for the full rationale. */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
   --radius-full: 9999px;
 
-  /* Shadows */
+  /* Shadows -- kept deliberately faint. Hairlines (--rule), not shadows, are
+     the primary structuring device now; shadow-md/lg are reserved for true
+     overlays (dialogs, dropdowns, drag ghosts), not resting surfaces. */
   --shadow-xs: 0 1px 2px rgba(14, 24, 34, 0.04);
-  --shadow-sm: 0 2px 8px rgba(14, 24, 34, 0.06);
-  --shadow-md: 0 8px 24px rgba(14, 24, 34, 0.08);
+  --shadow-sm: 0 1px 3px rgba(14, 24, 34, 0.05);
+  --shadow-md: 0 6px 20px rgba(14, 24, 34, 0.08);
   --shadow-lg: 0 16px 48px rgba(14, 24, 34, 0.12);
 
   /* Motion */

@@ -16,9 +16,13 @@ export function Sidebar({
   return (
     <aside
       className="flex flex-col justify-between"
-      style={{ width: 240, background: 'var(--background-sidebar)', padding: 'var(--space-4)' }}
+      style={{
+        width: 240,
+        background: 'var(--background-sidebar)',
+        padding: 'var(--space-5) var(--space-4)',
+      }}
     >
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-8">
         <Image
           src="/brand/hive-logo.png"
           alt="Hive"
@@ -33,9 +37,18 @@ export function Sidebar({
           ))}
         </nav>
       </div>
-      <div className="text-sm" style={{ color: 'var(--text-primary)' }}>
+      <div
+        className="text-sm"
+        style={{
+          color: 'var(--text-primary)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.4)',
+          paddingTop: 'var(--space-4)',
+        }}
+      >
         <div style={{ fontWeight: 600 }}>{userDisplayName}</div>
-        <div style={{ color: 'var(--text-secondary)' }}>{ROLE_LABELS[userRole]}</div>
+        <div className="eyebrow" style={{ color: 'var(--text-secondary)', marginTop: 2 }}>
+          {ROLE_LABELS[userRole]}
+        </div>
       </div>
     </aside>
   )

@@ -36,7 +36,7 @@ export default async function OverviewPage() {
   ])
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <div>
         <h1>Welcome, {user.displayName.split(' ')[0]}</h1>
         <p className="text-muted-foreground">
@@ -44,44 +44,50 @@ export default async function OverviewPage() {
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-xl border bg-card p-4">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <CircleAlert className="size-4" />
+      <div className="grid divide-y rounded-md border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        <div className="p-5">
+          <div className="eyebrow flex items-center gap-1.5">
+            <CircleAlert className="size-3.5" aria-hidden="true" />
             Overdue
           </div>
-          <strong className="text-2xl text-destructive">{summary.overdue}</strong>
+          <strong className="font-data mt-2 block text-3xl text-destructive">
+            {summary.overdue}
+          </strong>
         </div>
-        <div className="rounded-xl border bg-card p-4">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <CalendarClock className="size-4" />
+        <div className="p-5">
+          <div className="eyebrow flex items-center gap-1.5">
+            <CalendarClock className="size-3.5" aria-hidden="true" />
             Due this week
           </div>
-          <strong className="text-2xl">{summary.dueToday + summary.dueThisWeek}</strong>
+          <strong className="font-data mt-2 block text-3xl">
+            {summary.dueToday + summary.dueThisWeek}
+          </strong>
         </div>
-        <div className="rounded-xl border bg-card p-4">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <ListTodo className="size-4" />
+        <div className="p-5">
+          <div className="eyebrow flex items-center gap-1.5">
+            <ListTodo className="size-3.5" aria-hidden="true" />
             Open tasks
           </div>
-          <strong className="text-2xl">{summary.openTotal}</strong>
+          <strong className="font-data mt-2 block text-3xl">{summary.openTotal}</strong>
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-2">
         <section aria-labelledby="upcoming-deadlines-title" className="space-y-3">
-          <h2 id="upcoming-deadlines-title">Upcoming deadlines</h2>
+          <h2 id="upcoming-deadlines-title" className="border-b pb-2">
+            Upcoming deadlines
+          </h2>
           {deadlines.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               Nothing due in the next two weeks. Enjoy the calm.
             </p>
           ) : (
-            <ul className="space-y-2">
+            <ul className="divide-y rounded-md border">
               {deadlines.map((item) => (
                 <li key={`${item.kind}-${item.id}`}>
                   <Link
                     href={item.href}
-                    className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3 text-sm hover:bg-muted"
+                    className="flex items-center justify-between gap-3 p-3 text-sm hover:bg-muted"
                   >
                     <span className="flex min-w-0 items-center gap-2">
                       {item.kind === 'project' ? (
@@ -99,7 +105,7 @@ export default async function OverviewPage() {
                       </span>
                     </span>
                     <time
-                      className="shrink-0 text-xs text-muted-foreground"
+                      className="font-data shrink-0 text-xs text-muted-foreground"
                       dateTime={item.dueDate}
                     >
                       {new Date(`${item.dueDate}T00:00:00`).toLocaleDateString('en-GB', {
@@ -115,15 +121,17 @@ export default async function OverviewPage() {
         </section>
 
         <section aria-labelledby="recent-activity-title" className="space-y-3">
-          <h2 id="recent-activity-title">Recent activity</h2>
+          <h2 id="recent-activity-title" className="border-b pb-2">
+            Recent activity
+          </h2>
           {activity.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               Project, task, and file changes across the workspace will appear here.
             </p>
           ) : (
-            <ul className="space-y-2">
+            <ul className="divide-y rounded-md border">
               {activity.map((item) => (
-                <li key={item.id} className="rounded-lg border bg-card p-3 text-sm">
+                <li key={item.id} className="p-3 text-sm">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <p>
                       <strong>{item.userName}</strong>{' '}
@@ -136,7 +144,7 @@ export default async function OverviewPage() {
                       )}
                     </p>
                     <time
-                      className="shrink-0 text-xs text-muted-foreground"
+                      className="font-data shrink-0 text-xs text-muted-foreground"
                       dateTime={item.createdAt}
                     >
                       {new Date(item.createdAt).toLocaleDateString('en-GB', {
@@ -157,14 +165,14 @@ export default async function OverviewPage() {
       <div className="flex flex-wrap gap-3">
         <Link
           href="/dashboard/projects"
-          className="flex items-center gap-2 rounded-lg border bg-card px-4 py-2 text-sm hover:bg-muted"
+          className="flex items-center gap-2 rounded-md border bg-card px-4 py-2 text-sm hover:bg-muted"
         >
           <FolderKanban className="size-4" />
           View all projects
         </Link>
         <Link
           href="/dashboard/my-tasks"
-          className="flex items-center gap-2 rounded-lg border bg-card px-4 py-2 text-sm hover:bg-muted"
+          className="flex items-center gap-2 rounded-md border bg-card px-4 py-2 text-sm hover:bg-muted"
         >
           <CheckCircle2 className="size-4" />
           View my tasks

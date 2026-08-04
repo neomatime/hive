@@ -103,32 +103,32 @@ HIVE should be treated as a product name, not a forced acronym.
 
 ## 3.2 HIMARK Colour Palette
 
-| Token | Name | Hex | Primary Use |
-|---|---|---:|---|
-| `--color-midnight` | Midnight | `#1C2B3A` | Primary buttons, headings, strong emphasis |
-| `--color-ink-deep` | Ink Deep | `#0E1822` | Primary body text, high-contrast surfaces |
-| `--color-ocean` | Ocean | `#5F8190` | Secondary actions, active states, charts |
+| Token                 | Name        |       Hex | Primary Use                                |
+| --------------------- | ----------- | --------: | ------------------------------------------ |
+| `--color-midnight`    | Midnight    | `#1C2B3A` | Primary buttons, headings, strong emphasis |
+| `--color-ink-deep`    | Ink Deep    | `#0E1822` | Primary body text, high-contrast surfaces  |
+| `--color-ocean`       | Ocean       | `#5F8190` | Secondary actions, active states, charts   |
 | `--color-ocean-light` | Ocean Light | `#8AADB8` | Sidebar, subtle highlights, selected areas |
-| `--color-ocean-dark` | Ocean Dark | `#2E4A5A` | Hover states, borders, secondary emphasis |
-| `--color-off-white` | Off White | `#F7F7F5` | Application background |
-| `--color-white` | White | `#FFFFFF` | Cards, modals, input surfaces |
+| `--color-ocean-dark`  | Ocean Dark  | `#2E4A5A` | Hover states, borders, secondary emphasis  |
+| `--color-off-white`   | Off White   | `#F7F7F5` | Application background                     |
+| `--color-white`       | White       | `#FFFFFF` | Cards, modals, input surfaces              |
 
 ---
 
 ## 3.3 Supporting Neutral Colours
 
-| Token | Hex | Use |
-|---|---:|---|
-| `--neutral-950` | `#111820` | High-contrast text |
-| `--neutral-800` | `#27323C` | Strong secondary text |
-| `--neutral-700` | `#3F4B55` | Standard secondary text |
-| `--neutral-600` | `#5C6872` | Muted text |
-| `--neutral-500` | `#77838C` | Placeholder text |
-| `--neutral-400` | `#A4ADB4` | Disabled text |
-| `--neutral-300` | `#C8CFD4` | Strong borders |
-| `--neutral-200` | `#DCE1E4` | Standard borders |
-| `--neutral-100` | `#EDF0F2` | Subtle backgrounds |
-| `--neutral-50` | `#F8F9F9` | Hover and inactive surfaces |
+| Token           |       Hex | Use                         |
+| --------------- | --------: | --------------------------- |
+| `--neutral-950` | `#111820` | High-contrast text          |
+| `--neutral-800` | `#27323C` | Strong secondary text       |
+| `--neutral-700` | `#3F4B55` | Standard secondary text     |
+| `--neutral-600` | `#5C6872` | Muted text                  |
+| `--neutral-500` | `#77838C` | Placeholder text            |
+| `--neutral-400` | `#A4ADB4` | Disabled text               |
+| `--neutral-300` | `#C8CFD4` | Strong borders              |
+| `--neutral-200` | `#DCE1E4` | Standard borders            |
+| `--neutral-100` | `#EDF0F2` | Subtle backgrounds          |
+| `--neutral-50`  | `#F8F9F9` | Hover and inactive surfaces |
 
 ---
 
@@ -136,12 +136,12 @@ HIVE should be treated as a product name, not a forced acronym.
 
 Semantic colours are allowed only where meaning would be unclear using the core HIMARK palette.
 
-| Token | Hex | Use |
-|---|---:|---|
-| `--success` | `#3F6B5A` | Completed, successful |
-| `--warning` | `#9A7436` | Attention, nearing deadline |
-| `--danger` | `#9A4E4E` | Errors, destructive actions, overdue |
-| `--info` | `#5F8190` | Informational states |
+| Token       |       Hex | Use                                  |
+| ----------- | --------: | ------------------------------------ |
+| `--success` | `#3F6B5A` | Completed, successful                |
+| `--warning` | `#9A7436` | Attention, nearing deadline          |
+| `--danger`  | `#9A4E4E` | Errors, destructive actions, overdue |
+| `--info`    | `#5F8190` | Informational states                 |
 
 Rules:
 
@@ -175,29 +175,29 @@ The application should remain predominantly white and off-white.
 
 ```css
 :root {
-  --color-midnight: #1C2B3A;
-  --color-ink-deep: #0E1822;
-  --color-ocean: #5F8190;
-  --color-ocean-light: #8AADB8;
-  --color-ocean-dark: #2E4A5A;
-  --color-off-white: #F7F7F5;
-  --color-white: #FFFFFF;
+  --color-midnight: #1c2b3a;
+  --color-ink-deep: #0e1822;
+  --color-ocean: #5f8190;
+  --color-ocean-light: #8aadb8;
+  --color-ocean-dark: #2e4a5a;
+  --color-off-white: #f7f7f5;
+  --color-white: #ffffff;
 
   --neutral-950: #111820;
-  --neutral-800: #27323C;
-  --neutral-700: #3F4B55;
-  --neutral-600: #5C6872;
-  --neutral-500: #77838C;
-  --neutral-400: #A4ADB4;
-  --neutral-300: #C8CFD4;
-  --neutral-200: #DCE1E4;
-  --neutral-100: #EDF0F2;
-  --neutral-50: #F8F9F9;
+  --neutral-800: #27323c;
+  --neutral-700: #3f4b55;
+  --neutral-600: #5c6872;
+  --neutral-500: #77838c;
+  --neutral-400: #a4adb4;
+  --neutral-300: #c8cfd4;
+  --neutral-200: #dce1e4;
+  --neutral-100: #edf0f2;
+  --neutral-50: #f8f9f9;
 
-  --success: #3F6B5A;
-  --warning: #9A7436;
-  --danger: #9A4E4E;
-  --info: #5F8190;
+  --success: #3f6b5a;
+  --warning: #9a7436;
+  --danger: #9a4e4e;
+  --info: #5f8190;
 
   --background-app: var(--color-off-white);
   --background-surface: var(--color-white);
@@ -225,16 +225,16 @@ The application should remain predominantly white and off-white.
 
 HIVE uses an 8-point spacing system.
 
-| Token | Value |
-|---|---:|
-| `space-0` | `0px` |
-| `space-1` | `4px` |
-| `space-2` | `8px` |
-| `space-3` | `12px` |
-| `space-4` | `16px` |
-| `space-5` | `20px` |
-| `space-6` | `24px` |
-| `space-8` | `32px` |
+| Token      |  Value |
+| ---------- | -----: |
+| `space-0`  |  `0px` |
+| `space-1`  |  `4px` |
+| `space-2`  |  `8px` |
+| `space-3`  | `12px` |
+| `space-4`  | `16px` |
+| `space-5`  | `20px` |
+| `space-6`  | `24px` |
+| `space-8`  | `32px` |
 | `space-10` | `40px` |
 | `space-12` | `48px` |
 | `space-16` | `64px` |
@@ -246,13 +246,13 @@ Use `4px` increments only for fine internal alignment.
 
 ## 4.3 Border Radius
 
-| Token | Value | Use |
-|---|---:|---|
-| `radius-sm` | `8px` | Inputs, chips, compact controls |
-| `radius-md` | `12px` | Cards, dropdowns |
-| `radius-lg` | `16px` | Large cards, modals |
-| `radius-xl` | `20px` | Major sections |
-| `radius-full` | `9999px` | Avatars, pills, toggles |
+| Token         |    Value | Use                             |
+| ------------- | -------: | ------------------------------- |
+| `radius-sm`   |    `8px` | Inputs, chips, compact controls |
+| `radius-md`   |   `12px` | Cards, dropdowns                |
+| `radius-lg`   |   `16px` | Large cards, modals             |
+| `radius-xl`   |   `20px` | Major sections                  |
+| `radius-full` | `9999px` | Avatars, pills, toggles         |
 
 ---
 
@@ -271,11 +271,11 @@ Use shadows sparingly.
 
 ## 4.5 Motion
 
-| Token | Duration | Use |
-|---|---:|---|
-| `motion-fast` | `120ms` | Hover, focus, toggle |
-| `motion-standard` | `180ms` | Menus, cards, selected states |
-| `motion-slow` | `240ms` | Drawers, modals, transitions |
+| Token             | Duration | Use                           |
+| ----------------- | -------: | ----------------------------- |
+| `motion-fast`     |  `120ms` | Hover, focus, toggle          |
+| `motion-standard` |  `180ms` | Menus, cards, selected states |
+| `motion-slow`     |  `240ms` | Drawers, modals, transitions  |
 
 Recommended easing:
 
@@ -300,23 +300,30 @@ Inter
 Fallback:
 
 ```css
-font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+font-family:
+  Inter,
+  ui-sans-serif,
+  system-ui,
+  -apple-system,
+  BlinkMacSystemFont,
+  'Segoe UI',
+  sans-serif;
 ```
 
 ## 5.2 Type Scale
 
-| Style | Size | Line Height | Weight | Use |
-|---|---:|---:|---:|---|
-| Display | `36px` | `44px` | 600 | Rare major headers |
-| H1 | `30px` | `38px` | 600 | Page title |
-| H2 | `24px` | `32px` | 600 | Section title |
-| H3 | `20px` | `28px` | 600 | Card title |
-| H4 | `16px` | `24px` | 600 | Subsection title |
-| Body Large | `16px` | `26px` | 400 | Introductory text |
-| Body | `14px` | `22px` | 400 | Standard interface text |
-| Body Small | `13px` | `20px` | 400 | Secondary details |
-| Label | `12px` | `16px` | 600 | Inputs, table headings |
-| Caption | `11px` | `16px` | 500 | Timestamps, metadata |
+| Style      |   Size | Line Height | Weight | Use                     |
+| ---------- | -----: | ----------: | -----: | ----------------------- |
+| Display    | `36px` |      `44px` |    600 | Rare major headers      |
+| H1         | `30px` |      `38px` |    600 | Page title              |
+| H2         | `24px` |      `32px` |    600 | Section title           |
+| H3         | `20px` |      `28px` |    600 | Card title              |
+| H4         | `16px` |      `24px` |    600 | Subsection title        |
+| Body Large | `16px` |      `26px` |    400 | Introductory text       |
+| Body       | `14px` |      `22px` |    400 | Standard interface text |
+| Body Small | `13px` |      `20px` |    400 | Secondary details       |
+| Label      | `12px` |      `16px` |    600 | Inputs, table headings  |
+| Caption    | `11px` |      `16px` |    500 | Timestamps, metadata    |
 
 Rules:
 
@@ -339,22 +346,22 @@ Main content
 Optional right-side detail drawer
 ```
 
-| Element | Size |
-|---|---:|
-| Sidebar width | `240px` |
-| Collapsed sidebar | `72px` |
-| Top bar height | `72px` |
-| Main content max width | `1600px` |
-| Page horizontal padding | `32px` |
-| Page vertical padding | `24px–32px` |
-| Right drawer width | `400px–480px` |
+| Element                 |          Size |
+| ----------------------- | ------------: |
+| Sidebar width           |       `240px` |
+| Collapsed sidebar       |        `72px` |
+| Top bar height          |        `72px` |
+| Main content max width  |      `1600px` |
+| Page horizontal padding |        `32px` |
+| Page vertical padding   |   `24px–32px` |
+| Right drawer width      | `400px–480px` |
 
 ## 6.2 Sidebar
 
 The sidebar must use **Ocean Light**:
 
 ```css
-background: #8AADB8;
+background: #8aadb8;
 ```
 
 Navigation:
@@ -390,12 +397,12 @@ Do not use greeting text such as `Good morning, Marcus`.
 
 ## 6.4 Responsive Breakpoints
 
-| Name | Width |
-|---|---:|
-| Mobile | `< 640px` |
-| Tablet | `640px–1023px` |
+| Name    |           Width |
+| ------- | --------------: |
+| Mobile  |       `< 640px` |
+| Tablet  |  `640px–1023px` |
 | Desktop | `1024px–1439px` |
-| Wide | `≥ 1440px` |
+| Wide    |      `≥ 1440px` |
 
 Rules:
 
@@ -414,37 +421,37 @@ Rules:
 ### Primary
 
 ```css
-background: #1C2B3A;
-color: #FFFFFF;
+background: #1c2b3a;
+color: #ffffff;
 ```
 
 ### Secondary
 
 ```css
-background: #FFFFFF;
-border: 1px solid #DCE1E4;
-color: #1C2B3A;
+background: #ffffff;
+border: 1px solid #dce1e4;
+color: #1c2b3a;
 ```
 
 ### Tertiary
 
 ```css
 background: transparent;
-color: #2E4A5A;
+color: #2e4a5a;
 ```
 
 ### Destructive
 
 ```css
-background: #9A4E4E;
-color: #FFFFFF;
+background: #9a4e4e;
+color: #ffffff;
 ```
 
-| Size | Height | Padding |
-|---|---:|---:|
-| Small | `32px` | `12px` |
-| Medium | `40px` | `16px` |
-| Large | `48px` | `20px` |
+| Size   | Height | Padding |
+| ------ | -----: | ------: |
+| Small  | `32px` |  `12px` |
+| Medium | `40px` |  `16px` |
+| Large  | `48px` |  `20px` |
 
 Rules:
 
@@ -463,8 +470,8 @@ Large input: `48px`
 Focus state:
 
 ```css
-border-color: #5F8190;
-box-shadow: 0 0 0 3px rgba(95, 129, 144, 0.20);
+border-color: #5f8190;
+box-shadow: 0 0 0 3px rgba(95, 129, 144, 0.2);
 ```
 
 Rules:
@@ -479,8 +486,8 @@ Rules:
 ## 7.3 Cards
 
 ```css
-background: #FFFFFF;
-border: 1px solid #EDF0F2;
+background: #ffffff;
+border: 1px solid #edf0f2;
 border-radius: 12px;
 box-shadow: 0 2px 8px rgba(14, 24, 34, 0.04);
 ```
@@ -586,35 +593,35 @@ Rules:
 
 Task status:
 
-| Status | Treatment |
-|---|---|
-| Backlog | Neutral |
-| To Do | Ocean Light tint |
-| In Progress | Ocean |
-| Review | Ocean Dark |
-| Done | Success |
+| Status      | Treatment        |
+| ----------- | ---------------- |
+| Backlog     | Neutral          |
+| To Do       | Ocean Light tint |
+| In Progress | Ocean            |
+| Review      | Ocean Dark       |
+| Done        | Success          |
 
 Project status:
 
-| Status | Treatment |
-|---|---|
-| Not Started | Neutral |
-| Active | Ocean |
-| On Hold | Warning |
-| Completed | Success |
-| Archived | Muted |
+| Status      | Treatment |
+| ----------- | --------- |
+| Not Started | Neutral   |
+| Active      | Ocean     |
+| On Hold     | Warning   |
+| Completed   | Success   |
+| Archived    | Muted     |
 
 ---
 
 ## 7.8 Avatars
 
-| Size | Value |
-|---|---:|
-| XS | `24px` |
-| SM | `32px` |
-| MD | `40px` |
-| LG | `56px` |
-| XL | `80px` |
+| Size |  Value |
+| ---- | -----: |
+| XS   | `24px` |
+| SM   | `32px` |
+| MD   | `40px` |
+| LG   | `56px` |
+| XL   | `80px` |
 
 Use initials when no image exists.
 
@@ -637,11 +644,11 @@ Use drawers for:
 - File detail
 - Contextual editing
 
-| Modal | Width |
-|---|---:|
-| Small | `400px` |
+| Modal  |   Width |
+| ------ | ------: |
+| Small  | `400px` |
 | Medium | `560px` |
-| Large | `720px` |
+| Large  | `720px` |
 
 ---
 
@@ -1064,3 +1071,51 @@ If a proposed screen conflicts with this document:
 4. Avoid one-off styling.
 
 HIVE should feel like one coherent product, not a collection of unrelated dashboards.
+
+---
+
+## 21. Editorial Pass (2026-08-04)
+
+Per an explicit request to elevate HIVE's visual execution toward something
+more editorial and premium, the following documented exceptions apply. The
+HIMARK colour palette (§3.2), spacing scale (§4.2), and sidebar colour (§6.2)
+are unchanged -- this pass is about typographic craft and structure, not a
+rebrand.
+
+**Typography.** A third face joins Inter/Geist:
+
+- **Body & UI** — Geist (the codebase's actual loaded font; §5.1's "Inter"
+  recommendation predates this and was never wired up — `--font-family-base`
+  pointed at a font that was never loaded, silently falling back to the OS
+  default the whole time. Fixed as part of this pass.)
+- **Display** — Newsreader, serif, used only for `h1` (page titles) and the
+  rare `.font-display` utility (design-system.md's own "Display" row, §5.2).
+  Never for body copy, card titles, or dense UI chrome.
+- **Data** — Geist Mono, applied via a new `.font-data` utility with tabular
+  figures, to every instrument value in the product: project codes
+  (`PRJ-0001`), WIP counts (`2/2`), percentages, and dates. This is additive,
+  not a §5.2 conflict — the type scale's sizes/weights are unchanged, this is
+  a font-family override for numeric/coded values specifically.
+
+`h1` shifts from 30/38/600 to 32/40/500 and gains the serif family — still
+well inside "Page title," not the oversized marketing type §5.2 warns
+against.
+
+**Radius.** §4.3's 8/12/16/20 scale tightens to 6/8/10/14. Sharper corners
+read more institutional and less generic-SaaS-bubbly, in service of the
+editorial direction. `--radius-full` (pills, avatars) is unchanged.
+
+**New token:** `--rule`, aliased to `--border-default`. Names the hairline
+divider explicitly as a structuring device (sidebar nav rows, list rows,
+section separators) rather than an incidental border colour, and is now the
+primary way sections separate — shadow is reserved for true overlays
+(dialogs, dropdown menus, drag ghosts), not resting surfaces like cards.
+`--shadow-sm`/`--shadow-md` were nudged fainter to reflect this.
+
+**Sidebar selected state (§6.2 exception).** The filled Midnight pill reads
+as the most generic-SaaS element in the shell. Replaced with a quieter
+table-of-contents marker: a 3px Midnight rule on the leading edge, Midnight
+(not white) text/icon at weight 600, and a faint white wash instead of a
+solid fill. Contrast against Ocean Light is preserved (Midnight text/icon
+on Ocean Light meets the same 4.5:1 floor as Ink Deep did); only the
+_shape_ of the selection changed, not its legibility.

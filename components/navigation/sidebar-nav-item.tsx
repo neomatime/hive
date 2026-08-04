@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { cn } from '@/utils/cn'
 import type { NavItem } from '@/constants/routes'
 
+// Selected state reads as a table-of-contents marker (leading rule + weight),
+// not a filled pill -- see design-system.md §21 for the contrast rationale.
 export function SidebarNavItem({ item, active }: { item: NavItem; active: boolean }) {
   const Icon = item.icon
   return (
@@ -9,15 +11,16 @@ export function SidebarNavItem({ item, active }: { item: NavItem; active: boolea
       href={item.href}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-standard',
-        active ? 'font-semibold' : 'hover:bg-white/20'
+        'flex items-center gap-3 rounded-md border-l-[3px] px-3 py-2 text-sm transition-standard',
+        active ? 'font-semibold' : 'border-transparent hover:bg-white/25'
       )}
       style={{
-        background: active ? 'var(--color-midnight)' : 'transparent',
-        color: active ? 'var(--text-on-dark)' : 'var(--text-primary)',
+        borderLeftColor: active ? 'var(--color-midnight)' : undefined,
+        background: active ? 'rgba(255, 255, 255, 0.3)' : 'transparent',
+        color: active ? 'var(--color-midnight)' : 'var(--text-primary)',
       }}
     >
-      <Icon size={18} color={active ? 'var(--color-white)' : undefined} />
+      <Icon size={18} color={active ? 'var(--color-midnight)' : undefined} />
       {item.label}
     </Link>
   )

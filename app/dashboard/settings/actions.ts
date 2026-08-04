@@ -2,6 +2,9 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { getCurrentUserWithMembership } from '@/services/workspace/workspace-service'
+import { inviteOrAddWorkspaceMember } from '@/services/settings/settings-service'
 import type { Database } from '@/types/database'
 
 export async function updateProfileAction(
@@ -67,18 +70,25 @@ export async function addWorkspaceMemberAction(
   email: string,
   role: Database['public']['Enums']['workspace_role']
 ) {
-  if (role === 'owner') return { error: 'Ownership cannot be assigned through an invite.' }
-  const result = await (
-    await createClient()
-  ).rpc('add_workspace_member_by_email', {
-    p_workspace_id: workspaceId,
-    p_email: email.trim(),
-    p_role: role,
-  } as never)
-  if (!result.error) revalidatePath('/dashboard/settings/team')
-  return {
-    error: result.error ? 'Could not add member. Confirm they already have a Hive account.' : null,
+  const client = await createClient()
+  const current = await getCurrentUserWithMembership(client)
+  if (current.status !== 'ok' || (current.user.role !== 'owner' && current.user.role !== 'admin')) {
+    return { error: 'Admin access is required to add members.' }
   }
+  // Auth admin API (createAdminClient) bypasses RLS entirely, so the
+  // permission check above -- not RLS -- is what stops a non-admin from
+  // inviting arbitrary people. inviteOrAddWorkspaceMember's own
+  // add_workspace_member_by_email call re-checks admin access anyway (it
+  // runs as the caller, not the admin client), but that check alone would
+  // be too late: the invite email already went out by that point.
+  const result = await inviteOrAddWorkspaceMember(client, createAdminClient().auth.admin, {
+    workspaceId,
+    email,
+    role,
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/reset-password`,
+  })
+  if (!result.error) revalidatePath('/dashboard/settings/team')
+  return result
 }
 export async function removeWorkspaceMemberAction(membershipId: string) {
   const result = await (
@@ -126,18 +136,16 @@ export async function setIntegrationConnectionAction(
 ) {
   const client = await createClient()
   const result = connected
-    ? await client
-        .from('workspace_integrations')
-        .upsert(
-          {
-            workspace_id: workspaceId,
-            provider,
-            connected_by: userId,
-            is_connected: true,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'workspace_id,provider' }
-        )
+    ? await client.from('workspace_integrations').upsert(
+        {
+          workspace_id: workspaceId,
+          provider,
+          connected_by: userId,
+          is_connected: true,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'workspace_id,provider' }
+      )
     : await client
         .from('workspace_integrations')
         .delete()

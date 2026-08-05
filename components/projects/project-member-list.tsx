@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
+  addProjectMemberAction,
   removeProjectMemberAction,
   updateProjectMemberRoleAction,
 } from '@/app/dashboard/projects/[projectId]/settings/actions'
@@ -19,12 +20,19 @@ const labels = {
 export function ProjectMemberList({
   projectId,
   members,
+  availableMembers,
 }: {
   projectId: string
   members: ProjectMember[]
+  availableMembers: { userId: string; displayName: string; email: string }[]
 }) {
   const router = useRouter(),
     [error, setError] = useState<string | null>(null)
+  async function add(userId: string, role: ProjectMember['role']) {
+    const result = await addProjectMemberAction(projectId, userId, role)
+    if (result.error) setError(result.error)
+    else router.refresh()
+  }
   async function remove(userId: string) {
     const result = await removeProjectMemberAction(projectId, userId)
     if (result.error) setError(result.error)
@@ -37,6 +45,44 @@ export function ProjectMemberList({
   }
   return (
     <div className="space-y-3">
+      {availableMembers.length > 0 ? (
+        <form
+          className="flex flex-wrap gap-3 rounded-xl border bg-card p-4"
+          onSubmit={(event) => {
+            event.preventDefault()
+            const data = new FormData(event.currentTarget)
+            add(String(data.get('userId')), data.get('role') as ProjectMember['role'])
+          }}
+        >
+          <select
+            name="userId"
+            aria-label="Workspace member"
+            required
+            className="h-10 min-w-64 flex-1 rounded-lg border bg-background px-3 text-sm"
+          >
+            <option value="">Select a teammate…</option>
+            {availableMembers.map((member) => (
+              <option key={member.userId} value={member.userId}>
+                {member.displayName} ({member.email})
+              </option>
+            ))}
+          </select>
+          <select
+            name="role"
+            defaultValue="contributor"
+            className="h-10 rounded-lg border bg-background px-3 text-sm"
+          >
+            <option value="project_manager">Project manager</option>
+            <option value="contributor">Contributor</option>
+            <option value="viewer">Viewer</option>
+          </select>
+          <Button type="submit">Add to project</Button>
+        </form>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          Everyone on the workspace team is already on this project.
+        </p>
+      )}
       {error && (
         <p role="alert" className="text-sm text-destructive">
           {error}

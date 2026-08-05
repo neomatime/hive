@@ -16,6 +16,24 @@ import {
 import { getProfile } from '@/services/settings/settings-service'
 import type { Database } from '@/types/database'
 
+// New members get display_name defaulted to their email until they (or an
+// admin) set a real one -- see the on_auth_user_created trigger. Editing
+// first/last name without also touching the separate Display name field
+// (easy to miss -- it looks like a redundant field) silently re-saved that
+// email default, so the name never changed anywhere it's displayed. Only
+// substitute when the field is still exactly that untouched default, never
+// overriding a real custom display name.
+export function resolveDisplayName(
+  rawDisplayName: string,
+  email: string,
+  firstName: string,
+  lastName: string
+): string {
+  const trimmed = rawDisplayName.trim()
+  if (trimmed !== email) return trimmed
+  const fullName = `${firstName.trim()} ${lastName.trim()}`.trim()
+  return fullName || trimmed
+}
 function Message({ error, saved }: { error: string | null; saved: boolean }) {
   if (error)
     return (
@@ -56,10 +74,17 @@ export function ProfileForm({
       onSubmit={async (e) => {
         e.preventDefault()
         const d = new FormData(e.currentTarget)
+        const firstName = String(d.get('firstName')),
+          lastName = String(d.get('lastName'))
         const input = {
-          displayName: String(d.get('displayName')),
-          firstName: String(d.get('firstName')),
-          lastName: String(d.get('lastName')),
+          displayName: resolveDisplayName(
+            String(d.get('displayName')),
+            profile.email,
+            firstName,
+            lastName
+          ),
+          firstName,
+          lastName,
           jobTitle: String(d.get('jobTitle')),
           department: String(d.get('department')),
           phoneNumber: String(d.get('phoneNumber')),

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { TeamTable } from './settings-forms'
+import { ProfileForm, TeamTable, resolveDisplayName } from './settings-forms'
 import {
   addWorkspaceMemberAction,
   removeWorkspaceMemberAction,
@@ -107,9 +107,48 @@ describe('TeamTable', () => {
       expect.objectContaining({ displayName: 'Member User', jobTitle: 'Engineer' })
     )
     // the dialog closes and the row reflects the new job title
-    await waitFor(() =>
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    )
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(screen.getByText(/Engineer/)).toBeInTheDocument()
+  })
+})
+describe('resolveDisplayName', () => {
+  it('keeps a real custom display name untouched', () => {
+    expect(resolveDisplayName('Thelma M.', 'thelma@example.com', 'Thelma', 'Mothiba')).toBe(
+      'Thelma M.'
+    )
+  })
+  it('substitutes first + last name when the field is still the email default', () => {
+    expect(
+      resolveDisplayName('thelma@example.com', 'thelma@example.com', 'Thelma', 'Mothiba')
+    ).toBe('Thelma Mothiba')
+  })
+  it('falls back to the email default if first/last are both blank', () => {
+    expect(resolveDisplayName('thelma@example.com', 'thelma@example.com', '', '')).toBe(
+      'thelma@example.com'
+    )
+  })
+})
+describe('ProfileForm', () => {
+  const profile = {
+    id: 'u2',
+    display_name: 'member@example.com',
+    first_name: '',
+    last_name: '',
+    job_title: null,
+    department: null,
+    phone_number: null,
+    timezone: 'UTC',
+    email: 'member@example.com',
+  }
+  it('saves the computed full name when only first/last are edited', async () => {
+    vi.mocked(updateProfileAction).mockResolvedValue({ error: null })
+    render(<ProfileForm profile={profile} />)
+    await userEvent.type(screen.getByLabelText('First name'), 'Thelma')
+    await userEvent.type(screen.getByLabelText('Last name'), 'Mothiba')
+    await userEvent.click(screen.getByRole('button', { name: 'Save profile' }))
+    expect(updateProfileAction).toHaveBeenCalledWith(
+      'u2',
+      expect.objectContaining({ displayName: 'Thelma Mothiba' })
+    )
   })
 })

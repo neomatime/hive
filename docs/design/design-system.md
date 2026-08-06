@@ -32,8 +32,12 @@ Avoid:
 - Decorative gradients
 - Excessive shadows
 - Random accent colours
-- Dense dashboards
+- Cluttered, unstructured layouts
 - Overloaded navigation
+
+HIVE stays calm and uncluttered, but its spacing is deliberate rather than
+loose -- see the 2026-08-06 design upgrade spec for the tightened rhythm
+applied across tables, nav items, and cards.
 
 ### 2.2 One primary action per view
 
@@ -108,7 +112,7 @@ HIVE should be treated as a product name, not a forced acronym.
 | `--color-midnight`    | Midnight    | `#1C2B3A` | Primary buttons, headings, strong emphasis |
 | `--color-ink-deep`    | Ink Deep    | `#0E1822` | Primary body text, high-contrast surfaces  |
 | `--color-ocean`       | Ocean       | `#5F8190` | Secondary actions, active states, charts   |
-| `--color-ocean-light` | Ocean Light | `#8AADB8` | Sidebar, subtle highlights, selected areas |
+| `--color-ocean-light` | Ocean Light | `#8AADB8` | Subtle highlights, selected areas, collapsed-sidebar avatar accent |
 | `--color-ocean-dark`  | Ocean Dark  | `#2E4A5A` | Hover states, borders, secondary emphasis  |
 | `--color-off-white`   | Off White   | `#F7F7F5` | Application background                     |
 | `--color-white`       | White       | `#FFFFFF` | Cards, modals, input surfaces              |
@@ -158,10 +162,9 @@ Rules:
 Recommended visual balance:
 
 ```text
-Off White / White surfaces: 75–85%
-Midnight / Ink Deep: 8–12%
-Ocean Light sidebar: 8–12%
-Ocean / Ocean Dark accents: 3–6%
+Off White / White surfaces: 70–80%
+Ink Deep / Midnight (sidebar + dark-theme surfaces): 10–15%
+Ocean / Ocean Dark / Ocean Light accents: 3–6%
 Semantic colours: under 2%
 ```
 
@@ -358,10 +361,15 @@ Optional right-side detail drawer
 
 ## 6.2 Sidebar
 
-The sidebar must use **Ocean Light**:
+The sidebar is a **permanent dark panel**, regardless of the active canvas
+theme (see §7 "Theming"). Its own shade adapts to stay visually separated
+from its neighboring canvas:
 
 ```css
-background: #8aadb8;
+/* Light canvas */
+background: #0e1822; /* Ink Deep */
+/* Dark canvas */
+background: #1c2b3a; /* Midnight */
 ```
 
 Navigation:
@@ -371,6 +379,7 @@ Overview
 Projects
 Board
 My Tasks
+Inbox
 Calendar
 Files
 Settings
@@ -378,11 +387,11 @@ Settings
 
 Rules:
 
-- Selected item: Midnight background with white text
-- Hover item: semi-transparent white background
-- Default item: Ink Deep text
-- Selected icon: white
-- User profile appears at the bottom
+- Selected item: soft tinted pill (`rgba(95, 129, 144, 0.22)`) with white text, not a full-bleed fill
+- Hover item (unselected): `rgba(255, 255, 255, 0.05)` background
+- Default item text: `#8aa0ac`
+- Selected item text/icon: white
+- User profile appears at the bottom; the collapsed-state avatar uses Ocean Light background with Ink Deep text as its one deliberate accent use
 
 ## 6.3 Top Bar
 

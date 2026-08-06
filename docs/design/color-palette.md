@@ -16,7 +16,7 @@ The palette is intentionally restrained. HIVE should feel calm, professional and
 | `--color-midnight` | Midnight | `#1C2B3A` | Primary buttons, active navigation, headings |
 | `--color-ink-deep` | Ink Deep | `#0E1822` | Primary text |
 | `--color-ocean` | Ocean | `#5F8190` | Secondary actions, links, charts |
-| `--color-ocean-light` | Ocean Light | `#8AADB8` | Sidebar background |
+| `--color-ocean-light` | Ocean Light | `#8AADB8` | Subtle highlights, selected-area accents |
 | `--color-ocean-dark` | Ocean Dark | `#2E4A5A` | Hover states, emphasis |
 | `--color-off-white` | Off White | `#F7F7F5` | App background |
 | `--color-white` | White | `#FFFFFF` | Cards, dialogs, forms |
@@ -57,10 +57,9 @@ Semantic colours are reserved for status and feedback—not branding.
 
 Recommended balance:
 
-- Off White / White: **75–85%**
-- Midnight / Ink Deep: **8–12%**
-- Ocean Light (sidebar): **8–12%**
-- Ocean / Ocean Dark accents: **3–6%**
+- Off White / White: **70–80%**
+- Ink Deep / Midnight (sidebar + dark-theme surfaces): **10–15%**
+- Ocean / Ocean Dark / Ocean Light accents: **3–6%**
 - Semantic colours: **<2%**
 
 ---
@@ -71,7 +70,7 @@ Recommended balance:
 |---|---|
 | Application background | Off White |
 | Cards | White |
-| Sidebar | Ocean Light |
+| Sidebar | Ink Deep (light canvas) / Midnight (dark canvas) |
 | Selected navigation | Midnight |
 | Primary button | Midnight |
 | Primary button text | White |

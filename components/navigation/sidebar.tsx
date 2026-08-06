@@ -59,7 +59,7 @@ export function Sidebar({
               type="button"
               aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               onClick={onToggleCollapse}
-              style={{ color: 'var(--text-secondary)' }}
+              style={{ color: 'var(--sidebar-nav-text)' }}
             >
               {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
             </button>

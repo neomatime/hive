@@ -71,7 +71,7 @@ Recommended balance:
 | Application background | Off White |
 | Cards | White |
 | Sidebar | Ink Deep (light canvas) / Midnight (dark canvas) |
-| Selected navigation | Midnight |
+| Selected navigation | Ocean-tinted pill, white text |
 | Primary button | Midnight |
 | Primary button text | White |
 | Secondary button | White |

@@ -40,7 +40,9 @@ Confirmed via brainstorm (including two rounds of visual mockups, both approved 
 | Light | `#0e1822` (Ink Deep) |
 | Dark | `#1c2b3a` (Midnight) — one step lighter than the dark canvas, for quiet depth without a border or shadow |
 
-This replaces the current `--background-sidebar: var(--color-ocean-light)` mapping, which was theme-static (same medium-teal regardless of app theme). The sidebar's own text/nav-item colors also stop varying by theme — they're tuned once against a dark background: `#8aa0ac` (inactive nav text), `#ffffff` (active nav text), `rgba(95,129,144,0.22)` (active-item background tint), `#8aadb8` (active-item accent dot).
+This replaces the current `--background-sidebar: var(--color-ocean-light)` mapping, which was theme-static (same medium-teal regardless of app theme). The sidebar's own text/nav-item colors also stop varying by theme — they're tuned once against a dark background: `#8aa0ac` (inactive nav text), `#ffffff` (active nav text), `rgba(95,129,144,0.22)` (active-item background tint).
+
+**Deviation from the approved mockup:** the mockup's abstract dot marker (a stand-in for "some visual indicator," since the mockup didn't render real per-item icons) was dropped during implementation. HIVE's sidebar already has a meaningful Lucide icon per nav item; adding a decorative dot alongside a perfectly legible icon would be pure decoration with no informational value, which cuts against design-system.md §2.1's "avoid unnecessary decoration" principle. The tinted-pill background plus icon/text color change is sufficient to communicate selection on its own.
 
 ### 5.2 Canvas — light (mostly unchanged, listed for completeness)
 
@@ -87,7 +89,7 @@ Same hue family in both themes; dark mode lightens the text and drops the backgr
 
 ## 7. Shell (sidebar + topbar)
 
-- Sidebar: Ink Panel treatment (§5.1). Nav items get a small square "dot" marker (not a full icon-weight change) at rest; active item = tinted background pill (not full-bleed fill) + white text + accent dot, matching the approved mockup.
+- Sidebar: Ink Panel treatment (§5.1). Active item = tinted background pill (not full-bleed fill) + white text/icon, no accent dot (see §5.1's noted deviation from the mockup).
 - Topbar: structurally unchanged (breadcrumb left, search + notifications + avatar right), but padding tightens and any residual shadow is replaced by the hairline bottom border, consistent with the "hairlines not shadows" principle.
 - **New: theme toggle.** A sun/moon icon button in the topbar. Persisted client-side only (localStorage, same `useSyncExternalStore` pattern already used for sidebar-collapse state — avoids the SSR-hydration mismatch that pattern was built to solve), *not* synced to the `user_preferences` table. This is a device-level display preference, same precedent as sidebar-collapse; it doesn't follow the user across devices. Default, when no stored preference exists, follows the visitor's `prefers-color-scheme`.
 
@@ -109,8 +111,8 @@ Same hue family in both themes; dark mode lightens the text and drops the backgr
 
 Two sub-phases, each shipped as one or more independently-mergeable PRs (matches this project's established pattern — small, tested, verified, merged):
 
-- **1a — Tokens + shell:** §5–7. Ships first; biggest single visible milestone (new color system, dead `.dark` block rewritten, Ink Panel sidebar, theme toggle).
-- **1b — Primitives + states:** §8–9. Likely 2–3 PRs (e.g., Badge+Dialog together, then table/card tightening, then loading-state skeletons).
+- **1a — Tokens + shell:** §5, §7's sidebar/theme-toggle scope. Ships first; biggest single visible milestone (new color system, dead `.dark` block rewritten, Ink Panel sidebar, theme toggle).
+- **1b — Primitives + states:** §6's density tightening (topbar/nav-item/table/card padding — moved here from 1a, since it touches the same primitives 1b already covers, rather than being audited piecemeal), §8–9. Likely 2–3 PRs (e.g., Badge+Dialog together, then table/card tightening, then loading-state skeletons).
 
 ## 11. Documentation updates
 

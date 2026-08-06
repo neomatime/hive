@@ -1,4 +1,4 @@
-﻿import { describe, it, expect, vi } from 'vitest'
+﻿import { afterEach, describe, it, expect, vi } from 'vitest'
 import { render } from '@testing-library/react'
 import { axe } from 'vitest-axe'
 import { DashboardShell } from '@/components/layout/dashboard-shell'
@@ -24,6 +24,10 @@ vi.mock('next/navigation', () => ({
 }))
 
 describe('DashboardShell accessibility', () => {
+  afterEach(() => {
+    document.documentElement.classList.remove('dark')
+  })
+
   it('has no axe violations', async () => {
     const { container } = render(
       <DashboardShell
@@ -61,6 +65,5 @@ describe('DashboardShell accessibility', () => {
       </DashboardShell>
     )
     expect(await axe(container)).toHaveNoViolations()
-    document.documentElement.classList.remove('dark')
   })
 })

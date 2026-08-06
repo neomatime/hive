@@ -105,11 +105,12 @@ body {
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
   /* Sidebar tokens (docs/design/color-palette.md §5 UI Mapping: "Sidebar |
-     Ocean Light"; design-system.md §6.2). Same aliasing rule as the block
-     above -- see task-11-report.md for the full mapping table. Previously
-     shadcn's fabricated near-white/near-black oklch() defaults, flagged as a
-     follow-up in task-7-report.md's Concerns section; fixed here alongside
-     the Sidebar component that actually renders these. */
+     Ink Deep (light canvas) / Midnight (dark canvas)"; design-system.md
+     §6.2). Same aliasing rule as the block above -- see task-11-report.md
+     for the full mapping table. Previously shadcn's fabricated near-white/
+     near-black oklch() defaults, flagged as a follow-up in
+     task-7-report.md's Concerns section; fixed here alongside the Sidebar
+     component that actually renders these. */
   --sidebar: var(--background-sidebar);
   --sidebar-foreground: var(--text-primary);
   --sidebar-primary: var(--color-midnight);
@@ -127,11 +128,11 @@ body {
    .dark block here would just be a second, driftable source of truth. */
 
 /* Auth shell (login/forgot-password/reset-password) dark glass treatment.
-   Deliberately scoped to .auth-dark, not .dark -- design-system.md §14
-   explicitly rules out a generic/mechanical dark mode for the app, and this
-   isn't one: it's a single-purpose, hand-tuned shell using HIVE's own
-   brand navy (Ink Deep / Midnight / Ocean), not shadcn's generic oklch grey
-   .dark palette above. Never toggles anywhere else in the app. */
+   Deliberately scoped to .auth-dark, not .dark -- this is a separate,
+   pre-auth surface with its own hand-tuned look (HIVE's brand navy: Ink
+   Deep / Midnight / Ocean), not driven by the app-wide theme toggle above
+   (design-system.md §14 "Theming"). Always dark regardless of the
+   visitor's light/dark preference or .dark's state; never toggles. */
 .auth-dark {
   --background: var(--color-ink-deep);
   --foreground: var(--color-white);

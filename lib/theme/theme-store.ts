@@ -6,7 +6,9 @@ const listeners = new Set<() => void>()
 
 export function subscribeTheme(listener: () => void) {
   listeners.add(listener)
-  return () => listeners.delete(listener)
+  return () => {
+    listeners.delete(listener)
+  }
 }
 
 export function getThemeSnapshot(): Theme {
@@ -22,7 +24,12 @@ export function getThemeServerSnapshot(): Theme {
 
 export function setTheme(theme: Theme) {
   document.documentElement.classList.toggle('dark', theme === 'dark')
-  window.localStorage.setItem(THEME_STORAGE_KEY, theme)
+  try {
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme)
+  } catch {
+    // Storage may be blocked (private browsing, enterprise policy, etc.) --
+    // the theme still applies for this page load, it just won't persist.
+  }
   listeners.forEach((listener) => listener())
 }
 

@@ -204,7 +204,7 @@ The application should remain predominantly white and off-white.
 
   --background-app: var(--color-off-white);
   --background-surface: var(--color-white);
-  --background-sidebar: var(--color-ocean-light);
+  --background-sidebar: var(--color-ink-deep); /* var(--color-midnight) in dark theme -- see §6.2, §14 */
   --background-hover: var(--neutral-50);
   --background-selected: rgba(28, 43, 58, 0.09);
 
@@ -362,7 +362,7 @@ Optional right-side detail drawer
 ## 6.2 Sidebar
 
 The sidebar is a **permanent dark panel**, regardless of the active canvas
-theme (see §7 "Theming"). Its own shade adapts to stay visually separated
+theme (see §14 "Theming"). Its own shade adapts to stay visually separated
 from its neighboring canvas:
 
 ```css
@@ -948,11 +948,18 @@ Requirements:
 
 ---
 
-## 14. Dark Mode
+## 14. Theming
 
-Dark mode is not required for the MVP.
+HIVE has a real, hand-tuned light/dark theme (added 2026-08-06), toggleable
+from the topbar and persisted per-device. It was designed and tested as its
+own pass, not produced by mechanical colour inversion of the light theme --
+every dark-theme value in §4.1 was chosen deliberately from the existing
+HIMARK palette (Ink Deep, Midnight, Ocean), the same discipline §3 already
+requires of the light theme.
 
-If added later, it must be designed and tested separately rather than created through mechanical colour inversion.
+The sidebar (§6.2) is the one element that is dark in both themes; the
+canvas (background, surfaces, text, borders) switches between the light
+values in §4.1's `:root` block and the dark overrides in its `.dark` block.
 
 ---
 
@@ -1023,7 +1030,7 @@ Before approving a screen, confirm:
 - The page has one clear purpose.
 - The primary action is obvious.
 - The interface is predominantly white or off-white.
-- The sidebar uses Ocean Light.
+- The sidebar is a permanent dark panel (Ink Deep / Midnight).
 - HIMARK colours are used consistently.
 - No money-related content appears.
 - No CRM language appears.
@@ -1087,9 +1094,10 @@ HIVE should feel like one coherent product, not a collection of unrelated dashbo
 
 Per an explicit request to elevate HIVE's visual execution toward something
 more editorial and premium, the following documented exceptions apply. The
-HIMARK colour palette (§3.2), spacing scale (§4.2), and sidebar colour (§6.2)
-are unchanged -- this pass is about typographic craft and structure, not a
-rebrand.
+HIMARK colour palette (§3.2) and spacing scale (§4.2) are unchanged by this
+pass -- it was about typographic craft and structure, not a rebrand. (The
+sidebar colour in §6.2 below *did* change, but as part of the later
+2026-08-06 visual upgrade, not this one -- see that section's own history.)
 
 **Typography.** A third face joins Inter/Geist:
 
@@ -1121,10 +1129,16 @@ primary way sections separate — shadow is reserved for true overlays
 (dialogs, dropdown menus, drag ghosts), not resting surfaces like cards.
 `--shadow-sm`/`--shadow-md` were nudged fainter to reflect this.
 
-**Sidebar selected state (§6.2 exception).** The filled Midnight pill reads
-as the most generic-SaaS element in the shell. Replaced with a quieter
-table-of-contents marker: a 3px Midnight rule on the leading edge, Midnight
-(not white) text/icon at weight 600, and a faint white wash instead of a
-solid fill. Contrast against Ocean Light is preserved (Midnight text/icon
-on Ocean Light meets the same 4.5:1 floor as Ink Deep did); only the
-_shape_ of the selection changed, not its legibility.
+**Sidebar selected state (§6.2 exception, superseded 2026-08-06).** The
+filled Midnight pill reads as the most generic-SaaS element in the shell.
+Replaced with a quieter table-of-contents marker: a 3px Midnight rule on
+the leading edge, Midnight (not white) text/icon at weight 600, and a faint
+white wash instead of a solid fill. Contrast against Ocean Light is
+preserved (Midnight text/icon on Ocean Light meets the same 4.5:1 floor as
+Ink Deep did); only the _shape_ of the selection changed, not its
+legibility.
+
+This treatment was itself replaced by the 2026-08-06 visual upgrade's
+permanent dark sidebar (current §6.2): a soft ocean-tinted pill with white
+text, since the sidebar is no longer Ocean Light in either theme. Left here
+for history, per this document's own §20 governance process.

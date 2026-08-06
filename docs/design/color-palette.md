@@ -164,7 +164,7 @@ Do not:
 - Use gradients as primary branding.
 - Use bright reds, greens or purples for decoration.
 - Add money-themed colours.
-- Change the sidebar away from Ocean Light.
+- Introduce sidebar colours outside the documented palette (see §5 -- the sidebar is now Ink Deep / Midnight, not Ocean Light).
 - Create page-specific colour systems.
 
 ---

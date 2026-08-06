@@ -83,7 +83,7 @@ Same hue family in both themes; dark mode lightens the text and drops the backgr
 
 - **No font changes.** Newsreader (h1), Geist (body), Geist Mono (data) stay exactly as-is in both themes — dark mode is a color remap only.
 - **Spacing/radius scales are unchanged** (existing 8pt spacing scale; 6/8/10/14 radius scale from the prior editorial pass) — but *usage* tightens: table row padding, sidebar nav-item padding, and card/tile internal padding all get denser per the approved mockups (roughly 6–10px vertical rhythm inside rows/nav items, down from the current looser values — exact px audited per-component during implementation, not prescribed globally here).
-- **New motion token:** `--motion-fast: 120ms` for hover/press/focus micro-interactions (buttons, nav items, table rows), which currently snap instantly. Existing `--motion-standard`/`--motion-easing` (page transitions) are untouched.
+- **Motion:** `--motion-fast: 120ms` already exists in `styles/theme.css` but is barely used. Phase 1b applies it to hover/press/focus micro-interactions (buttons, nav items, table rows) that currently snap instantly. `--motion-standard`/`--motion-easing` (page transitions) are untouched.
 
 ## 7. Shell (sidebar + topbar)
 

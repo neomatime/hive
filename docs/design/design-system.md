@@ -220,6 +220,33 @@ The application should remain predominantly white and off-white.
 
   --focus-ring: rgba(95, 129, 144, 0.35);
 }
+
+.dark {
+  --background-app: var(--color-ink-deep);
+  --background-surface: var(--color-midnight);
+  --background-sidebar: var(--color-midnight);
+  --background-hover: rgba(255, 255, 255, 0.06);
+  --background-selected: rgba(138, 173, 184, 0.14);
+
+  --text-primary: var(--color-white);
+  --text-secondary: #b7c3ca;
+  --text-muted: #8aa0ac;
+  --text-disabled: rgba(255, 255, 255, 0.35);
+
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.2);
+
+  --success: #9fcdb8;
+  --warning: #e0c090;
+  --danger: #e2a3a3;
+  --info: #b9d3da;
+
+  --success-bg: rgba(140, 200, 170, 0.16);
+  --warning-bg: rgba(220, 180, 120, 0.16);
+  --danger-bg: rgba(220, 140, 140, 0.16);
+  --info-bg: rgba(138, 173, 184, 0.18);
+}
 ```
 
 ---
@@ -399,6 +426,7 @@ Contains:
 
 - Breadcrumb or page context
 - Global search
+- Theme toggle (light/dark)
 - Notifications
 - User profile
 

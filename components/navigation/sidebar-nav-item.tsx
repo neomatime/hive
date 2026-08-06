@@ -2,8 +2,11 @@ import Link from 'next/link'
 import { cn } from '@/utils/cn'
 import type { NavItem } from '@/constants/routes'
 
-// Selected state reads as a table-of-contents marker (leading rule + weight),
-// not a filled pill -- see design-system.md §21 for the contrast rationale.
+// Active state reads as a soft tinted pill against the permanently-dark
+// sidebar (see docs/superpowers/specs/2026-08-06-hive-design-upgrade-
+// foundation-design.md §7) -- supersedes the old left-border-plus-lightened-
+// background treatment from design-system.md §21, which was tuned for the
+// old medium-teal Ocean Light sidebar background.
 export function SidebarNavItem({
   item,
   active,
@@ -20,17 +23,16 @@ export function SidebarNavItem({
       aria-current={active ? 'page' : undefined}
       title={collapsed ? item.label : undefined}
       className={cn(
-        'flex items-center gap-3 rounded-md border-l-[3px] px-3 py-2 text-sm transition-standard',
+        'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-standard',
         collapsed && 'justify-center px-0',
-        active ? 'font-semibold' : 'border-transparent hover:bg-white/25'
+        active ? 'font-semibold' : 'hover:bg-white/5'
       )}
       style={{
-        borderLeftColor: active ? 'var(--color-midnight)' : undefined,
-        background: active ? 'rgba(255, 255, 255, 0.3)' : 'transparent',
-        color: active ? 'var(--color-midnight)' : 'var(--text-primary)',
+        background: active ? 'var(--sidebar-nav-active-bg)' : 'transparent',
+        color: active ? 'var(--sidebar-nav-text-active)' : 'var(--sidebar-nav-text)',
       }}
     >
-      <Icon size={18} color={active ? 'var(--color-midnight)' : undefined} />
+      <Icon size={18} />
       <span className={collapsed ? 'sr-only' : undefined}>{item.label}</span>
     </Link>
   )

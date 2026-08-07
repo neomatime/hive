@@ -5,6 +5,7 @@ import { GlobalSearchBox } from '@/components/search/global-search-box'
 import { Breadcrumbs } from '@/components/layout/breadcrumbs'
 import { useBreadcrumbOverrides } from '@/components/layout/breadcrumb-context'
 import { UserMenu } from './user-menu'
+import { ThemeToggle } from './theme-toggle'
 
 export function Topbar({
   pathname,
@@ -33,6 +34,7 @@ export function Topbar({
       </div>
       <GlobalSearchBox />
       <div className="flex items-center gap-3">
+        <ThemeToggle />
         <NotificationCenter />
         <UserMenu displayName={userDisplayName} email={userEmail} avatarUrl={userAvatarUrl} />
       </div>

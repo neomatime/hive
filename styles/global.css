@@ -105,11 +105,12 @@ body {
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
   /* Sidebar tokens (docs/design/color-palette.md §5 UI Mapping: "Sidebar |
-     Ocean Light"; design-system.md §6.2). Same aliasing rule as the block
-     above -- see task-11-report.md for the full mapping table. Previously
-     shadcn's fabricated near-white/near-black oklch() defaults, flagged as a
-     follow-up in task-7-report.md's Concerns section; fixed here alongside
-     the Sidebar component that actually renders these. */
+     Ink Deep (light canvas) / Midnight (dark canvas)"; design-system.md
+     §6.2). Same aliasing rule as the block above -- see task-11-report.md
+     for the full mapping table. Previously shadcn's fabricated near-white/
+     near-black oklch() defaults, flagged as a follow-up in
+     task-7-report.md's Concerns section; fixed here alongside the Sidebar
+     component that actually renders these. */
   --sidebar: var(--background-sidebar);
   --sidebar-foreground: var(--text-primary);
   --sidebar-primary: var(--color-midnight);
@@ -120,46 +121,18 @@ body {
   --sidebar-ring: var(--color-ocean);
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
+/* Dark theme values live in styles/theme.css's own .dark block (the brand/
+   token layer) -- the :root block above already aliases every one of these
+   shadcn-convention variables to a theme.css token via var(), so it picks
+   up the dark value automatically once that class is present. A second
+   .dark block here would just be a second, driftable source of truth. */
 
 /* Auth shell (login/forgot-password/reset-password) dark glass treatment.
-   Deliberately scoped to .auth-dark, not .dark -- design-system.md §14
-   explicitly rules out a generic/mechanical dark mode for the app, and this
-   isn't one: it's a single-purpose, hand-tuned shell using HIVE's own
-   brand navy (Ink Deep / Midnight / Ocean), not shadcn's generic oklch grey
-   .dark palette above. Never toggles anywhere else in the app. */
+   Deliberately scoped to .auth-dark, not .dark -- this is a separate,
+   pre-auth surface with its own hand-tuned look (HIVE's brand navy: Ink
+   Deep / Midnight / Ocean), not driven by the app-wide theme toggle above
+   (design-system.md §14 "Theming"). Always dark regardless of the
+   visitor's light/dark preference or .dark's state; never toggles. */
 .auth-dark {
   --background: var(--color-ink-deep);
   --foreground: var(--color-white);

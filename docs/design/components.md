@@ -153,6 +153,7 @@ Overview
 Projects
 Board
 My Tasks
+Inbox
 Calendar
 Files
 Settings
@@ -170,10 +171,10 @@ Sidebar
 
 ### Visual Rules
 
-- Background: Ocean Light `#8AADB8`
-- Default text: Ink Deep
-- Selected item: Midnight background with white text
-- Hover: translucent white background
+- Background: permanent dark panel -- Ink Deep `#0E1822` on the light canvas, Midnight `#1C2B3A` on the dark canvas (always dark, regardless of app theme)
+- Default text: `#8AA0AC`
+- Selected item: soft Ocean-tinted pill (`rgba(95, 129, 144, 0.22)`) with white text -- not a full-bleed fill
+- Hover: `rgba(255, 255, 255, 0.05)` background
 - Width: `240px`
 - Collapsed width: `72px`
 
@@ -204,6 +205,7 @@ Provides global search, notifications, and user access.
 TopBar
 ├── Breadcrumb or PageContext
 ├── GlobalSearch
+├── ThemeToggle
 ├── NotificationButton
 └── UserMenu
 ```

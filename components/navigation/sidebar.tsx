@@ -59,7 +59,7 @@ export function Sidebar({
               type="button"
               aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               onClick={onToggleCollapse}
-              style={{ color: 'var(--text-secondary)' }}
+              style={{ color: 'var(--sidebar-nav-text)' }}
             >
               {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
             </button>
@@ -79,8 +79,8 @@ export function Sidebar({
       <div
         className="text-sm"
         style={{
-          color: 'var(--text-primary)',
-          borderTop: '1px solid rgba(255, 255, 255, 0.4)',
+          color: 'var(--sidebar-nav-text-active)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.12)',
           paddingTop: 'var(--space-4)',
         }}
       >
@@ -89,14 +89,14 @@ export function Sidebar({
             aria-label={userDisplayName}
             title={userDisplayName}
             className="mx-auto flex size-8 items-center justify-center rounded-full text-sm font-semibold"
-            style={{ background: 'rgba(255, 255, 255, 0.4)', color: 'var(--color-midnight)' }}
+            style={{ background: 'var(--color-ocean-light)', color: 'var(--color-ink-deep)' }}
           >
             {userDisplayName.charAt(0).toUpperCase()}
           </div>
         ) : (
           <>
             <div style={{ fontWeight: 600 }}>{userDisplayName}</div>
-            <div className="eyebrow" style={{ color: 'var(--text-secondary)', marginTop: 2 }}>
+            <div className="eyebrow" style={{ color: 'var(--sidebar-nav-text)', marginTop: 2 }}>
               {ROLE_LABELS[userRole]}
             </div>
           </>

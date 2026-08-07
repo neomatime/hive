@@ -29,7 +29,12 @@
   /* Applied roles */
   --background-app: var(--color-off-white);
   --background-surface: var(--color-white);
-  --background-sidebar: var(--color-ocean-light);
+  /* Sidebar is now a permanent dark panel in both canvas themes -- this is
+     the LIGHT-canvas value (Ink Deep); .dark below overrides it to Midnight,
+     one step lighter than the dark canvas, for quiet depth with no border
+     or shadow. See docs/superpowers/specs/2026-08-06-hive-design-upgrade-
+     foundation-design.md §5.1. */
+  --background-sidebar: var(--color-ink-deep);
   --background-hover: var(--neutral-50);
   --background-selected: rgba(28, 43, 58, 0.09);
 
@@ -49,6 +54,20 @@
   --rule: var(--border-default);
 
   --focus-ring: rgba(95, 129, 144, 0.35);
+
+  /* Sidebar nav item colors -- theme-invariant (the sidebar is always dark,
+     see --background-sidebar above), unlike the rest of the canvas tokens. */
+  --sidebar-nav-text: #8aa0ac;
+  --sidebar-nav-text-active: #ffffff;
+  --sidebar-nav-active-bg: rgba(95, 129, 144, 0.22);
+
+  /* Badge background tints (light theme). Paired with the existing flat
+     --danger/--warning/--success/--info tokens, which stay as the text
+     color. Both get dark-mode overrides below. */
+  --danger-bg: rgba(154, 78, 78, 0.1);
+  --warning-bg: rgba(154, 116, 54, 0.1);
+  --success-bg: rgba(63, 107, 90, 0.1);
+  --info-bg: rgba(95, 129, 144, 0.12);
 
   /* Spacing (8pt system) */
   --space-0: 0px;
@@ -87,4 +106,34 @@
   --motion-standard: 180ms;
   --motion-slow: 240ms;
   --motion-easing: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Real app-wide dark theme -- built entirely from existing brand colors
+   (Ink Deep, Midnight, Ocean), no new hues. See the spec referenced above,
+   §5.3-5.4, for the full rationale and the mockups it was approved from. */
+.dark {
+  --background-app: var(--color-ink-deep);
+  --background-surface: var(--color-midnight);
+  --background-sidebar: var(--color-midnight);
+  --background-hover: rgba(255, 255, 255, 0.06);
+  --background-selected: rgba(138, 173, 184, 0.14);
+
+  --text-primary: var(--color-white);
+  --text-secondary: #b7c3ca;
+  --text-muted: #8aa0ac;
+  --text-disabled: rgba(255, 255, 255, 0.35);
+
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.2);
+
+  --success: #9fcdb8;
+  --warning: #e0c090;
+  --danger: #e2a3a3;
+  --info: #b9d3da;
+
+  --success-bg: rgba(140, 200, 170, 0.16);
+  --warning-bg: rgba(220, 180, 120, 0.16);
+  --danger-bg: rgba(220, 140, 140, 0.16);
+  --info-bg: rgba(138, 173, 184, 0.18);
 }

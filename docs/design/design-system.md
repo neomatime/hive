@@ -32,8 +32,12 @@ Avoid:
 - Decorative gradients
 - Excessive shadows
 - Random accent colours
-- Dense dashboards
+- Cluttered, unstructured layouts
 - Overloaded navigation
+
+HIVE stays calm and uncluttered, but its spacing is deliberate rather than
+loose -- see the 2026-08-06 design upgrade spec for the tightened rhythm
+applied across tables, nav items, and cards.
 
 ### 2.2 One primary action per view
 
@@ -108,7 +112,7 @@ HIVE should be treated as a product name, not a forced acronym.
 | `--color-midnight`    | Midnight    | `#1C2B3A` | Primary buttons, headings, strong emphasis |
 | `--color-ink-deep`    | Ink Deep    | `#0E1822` | Primary body text, high-contrast surfaces  |
 | `--color-ocean`       | Ocean       | `#5F8190` | Secondary actions, active states, charts   |
-| `--color-ocean-light` | Ocean Light | `#8AADB8` | Sidebar, subtle highlights, selected areas |
+| `--color-ocean-light` | Ocean Light | `#8AADB8` | Subtle highlights, selected areas, collapsed-sidebar avatar accent |
 | `--color-ocean-dark`  | Ocean Dark  | `#2E4A5A` | Hover states, borders, secondary emphasis  |
 | `--color-off-white`   | Off White   | `#F7F7F5` | Application background                     |
 | `--color-white`       | White       | `#FFFFFF` | Cards, modals, input surfaces              |
@@ -158,10 +162,9 @@ Rules:
 Recommended visual balance:
 
 ```text
-Off White / White surfaces: 75–85%
-Midnight / Ink Deep: 8–12%
-Ocean Light sidebar: 8–12%
-Ocean / Ocean Dark accents: 3–6%
+Off White / White surfaces: 70–80%
+Ink Deep / Midnight (sidebar + dark-theme surfaces): 10–15%
+Ocean / Ocean Dark / Ocean Light accents: 3–6%
 Semantic colours: under 2%
 ```
 
@@ -201,7 +204,7 @@ The application should remain predominantly white and off-white.
 
   --background-app: var(--color-off-white);
   --background-surface: var(--color-white);
-  --background-sidebar: var(--color-ocean-light);
+  --background-sidebar: var(--color-ink-deep); /* var(--color-midnight) in dark theme -- see §6.2, §14 */
   --background-hover: var(--neutral-50);
   --background-selected: rgba(28, 43, 58, 0.09);
 
@@ -216,6 +219,33 @@ The application should remain predominantly white and off-white.
   --border-strong: var(--neutral-300);
 
   --focus-ring: rgba(95, 129, 144, 0.35);
+}
+
+.dark {
+  --background-app: var(--color-ink-deep);
+  --background-surface: var(--color-midnight);
+  --background-sidebar: var(--color-midnight);
+  --background-hover: rgba(255, 255, 255, 0.06);
+  --background-selected: rgba(138, 173, 184, 0.14);
+
+  --text-primary: var(--color-white);
+  --text-secondary: #b7c3ca;
+  --text-muted: #8aa0ac;
+  --text-disabled: rgba(255, 255, 255, 0.35);
+
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.2);
+
+  --success: #9fcdb8;
+  --warning: #e0c090;
+  --danger: #e2a3a3;
+  --info: #b9d3da;
+
+  --success-bg: rgba(140, 200, 170, 0.16);
+  --warning-bg: rgba(220, 180, 120, 0.16);
+  --danger-bg: rgba(220, 140, 140, 0.16);
+  --info-bg: rgba(138, 173, 184, 0.18);
 }
 ```
 
@@ -358,10 +388,15 @@ Optional right-side detail drawer
 
 ## 6.2 Sidebar
 
-The sidebar must use **Ocean Light**:
+The sidebar is a **permanent dark panel**, regardless of the active canvas
+theme (see §14 "Theming"). Its own shade adapts to stay visually separated
+from its neighboring canvas:
 
 ```css
-background: #8aadb8;
+/* Light canvas */
+background: #0e1822; /* Ink Deep */
+/* Dark canvas */
+background: #1c2b3a; /* Midnight */
 ```
 
 Navigation:
@@ -371,6 +406,7 @@ Overview
 Projects
 Board
 My Tasks
+Inbox
 Calendar
 Files
 Settings
@@ -378,11 +414,11 @@ Settings
 
 Rules:
 
-- Selected item: Midnight background with white text
-- Hover item: semi-transparent white background
-- Default item: Ink Deep text
-- Selected icon: white
-- User profile appears at the bottom
+- Selected item: soft tinted pill (`rgba(95, 129, 144, 0.22)`) with white text, not a full-bleed fill
+- Hover item (unselected): `rgba(255, 255, 255, 0.05)` background
+- Default item text: `#8aa0ac`
+- Selected item text/icon: white
+- User profile appears at the bottom; the collapsed-state avatar uses Ocean Light background with Ink Deep text as its one deliberate accent use
 
 ## 6.3 Top Bar
 
@@ -390,6 +426,7 @@ Contains:
 
 - Breadcrumb or page context
 - Global search
+- Theme toggle (light/dark)
 - Notifications
 - User profile
 
@@ -939,11 +976,18 @@ Requirements:
 
 ---
 
-## 14. Dark Mode
+## 14. Theming
 
-Dark mode is not required for the MVP.
+HIVE has a real, hand-tuned light/dark theme (added 2026-08-06), toggleable
+from the topbar and persisted per-device. It was designed and tested as its
+own pass, not produced by mechanical colour inversion of the light theme --
+every dark-theme value in §4.1 was chosen deliberately from the existing
+HIMARK palette (Ink Deep, Midnight, Ocean), the same discipline §3 already
+requires of the light theme.
 
-If added later, it must be designed and tested separately rather than created through mechanical colour inversion.
+The sidebar (§6.2) is the one element that is dark in both themes; the
+canvas (background, surfaces, text, borders) switches between the light
+values in §4.1's `:root` block and the dark overrides in its `.dark` block.
 
 ---
 
@@ -1014,7 +1058,7 @@ Before approving a screen, confirm:
 - The page has one clear purpose.
 - The primary action is obvious.
 - The interface is predominantly white or off-white.
-- The sidebar uses Ocean Light.
+- The sidebar is a permanent dark panel (Ink Deep / Midnight).
 - HIMARK colours are used consistently.
 - No money-related content appears.
 - No CRM language appears.
@@ -1078,9 +1122,10 @@ HIVE should feel like one coherent product, not a collection of unrelated dashbo
 
 Per an explicit request to elevate HIVE's visual execution toward something
 more editorial and premium, the following documented exceptions apply. The
-HIMARK colour palette (§3.2), spacing scale (§4.2), and sidebar colour (§6.2)
-are unchanged -- this pass is about typographic craft and structure, not a
-rebrand.
+HIMARK colour palette (§3.2) and spacing scale (§4.2) are unchanged by this
+pass -- it was about typographic craft and structure, not a rebrand. (The
+sidebar colour in §6.2 below *did* change, but as part of the later
+2026-08-06 visual upgrade, not this one -- see that section's own history.)
 
 **Typography.** A third face joins Inter/Geist:
 
@@ -1112,10 +1157,16 @@ primary way sections separate — shadow is reserved for true overlays
 (dialogs, dropdown menus, drag ghosts), not resting surfaces like cards.
 `--shadow-sm`/`--shadow-md` were nudged fainter to reflect this.
 
-**Sidebar selected state (§6.2 exception).** The filled Midnight pill reads
-as the most generic-SaaS element in the shell. Replaced with a quieter
-table-of-contents marker: a 3px Midnight rule on the leading edge, Midnight
-(not white) text/icon at weight 600, and a faint white wash instead of a
-solid fill. Contrast against Ocean Light is preserved (Midnight text/icon
-on Ocean Light meets the same 4.5:1 floor as Ink Deep did); only the
-_shape_ of the selection changed, not its legibility.
+**Sidebar selected state (§6.2 exception, superseded 2026-08-06).** The
+filled Midnight pill reads as the most generic-SaaS element in the shell.
+Replaced with a quieter table-of-contents marker: a 3px Midnight rule on
+the leading edge, Midnight (not white) text/icon at weight 600, and a faint
+white wash instead of a solid fill. Contrast against Ocean Light is
+preserved (Midnight text/icon on Ocean Light meets the same 4.5:1 floor as
+Ink Deep did); only the _shape_ of the selection changed, not its
+legibility.
+
+This treatment was itself replaced by the 2026-08-06 visual upgrade's
+permanent dark sidebar (current §6.2): a soft ocean-tinted pill with white
+text, since the sidebar is no longer Ocean Light in either theme. Left here
+for history, per this document's own §20 governance process.

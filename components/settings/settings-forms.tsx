@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Dialog } from '@/components/ui/dialog'
 import {
   addWorkspaceMemberAction,
   removeWorkspaceMemberAction,
@@ -335,13 +336,12 @@ function TeamMemberProfileDialog({
     }
   }, [userId])
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
-      <section
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="member-profile-title"
-        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-background p-6 shadow-xl"
-      >
+    <Dialog
+      labelledBy="member-profile-title"
+      onClose={onClose}
+      closeOnOverlayClick={false}
+      className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-background p-6 shadow-xl"
+    >
         <div className="mb-5 flex justify-between">
           <h2 id="member-profile-title">Edit profile</h2>
           <Button variant="ghost" onClick={onClose}>
@@ -362,8 +362,7 @@ function TeamMemberProfileDialog({
             }
           />
         )}
-      </section>
-    </div>
+    </Dialog>
   )
 }
 export function TeamTable({

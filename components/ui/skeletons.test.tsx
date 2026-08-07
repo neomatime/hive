@@ -64,12 +64,12 @@ describe('skeleton building blocks', () => {
 
   it('renders six cards by default', () => {
     const { container } = render(<CardGridSkeleton />)
-    expect(countPlaceholders(container)).toBe(24)
+    expect(countPlaceholders(container)).toBe(30)
   })
 
   it('honours an explicit card count', () => {
     const { container } = render(<CardGridSkeleton cards={2} />)
-    expect(countPlaceholders(container)).toBe(8)
+    expect(countPlaceholders(container)).toBe(10)
   })
 
   it('renders a header row plus six body rows by default', () => {

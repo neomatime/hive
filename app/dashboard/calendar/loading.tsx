@@ -5,6 +5,9 @@ export default function Loading() {
   return (
     <LoadingRegion label="Loading calendar">
       <PageHeaderSkeleton />
+      <div className="flex justify-end">
+        <Skeleton className="h-8 w-28" />
+      </div>
       <Skeleton className="h-[32rem] w-full rounded-xl" />
     </LoadingRegion>
   )

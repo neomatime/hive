@@ -67,6 +67,9 @@ export function CardGridSkeleton({ cards = 6 }: { cards?: number }) {
           <Skeleton className="h-5 w-40 max-w-full" />
           <Skeleton className="h-3 w-full" />
           <Skeleton className="h-1.5 w-full rounded-full" />
+          <div className="border-t pt-3">
+            <Skeleton className="h-4 w-24" />
+          </div>
         </div>
       ))}
     </div>

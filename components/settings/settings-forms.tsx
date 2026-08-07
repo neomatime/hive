@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Dialog } from '@/components/ui/dialog'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   addWorkspaceMemberAction,
   removeWorkspaceMemberAction,
@@ -348,7 +349,17 @@ function TeamMemberProfileDialog({
           Close
         </Button>
       </div>
-      {profile === undefined && <p className="text-sm text-muted-foreground">Loading…</p>}
+      {profile === undefined && (
+        <div role="status" aria-busy="true">
+          <span className="sr-only">Loading profile</span>
+          <div aria-hidden="true" className="max-w-2xl space-y-4 rounded-xl border bg-card p-6">
+            <Skeleton className="h-9 w-full" />
+            <Skeleton className="h-9 w-full" />
+            <Skeleton className="h-9 w-full" />
+            <Skeleton className="h-9 w-32" />
+          </div>
+        </div>
+      )}
       {profile === null && (
         <p role="alert" className="text-sm text-destructive">
           Could not load this member&apos;s profile.

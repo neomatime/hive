@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
 import { toggleFavourite, type ListProjectsFilters } from '@/services/projects/project-service'
 import { useProjects } from '@/hooks/use-projects'
+import { CardGridSkeleton } from '@/components/ui/skeletons'
 import {
   bulkArchiveProjectsAction,
   bulkRestoreProjectsAction,
@@ -126,7 +127,7 @@ export function ProjectDirectory({ workspaceId }: { workspaceId: string }) {
         </div>
       )}
       {isLoading ? (
-        <p className="text-muted-foreground">Loading projects…</p>
+        <CardGridSkeleton />
       ) : projects.length === 0 ? (
         <div className="rounded-lg border border-dashed p-10 text-center">
           <h2>No projects found</h2>

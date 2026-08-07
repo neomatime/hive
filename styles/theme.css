@@ -37,6 +37,10 @@
   --background-sidebar: var(--color-ink-deep);
   --background-hover: var(--neutral-50);
   --background-selected: rgba(28, 43, 58, 0.09);
+  /* Loading-placeholder fill. Deliberately stronger than --muted: a
+     placeholder has to be visible to do its job, and --muted against the
+     app canvas measures ~1.07:1 (invisible). */
+  --skeleton: var(--neutral-300);
 
   --text-primary: var(--color-ink-deep);
   --text-secondary: var(--neutral-700);
@@ -137,4 +141,6 @@
   --warning-bg: rgba(220, 180, 120, 0.16);
   --danger-bg: rgba(220, 140, 140, 0.16);
   --info-bg: rgba(138, 173, 184, 0.18);
+
+  --skeleton: rgba(255, 255, 255, 0.13);
 }

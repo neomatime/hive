@@ -342,26 +342,24 @@ function TeamMemberProfileDialog({
       closeOnOverlayClick={false}
       className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-background p-6 shadow-xl"
     >
-        <div className="mb-5 flex justify-between">
-          <h2 id="member-profile-title">Edit profile</h2>
-          <Button variant="ghost" onClick={onClose}>
-            Close
-          </Button>
-        </div>
-        {profile === undefined && <p className="text-sm text-muted-foreground">Loading…</p>}
-        {profile === null && (
-          <p role="alert" className="text-sm text-destructive">
-            Could not load this member&apos;s profile.
-          </p>
-        )}
-        {profile && (
-          <ProfileForm
-            profile={profile}
-            onSaved={(input) =>
-              onSaved({ displayName: input.displayName, jobTitle: input.jobTitle })
-            }
-          />
-        )}
+      <div className="mb-5 flex justify-between">
+        <h2 id="member-profile-title">Edit profile</h2>
+        <Button variant="ghost" onClick={onClose}>
+          Close
+        </Button>
+      </div>
+      {profile === undefined && <p className="text-sm text-muted-foreground">Loading…</p>}
+      {profile === null && (
+        <p role="alert" className="text-sm text-destructive">
+          Could not load this member&apos;s profile.
+        </p>
+      )}
+      {profile && (
+        <ProfileForm
+          profile={profile}
+          onSaved={(input) => onSaved({ displayName: input.displayName, jobTitle: input.jobTitle })}
+        />
+      )}
     </Dialog>
   )
 }

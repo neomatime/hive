@@ -2,9 +2,9 @@ import { CardGridSkeleton, LoadingRegion, PageHeaderSkeleton } from '@/component
 
 export default function Loading() {
   return (
-    <LoadingRegion label="Loading projects">
-      <PageHeaderSkeleton action />
-      <CardGridSkeleton />
+    <LoadingRegion label="Loading settings">
+      <PageHeaderSkeleton />
+      <CardGridSkeleton cards={6} />
     </LoadingRegion>
   )
 }

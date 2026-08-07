@@ -19,11 +19,14 @@ export function LoadingRegion({ label, children }: { label: string; children: Re
   )
 }
 
-export function PageHeaderSkeleton() {
+export function PageHeaderSkeleton({ action = false }: { action?: boolean } = {}) {
   return (
-    <div className="space-y-2">
-      <Skeleton className="h-8 w-56 max-w-full" />
-      <Skeleton className="h-4 w-80 max-w-full" />
+    <div className="flex items-start justify-between gap-4">
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-56 max-w-full" />
+        <Skeleton className="h-4 w-80 max-w-full" />
+      </div>
+      {action && <Skeleton className="h-8 w-32 shrink-0" />}
     </div>
   )
 }
@@ -62,7 +65,7 @@ export function CardGridSkeleton({ cards = 6 }: { cards?: number }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: cards }, (_, index) => (
-        <div key={index} className="space-y-3 rounded-xl border p-5">
+        <div key={index} className="space-y-3 rounded-xl border bg-card p-5">
           <Skeleton className="h-3 w-20" />
           <Skeleton className="h-5 w-40 max-w-full" />
           <Skeleton className="h-3 w-full" />
@@ -94,7 +97,7 @@ export function TableSkeleton({ rows = 6 }: { rows?: number }) {
           <Skeleton className="h-4 w-full max-w-56" />
           <Skeleton className="h-3 w-20" />
           <Skeleton className="h-3 w-12" />
-          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-7 w-24" />
         </div>
       ))}
     </div>

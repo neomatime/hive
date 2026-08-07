@@ -42,6 +42,13 @@ describe('skeleton building blocks', () => {
     expect(countPlaceholders(container)).toBe(2)
   })
 
+  it('adds a trailing action placeholder only when asked', () => {
+    const { container: without } = render(<PageHeaderSkeleton />)
+    expect(countPlaceholders(without)).toBe(2)
+    const { container: with_ } = render(<PageHeaderSkeleton action />)
+    expect(countPlaceholders(with_)).toBe(3)
+  })
+
   it('renders three stat tiles by default, each with a label and value bar', () => {
     const { container } = render(<StatTilesSkeleton />)
     expect(countPlaceholders(container)).toBe(6)

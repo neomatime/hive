@@ -1,20 +1,12 @@
 import { ListSkeleton, LoadingRegion } from '@/components/ui/skeletons'
-import { Skeleton } from '@/components/ui/skeleton'
 
+// This file is a sibling of layout.tsx, so its fallback renders at the
+// {children} position INSIDE ProjectShell -- the real project code, title,
+// and tab nav are already on screen above it. Only the tab *content* needs
+// a placeholder here; drawing a header would duplicate the real one.
 export default function Loading() {
   return (
     <LoadingRegion label="Loading project">
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-8 w-64 max-w-full" />
-        </div>
-        <div className="flex gap-5 border-b pb-2">
-          {Array.from({ length: 6 }, (_, index) => (
-            <Skeleton key={index} className="h-4 w-16" />
-          ))}
-        </div>
-      </div>
       <ListSkeleton rows={5} />
     </LoadingRegion>
   )

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Dialog } from '@/components/ui/dialog'
 import { createProjectAction } from '@/app/dashboard/projects/actions'
 
 export function CreateProjectDialog({
@@ -56,75 +57,66 @@ export function CreateProjectDialog({
     <>
       <Button onClick={() => setOpen(true)}>New project</Button>
       {open && (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4"
-          role="presentation"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setOpen(false)
-          }}
+        <Dialog
+          labelledBy="create-project-title"
+          onClose={() => setOpen(false)}
+          className="w-full max-w-lg space-y-5 rounded-xl bg-background p-6 shadow-xl"
         >
-          <section
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="create-project-title"
-            className="w-full max-w-lg space-y-5 rounded-xl bg-background p-6 shadow-xl"
-          >
-            <div className="flex items-center justify-between">
-              <h2 id="create-project-title">Create project</h2>
-              <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
-                Close
+          <div className="flex items-center justify-between">
+            <h2 id="create-project-title">Create project</h2>
+            <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
+              Close
+            </Button>
+          </div>
+          <form className="space-y-4" onSubmit={submit} noValidate>
+            <label className="grid gap-1 text-sm">
+              Start from a template
+              <select name="templateId" className="h-10 rounded-lg border bg-background px-3">
+                <option value="">Blank project</option>
+                {templates.map((template) => (
+                  <option key={template.id} value={template.id}>
+                    {template.name}
+                    {template.category ? ` � ${template.category}` : ''}
+                  </option>
+                ))}
+              </select>
+              <span className="text-xs text-muted-foreground">
+                Template details are used when project fields are left blank.
+              </span>
+            </label>
+            <label className="grid gap-1 text-sm">
+              Project name
+              <Input name="name" />
+            </label>
+            <label className="grid gap-1 text-sm">
+              Description
+              <textarea
+                name="description"
+                className="min-h-20 rounded-lg border bg-transparent p-2"
+              />
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="grid gap-1 text-sm">
+                Start date
+                <Input name="startDate" type="date" />
+              </label>
+              <label className="grid gap-1 text-sm">
+                Due date
+                <Input name="dueDate" type="date" />
+              </label>
+            </div>
+            {error && (
+              <p role="alert" className="text-sm text-destructive">
+                {error}
+              </p>
+            )}
+            <div className="flex justify-end">
+              <Button type="submit" disabled={submitting}>
+                {submitting ? 'Creating…' : 'Create project'}
               </Button>
             </div>
-            <form className="space-y-4" onSubmit={submit} noValidate>
-              <label className="grid gap-1 text-sm">
-                Start from a template
-                <select name="templateId" className="h-10 rounded-lg border bg-background px-3">
-                  <option value="">Blank project</option>
-                  {templates.map((template) => (
-                    <option key={template.id} value={template.id}>
-                      {template.name}
-                      {template.category ? ` � ${template.category}` : ''}
-                    </option>
-                  ))}
-                </select>
-                <span className="text-xs text-muted-foreground">
-                  Template details are used when project fields are left blank.
-                </span>
-              </label>
-              <label className="grid gap-1 text-sm">
-                Project name
-                <Input name="name" />
-              </label>
-              <label className="grid gap-1 text-sm">
-                Description
-                <textarea
-                  name="description"
-                  className="min-h-20 rounded-lg border bg-transparent p-2"
-                />
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <label className="grid gap-1 text-sm">
-                  Start date
-                  <Input name="startDate" type="date" />
-                </label>
-                <label className="grid gap-1 text-sm">
-                  Due date
-                  <Input name="dueDate" type="date" />
-                </label>
-              </div>
-              {error && (
-                <p role="alert" className="text-sm text-destructive">
-                  {error}
-                </p>
-              )}
-              <div className="flex justify-end">
-                <Button type="submit" disabled={submitting}>
-                  {submitting ? 'Creating…' : 'Create project'}
-                </Button>
-              </div>
-            </form>
-          </section>
-        </div>
+          </form>
+        </Dialog>
       )}
     </>
   )

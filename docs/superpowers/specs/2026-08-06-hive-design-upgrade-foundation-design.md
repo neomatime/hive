@@ -99,7 +99,7 @@ Same hue family in both themes; dark mode lightens the text and drops the backgr
 - **Cards/Tables:** hairline borders, tightened padding (§6), no shadows. Numeric columns (dates, counts, sizes, IDs) consistently right-aligned in Geist Mono — extending the partial pattern already in Overview/Files to every table in the app.
 - **Badge (new shared component):** currently ad-hoc/inline per page (priority pills, status chips scattered across Board/Tasks). Formalize as `components/ui/badge.tsx` using the §5.4 tinted treatment, then migrate every existing ad-hoc badge-like element to it.
 - **Dialog (new shared component):** currently hand-rolled per call site (`task-detail-dialog.tsx`, the team-member profile editor, the file-related dialogs each duplicate `fixed inset-0 z-50 grid place-items-center bg-black/40` + `role="dialog"` markup). Consolidate into `components/ui/dialog.tsx` — this directly serves the dark-mode pass, since otherwise the same styling fix would need to land in 3+ places independently. Modals keep a real shadow (`--shadow-lg`) — the one deliberate, already-documented exception to "hairlines not shadows," since an overlay needs actual elevation to read as above the page.
-- **Tabs (new or formalized shared component):** hairline underline with a 2px ocean active indicator (not filled pills), wherever tab-like navigation currently exists (e.g., Settings sub-nav).
+- **Tabs — deferred.** No tab-like navigation exists anywhere in the current app (confirmed via full-codebase search during Phase 1b planning); Settings, this section's original guess, is a card-grid landing page linking to sub-routes, not a tab bar. Building a shared component with no real consumer would be speculative. Revisit if/when a page redesign actually introduces tabbed navigation.
 
 ## 9. States
 
@@ -124,7 +124,7 @@ This is not another §21-style exception footnote (the existing pattern for logg
 
 Same discipline as the rest of this project:
 
-- TDD for new component logic: the theme-persistence hook, `Badge`, `Dialog`, `Tabs` components.
+- TDD for new component logic: the theme-persistence hook, `Badge`, `Dialog` components (`Tabs` deferred, see §8).
 - Full `vitest` suite + `eslint` + `next build` gate before every merge.
 - Computed-style WCAG contrast checks (`getComputedStyle` + contrast ratio, same technique used for the login-page fix earlier this session) run against real text/background pairs in *both* themes — not just visual inspection.
 - Extend `tests/a11y/dashboard-shell.a11y.test.tsx` to cover dark mode.

@@ -106,12 +106,12 @@ describe('skeleton building blocks', () => {
 
   it('renders six cards by default', () => {
     const { container } = render(<CardGridSkeleton />)
-    expect(countPlaceholders(container)).toBe(24)
+    expect(countPlaceholders(container)).toBe(30)
   })
 
   it('honours an explicit card count', () => {
     const { container } = render(<CardGridSkeleton cards={2} />)
-    expect(countPlaceholders(container)).toBe(8)
+    expect(countPlaceholders(container)).toBe(10)
   })
 
   it('renders a header row plus six body rows by default', () => {
@@ -204,6 +204,12 @@ export function CardGridSkeleton({ cards = 6 }: { cards?: number }) {
           <Skeleton className="h-5 w-40 max-w-full" />
           <Skeleton className="h-3 w-full" />
           <Skeleton className="h-1.5 w-full rounded-full" />
+          {/* Every real ProjectCard ends with this bordered "Open board" row
+              (components/projects/project-card.tsx) -- omitting it here made
+              the skeleton grid shorter than the loaded grid. */}
+          <div className="border-t pt-3">
+            <Skeleton className="h-4 w-24" />
+          </div>
         </div>
       ))}
     </div>
@@ -463,6 +469,12 @@ export default function Loading() {
   return (
     <LoadingRegion label="Loading calendar">
       <PageHeaderSkeleton />
+      {/* The real page renders a right-aligned "New event" button between the
+          header and the grid; loading.tsx suspends the whole page subtree, so
+          without this placeholder that button pops in unannounced. */}
+      <div className="flex justify-end">
+        <Skeleton className="h-8 w-28" />
+      </div>
       <Skeleton className="h-[32rem] w-full rounded-xl" />
     </LoadingRegion>
   )

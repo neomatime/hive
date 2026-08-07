@@ -48,7 +48,7 @@ export function TaskCard({
           )}
           <h3 className="text-sm font-medium">{task.title}</h3>
         </div>
-        <Badge variant={priorityVariant[task.priority]} className="shrink-0 capitalize">
+        <Badge variant={priorityVariant[task.priority]} className="shrink-0 uppercase">
           {task.priority}
         </Badge>
       </div>

@@ -110,6 +110,30 @@ describe('TeamTable', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(screen.getByText(/Engineer/)).toBeInTheDocument()
   })
+  it('does not close the profile editor when the overlay backdrop is clicked', async () => {
+    vi.mocked(getProfile).mockResolvedValue({
+      id: 'u2',
+      display_name: 'Member User',
+      first_name: 'Member',
+      last_name: 'User',
+      job_title: null,
+      department: null,
+      phone_number: null,
+      timezone: 'UTC',
+      email: 'member@example.com',
+    })
+    render(<TeamTable members={members} canEdit workspaceId="w1" />)
+    await userEvent.click(screen.getByRole('button', { name: /Member User/ }))
+    const dialog = await screen.findByRole('dialog')
+    // The Dialog primitive's overlay is the dialog panel's parent element
+    // (see components/ui/dialog.tsx). Clicking it directly -- not any
+    // element inside the panel -- is what would trigger onClose (and thus
+    // unmount this dialog via TeamTable's editingUserId state) if
+    // closeOnOverlayClick were left at its default `true`.
+    const overlay = dialog.parentElement as HTMLElement
+    await userEvent.click(overlay)
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+  })
 })
 describe('resolveDisplayName', () => {
   it('keeps a real custom display name untouched', () => {

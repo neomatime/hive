@@ -233,3 +233,19 @@ describe('TaskDetailDialog assignee', () => {
     expect(screen.getByRole('combobox', { name: 'Assignee' })).toHaveValue('user-1')
   })
 })
+
+describe('TaskDetailDialog overlay', () => {
+  it('does not close when the overlay backdrop is clicked', async () => {
+    const onClose = vi.fn()
+    render(<TaskDetailDialog task={task} onClose={onClose} />)
+    const dialog = await screen.findByRole('dialog')
+    // The Dialog primitive's overlay is the dialog panel's parent element
+    // (see components/ui/dialog.tsx). Clicking it directly -- not any
+    // element inside the panel -- is what would trigger onClose if
+    // closeOnOverlayClick were left at its default `true`.
+    const overlay = dialog.parentElement as HTMLElement
+    await userEvent.click(overlay)
+    expect(onClose).not.toHaveBeenCalled()
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+  })
+})

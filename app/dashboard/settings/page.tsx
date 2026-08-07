@@ -9,6 +9,7 @@ import {
   UserRound,
   UsersRound,
 } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 
 const sections = [
   {
@@ -93,7 +94,7 @@ export default function SettingsPage() {
               <Icon className="mb-4 size-5" />
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-medium">{title}</h2>
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px]">Next</span>
+                <Badge className="px-2 py-0.5 text-[10px]">Next</Badge>
               </div>
               <p className="mt-1 text-sm text-muted-foreground">{description}</p>
             </div>

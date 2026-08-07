@@ -1,6 +1,16 @@
 ﻿'use client'
 import { CalendarDays } from 'lucide-react'
+import { Badge, type BadgeVariant } from '@/components/ui/badge'
 import type { Task } from '@/types/task'
+import type { TaskPriority } from '@/types/project'
+
+const priorityVariant: Record<TaskPriority, BadgeVariant> = {
+  urgent: 'danger',
+  high: 'warning',
+  medium: 'info',
+  low: 'neutral',
+}
+
 export function TaskCard({
   task,
   onDragStart,
@@ -38,7 +48,9 @@ export function TaskCard({
           )}
           <h3 className="text-sm font-medium">{task.title}</h3>
         </div>
-        <span className="eyebrow shrink-0">{task.priority}</span>
+        <Badge variant={priorityVariant[task.priority]} className="shrink-0 capitalize">
+          {task.priority}
+        </Badge>
       </div>
       {task.labels.length > 0 && (
         <div className="flex flex-wrap gap-1">

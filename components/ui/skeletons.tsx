@@ -60,7 +60,7 @@ export function ListSkeleton({ rows = 5 }: { rows?: number }) {
   )
 }
 
-// Matches ProjectDirectory / BoardPicker's card grid.
+// Matches ProjectDirectory's card grid.
 export function CardGridSkeleton({ cards = 6 }: { cards?: number }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

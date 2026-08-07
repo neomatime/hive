@@ -6,6 +6,7 @@ import {
   duplicateTemplateAction,
   updateTemplateAction,
 } from '@/app/dashboard/settings/project-templates/actions'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 type Template = Awaited<
@@ -97,9 +98,7 @@ export function ProjectTemplatesManager({
                     </p>
                     <h2 className="text-base font-medium">{template.name}</h2>
                   </div>
-                  {!template.is_active && (
-                    <span className="rounded-full bg-muted px-2 py-1 text-xs">Archived</span>
-                  )}
+                  {!template.is_active && <Badge>Archived</Badge>}
                 </div>
                 <p className="mt-2 min-h-10 text-sm text-muted-foreground">
                   {template.description || 'No description'}

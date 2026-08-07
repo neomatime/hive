@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Dialog } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import {
   addDependencyAction,
@@ -286,281 +287,279 @@ export function TaskDetailDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
-      <section
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="task-title"
-        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-background p-6 shadow-xl"
-      >
-        <div className="mb-5 flex justify-between">
-          <h2 id="task-title">Task details</h2>
-          <div className="flex gap-2">
-            <Button variant={isWatching ? 'default' : 'outline'} size="sm" onClick={toggleWatch}>
-              {isWatching ? 'Watching' : 'Watch'}
-            </Button>
-            <Button variant="ghost" onClick={onClose}>
-              Close
-            </Button>
-          </div>
+    <Dialog
+      labelledBy="task-title"
+      onClose={onClose}
+      closeOnOverlayClick={false}
+      className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-background p-6 shadow-xl"
+    >
+      <div className="mb-5 flex justify-between">
+        <h2 id="task-title">Task details</h2>
+        <div className="flex gap-2">
+          <Button variant={isWatching ? 'default' : 'outline'} size="sm" onClick={toggleWatch}>
+            {isWatching ? 'Watching' : 'Watch'}
+          </Button>
+          <Button variant="ghost" onClick={onClose}>
+            Close
+          </Button>
         </div>
-        <form onSubmit={save} className="space-y-4">
+      </div>
+      <form onSubmit={save} className="space-y-4">
+        <label className="grid gap-1 text-sm">
+          Title
+          <Input name="title" defaultValue={task.title} />
+        </label>
+        <label className="grid gap-1 text-sm">
+          Description
+          <textarea
+            name="description"
+            defaultValue={task.description ?? ''}
+            className="min-h-24 rounded-lg border bg-transparent p-2"
+          />
+        </label>
+        <div className="grid grid-cols-2 gap-3">
           <label className="grid gap-1 text-sm">
-            Title
-            <Input name="title" defaultValue={task.title} />
-          </label>
-          <label className="grid gap-1 text-sm">
-            Description
-            <textarea
-              name="description"
-              defaultValue={task.description ?? ''}
-              className="min-h-24 rounded-lg border bg-transparent p-2"
-            />
-          </label>
-          <div className="grid grid-cols-2 gap-3">
-            <label className="grid gap-1 text-sm">
-              Priority
-              <select
-                name="priority"
-                defaultValue={task.priority}
-                className="h-8 rounded-lg border bg-background px-2"
-              >
-                <option>low</option>
-                <option>medium</option>
-                <option>high</option>
-                <option>urgent</option>
-              </select>
-            </label>
-            <label className="grid gap-1 text-sm">
-              Due date
-              <Input name="dueDate" type="date" defaultValue={task.dueDate ?? ''} />
-            </label>
-          </div>
-          <label className="grid gap-1 text-sm">
-            Assignee
+            Priority
             <select
-              name="assigneeId"
-              aria-label="Assignee"
-              defaultValue={task.assigneeId ?? ''}
+              name="priority"
+              defaultValue={task.priority}
               className="h-8 rounded-lg border bg-background px-2"
             >
-              <option value="">Unassigned</option>
-              {members.map((member) => (
-                <option key={member.userId} value={member.userId}>
-                  {member.displayName}
-                </option>
-              ))}
+              <option>low</option>
+              <option>medium</option>
+              <option>high</option>
+              <option>urgent</option>
             </select>
           </label>
-          {error && (
-            <p role="alert" className="text-sm text-destructive">
-              {error}
-            </p>
-          )}
-          <Button type="submit">Save task</Button>
-        </form>
-
-        <section className="mt-8 space-y-3" aria-labelledby="task-labels-title">
-          <h3 id="task-labels-title">Labels</h3>
-          {labels.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No workspace labels yet.</p>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {labels.map((label) => (
-                <label
-                  key={label.id}
-                  className="flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedLabelIds.has(label.id)}
-                    onChange={(e) => toggleLabel(label.id, e.target.checked)}
-                  />
-                  <span
-                    className="size-2.5 rounded-full"
-                    style={{ backgroundColor: label.colorToken }}
-                  />
-                  {label.name}
-                </label>
-              ))}
-            </div>
-          )}
-          <form onSubmit={addLabel} className="flex items-end gap-2">
-            <label className="grid flex-1 gap-1 text-sm">
-              New label
-              <Input name="labelName" placeholder="e.g. Client review" />
-            </label>
-            <label className="grid gap-1 text-sm">
-              Colour
-              <input
-                name="labelColor"
-                aria-label="Label colour"
-                type="color"
-                defaultValue="#2563eb"
-                className="h-8 w-12 rounded border"
-              />
-            </label>
-            <Button type="submit" variant="outline">
-              Create label
-            </Button>
-          </form>
-          <p className="text-xs text-muted-foreground">
-            Workspace admins can create reusable labels.
+          <label className="grid gap-1 text-sm">
+            Due date
+            <Input name="dueDate" type="date" defaultValue={task.dueDate ?? ''} />
+          </label>
+        </div>
+        <label className="grid gap-1 text-sm">
+          Assignee
+          <select
+            name="assigneeId"
+            aria-label="Assignee"
+            defaultValue={task.assigneeId ?? ''}
+            className="h-8 rounded-lg border bg-background px-2"
+          >
+            <option value="">Unassigned</option>
+            {members.map((member) => (
+              <option key={member.userId} value={member.userId}>
+                {member.displayName}
+              </option>
+            ))}
+          </select>
+        </label>
+        {error && (
+          <p role="alert" className="text-sm text-destructive">
+            {error}
           </p>
-        </section>
+        )}
+        <Button type="submit">Save task</Button>
+      </form>
 
-        <section className="mt-8 space-y-3" aria-labelledby="attachments-title">
-          <div className="flex items-center justify-between gap-3">
-            <h3 id="attachments-title">Attachments</h3>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={uploading}
-              onClick={() => attachmentPicker.current?.click()}
-            >
-              <Upload />
-              {uploading ? 'Uploading�' : 'Add file'}
-            </Button>
-            <input
-              ref={attachmentPicker}
-              type="file"
-              className="hidden"
-              onChange={(event) => {
-                const file = event.target.files?.[0]
-                if (file) uploadAttachment(file)
-                event.target.value = ''
-              }}
-            />
+      <section className="mt-8 space-y-3" aria-labelledby="task-labels-title">
+        <h3 id="task-labels-title">Labels</h3>
+        {labels.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No workspace labels yet.</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {labels.map((label) => (
+              <label
+                key={label.id}
+                className="flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-sm"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedLabelIds.has(label.id)}
+                  onChange={(e) => toggleLabel(label.id, e.target.checked)}
+                />
+                <span
+                  className="size-2.5 rounded-full"
+                  style={{ backgroundColor: label.colorToken }}
+                />
+                {label.name}
+              </label>
+            ))}
           </div>
-          {attachments.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No files attached to this task.</p>
-          ) : (
-            attachments.map((attachment) => (
-              <div
-                key={attachment.id}
-                className="flex items-center justify-between rounded-lg border p-3 text-sm"
-              >
-                <span className="flex min-w-0 items-center gap-2">
-                  <Paperclip className="size-4 shrink-0" />
-                  <span className="truncate">{attachment.name}</span>
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={`Download ${attachment.name}`}
-                  onClick={() => downloadAttachment(attachment)}
-                >
-                  <Download />
-                </Button>
-              </div>
-            ))
-          )}
-        </section>
+        )}
+        <form onSubmit={addLabel} className="flex items-end gap-2">
+          <label className="grid flex-1 gap-1 text-sm">
+            New label
+            <Input name="labelName" placeholder="e.g. Client review" />
+          </label>
+          <label className="grid gap-1 text-sm">
+            Colour
+            <input
+              name="labelColor"
+              aria-label="Label colour"
+              type="color"
+              defaultValue="#2563eb"
+              className="h-8 w-12 rounded border"
+            />
+          </label>
+          <Button type="submit" variant="outline">
+            Create label
+          </Button>
+        </form>
+        <p className="text-xs text-muted-foreground">
+          Workspace admins can create reusable labels.
+        </p>
+      </section>
 
-        <section className="mt-8 space-y-3" aria-labelledby="subtasks-title">
-          <h3 id="subtasks-title">
-            Subtasks
-            {subtasks.length > 0 && (
-              <span className="ml-2 text-xs font-normal text-muted-foreground">
-                {subtasks.filter((s) => s.isComplete).length}/{subtasks.length} complete
+      <section className="mt-8 space-y-3" aria-labelledby="attachments-title">
+        <div className="flex items-center justify-between gap-3">
+          <h3 id="attachments-title">Attachments</h3>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={uploading}
+            onClick={() => attachmentPicker.current?.click()}
+          >
+            <Upload />
+            {uploading ? 'Uploading�' : 'Add file'}
+          </Button>
+          <input
+            ref={attachmentPicker}
+            type="file"
+            className="hidden"
+            onChange={(event) => {
+              const file = event.target.files?.[0]
+              if (file) uploadAttachment(file)
+              event.target.value = ''
+            }}
+          />
+        </div>
+        {attachments.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No files attached to this task.</p>
+        ) : (
+          attachments.map((attachment) => (
+            <div
+              key={attachment.id}
+              className="flex items-center justify-between rounded-lg border p-3 text-sm"
+            >
+              <span className="flex min-w-0 items-center gap-2">
+                <Paperclip className="size-4 shrink-0" />
+                <span className="truncate">{attachment.name}</span>
               </span>
-            )}
-          </h3>
-          {subtasks.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No subtasks yet.</p>
-          ) : (
-            <ul className="space-y-1">
-              {subtasks.map((subtask) => (
-                <li key={subtask.id} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    aria-label={`Mark ${subtask.title} complete`}
-                    checked={subtask.isComplete}
-                    onChange={(e) => toggleSubtask(subtask.id, e.target.checked)}
-                  />
-                  <span className={cn(subtask.isComplete && 'text-muted-foreground line-through')}>
-                    {subtask.title}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-          <form onSubmit={addSubtask} className="flex gap-2">
-            <Input name="subtaskTitle" aria-label="Add subtask" placeholder="Add a subtask…" />
-            <Button type="submit" variant="outline">
-              Add
-            </Button>
-          </form>
-        </section>
-
-        <section className="mt-8 space-y-3" aria-labelledby="dependencies-title">
-          <h3 id="dependencies-title">Blocked by</h3>
-          {blockingTasks.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Not blocked by any other task.</p>
-          ) : (
-            <ul className="space-y-1">
-              {blockingTasks.map((blocker) => (
-                <li key={blocker.dependencyId} className="flex items-center gap-2 text-sm">
-                  <span
-                    className="size-2 shrink-0 rounded-full"
-                    style={{
-                      background: blocker.isComplete ? 'var(--success)' : 'var(--danger)',
-                    }}
-                    aria-hidden="true"
-                  />
-                  <span className={cn('flex-1', blocker.isComplete && 'text-muted-foreground')}>
-                    {blocker.title}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    aria-label={`Remove ${blocker.title} as a blocker`}
-                    onClick={() => removeBlocker(blocker.dependencyId)}
-                  >
-                    Remove
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-          {candidateTasks.length > 0 && (
-            <div className="flex gap-2">
-              <select
-                aria-label="Add blocking task"
-                className="h-8 flex-1 rounded-md border bg-background px-2 text-sm"
-                value={selectedBlockerId}
-                onChange={(e) => setSelectedBlockerId(e.target.value)}
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={`Download ${attachment.name}`}
+                onClick={() => downloadAttachment(attachment)}
               >
-                <option value="">Select a task…</option>
-                {candidateTasks
-                  .filter((t) => !blockingTasks.some((b) => b.taskId === t.id))
-                  .map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.title}
-                    </option>
-                  ))}
-              </select>
-              <Button type="button" variant="outline" onClick={addBlocker}>
-                Add blocker
+                <Download />
               </Button>
             </div>
-          )}
-        </section>
-
-        <section className="mt-8 space-y-3">
-          <h3>Comments</h3>
-          {comments.map((item) => (
-            <div key={item.id} className="space-y-1 rounded-lg bg-muted p-3 text-sm">
-              <CommentBody content={item.content} />
-            </div>
-          ))}
-          <form onSubmit={comment} className="space-y-2">
-            <CommentComposer />
-            <Button type="submit">Comment</Button>
-          </form>
-        </section>
+          ))
+        )}
       </section>
-    </div>
+
+      <section className="mt-8 space-y-3" aria-labelledby="subtasks-title">
+        <h3 id="subtasks-title">
+          Subtasks
+          {subtasks.length > 0 && (
+            <span className="ml-2 text-xs font-normal text-muted-foreground">
+              {subtasks.filter((s) => s.isComplete).length}/{subtasks.length} complete
+            </span>
+          )}
+        </h3>
+        {subtasks.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No subtasks yet.</p>
+        ) : (
+          <ul className="space-y-1">
+            {subtasks.map((subtask) => (
+              <li key={subtask.id} className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  aria-label={`Mark ${subtask.title} complete`}
+                  checked={subtask.isComplete}
+                  onChange={(e) => toggleSubtask(subtask.id, e.target.checked)}
+                />
+                <span className={cn(subtask.isComplete && 'text-muted-foreground line-through')}>
+                  {subtask.title}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <form onSubmit={addSubtask} className="flex gap-2">
+          <Input name="subtaskTitle" aria-label="Add subtask" placeholder="Add a subtask…" />
+          <Button type="submit" variant="outline">
+            Add
+          </Button>
+        </form>
+      </section>
+
+      <section className="mt-8 space-y-3" aria-labelledby="dependencies-title">
+        <h3 id="dependencies-title">Blocked by</h3>
+        {blockingTasks.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Not blocked by any other task.</p>
+        ) : (
+          <ul className="space-y-1">
+            {blockingTasks.map((blocker) => (
+              <li key={blocker.dependencyId} className="flex items-center gap-2 text-sm">
+                <span
+                  className="size-2 shrink-0 rounded-full"
+                  style={{
+                    background: blocker.isComplete ? 'var(--success)' : 'var(--danger)',
+                  }}
+                  aria-hidden="true"
+                />
+                <span className={cn('flex-1', blocker.isComplete && 'text-muted-foreground')}>
+                  {blocker.title}
+                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  aria-label={`Remove ${blocker.title} as a blocker`}
+                  onClick={() => removeBlocker(blocker.dependencyId)}
+                >
+                  Remove
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+        {candidateTasks.length > 0 && (
+          <div className="flex gap-2">
+            <select
+              aria-label="Add blocking task"
+              className="h-8 flex-1 rounded-md border bg-background px-2 text-sm"
+              value={selectedBlockerId}
+              onChange={(e) => setSelectedBlockerId(e.target.value)}
+            >
+              <option value="">Select a task…</option>
+              {candidateTasks
+                .filter((t) => !blockingTasks.some((b) => b.taskId === t.id))
+                .map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.title}
+                  </option>
+                ))}
+            </select>
+            <Button type="button" variant="outline" onClick={addBlocker}>
+              Add blocker
+            </Button>
+          </div>
+        )}
+      </section>
+
+      <section className="mt-8 space-y-3">
+        <h3>Comments</h3>
+        {comments.map((item) => (
+          <div key={item.id} className="space-y-1 rounded-lg bg-muted p-3 text-sm">
+            <CommentBody content={item.content} />
+          </div>
+        ))}
+        <form onSubmit={comment} className="space-y-2">
+          <CommentComposer />
+          <Button type="submit">Comment</Button>
+        </form>
+      </section>
+    </Dialog>
   )
 }

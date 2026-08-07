@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { CalendarDays, CheckCircle2, CircleAlert, Search } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
@@ -134,9 +135,7 @@ export function MyTasksDashboard({ tasks }: { tasks: MyTask[] }) {
                       {task.projectCode} · {task.projectName}
                     </p>
                   </div>
-                  <span className="rounded-full bg-muted px-2.5 py-1 text-xs">
-                    {task.statusName}
-                  </span>
+                  <Badge>{task.statusName}</Badge>
                 </div>
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <span className="capitalize">{task.priority} priority</span>

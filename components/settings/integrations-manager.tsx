@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { CalendarDays, Cloud, MessageSquare, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { setIntegrationConnectionAction } from '@/app/dashboard/settings/actions'
 const providers = [
   {
@@ -53,11 +54,9 @@ export function IntegrationsManager({
           <section key={provider.id} className="space-y-4 rounded-xl border bg-card p-5">
             <div className="flex items-start justify-between gap-3">
               <Icon className="size-6 text-primary" />
-              <span
-                className={`rounded-full px-2 py-1 text-xs ${enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-muted text-muted-foreground'}`}
-              >
+              <Badge variant={enabled ? 'success' : 'neutral'}>
                 {enabled ? 'Connected' : 'Not connected'}
-              </span>
+              </Badge>
             </div>
             <div>
               <h2>{provider.name}</h2>
